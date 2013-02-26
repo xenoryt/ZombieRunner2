@@ -1,0 +1,59 @@
+# depslib dependency file v1.0
+1341599180 source:/home/xenoryt/git/Base.cpp
+	"Base.h"
+
+1341763351 /home/xenoryt/git/Base.h
+	"SDL/SDL.h"
+	"Misc.h"
+	<math.h>
+
+1361860111 /home/xenoryt/git/Misc.h
+	<math.h>
+	<sstream>
+	<string>
+	"SDL/SDL.h"
+	"SDL/SDL_image.h"
+	"Struct.h"
+
+1361859736 /home/xenoryt/git/Struct.h
+
+1341867075 source:/home/xenoryt/git/Button.cpp
+	"Button.h"
+	<iostream>
+
+1341867075 /home/xenoryt/git/Button.h
+	"SDL/SDL.h"
+	"SDL/SDL_ttf.h"
+	"Label.h"
+
+1341931189 /home/xenoryt/git/Label.h
+	"SDL/SDL.h"
+	"SDL/SDL_ttf.h"
+	"Control.h"
+
+1342751509 /home/xenoryt/git/Control.h
+	<string>
+	"Base.h"
+	"Direction.h"
+
+1341521132 /home/xenoryt/git/Direction.h
+
+1342751509 source:/home/xenoryt/git/Container.cpp
+	"Container.h"
+	<iostream>
+
+1342751509 /home/xenoryt/git/Container.h
+	<vector>
+	"Base.h"
+	"Control.h"
+
+1342751509 source:/home/xenoryt/git/Control.cpp
+	"Control.h"
+
+1341849204 source:/home/xenoryt/git/Label.cpp
+	"Label.h"
+	<iostream>
+
+1361860126 source:/home/xenoryt/git/Misc.cpp
+	"Misc.h"
+
