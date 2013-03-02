@@ -99,7 +99,7 @@ void Label::Text (string newText)
 
 void Label::Draw(SDL_Surface *surface)
 {
-    cout << "Drawing label" <<endl;```
+    cout << "Drawing label" <<endl;
 	Text(text); //redraw text
 	SDL_Rect textRect = GetTextRect();
 
