@@ -26,24 +26,42 @@
 import pygame, sys
 from pygame.locals import *
 
+import gui
+
 DEFAULTSCRSIZE = [800,600]
 DEFAULTFULLSCR = 0
 
-
-
-def main(winsize = [DEFAULTSCRSIZE[0], DEFAULTSCRSIZE[1]], fullscreen = DEFAULTFULLSCR):
+def init(winsize, fullscreen):
+	"""Initializes pygame and the game window"""
 	
+	#init pygame
 	pygame.init()
 	
+	#set window caption
+	pygame.display.set_caption("RTS Game")
+	
+	#set the screen modes
 	winstyle = FULLSCREEN if fullscreen == 1 else 0
 	bestdepth = pygame.display.mode_ok(winsize, winstyle, 32)
-	
 	screen = pygame.display.set_mode(winsize,winstyle, bestdepth)
 	
+	
+
+
+
+def main():
+	#create clock for timing
 	clock = pygame.time.Clock()
+	
+	#setup groups
+	all = pygame.sprite.RenderUpdates()
+	
+	btn = gui.Button()
 	
 	running = True	
 	while running:
+		
+		## Event handling ##
 		events = pygame.event.get()
 		for e in events:
 			if e.type == QUIT:
@@ -54,11 +72,14 @@ def main(winsize = [DEFAULTSCRSIZE[0], DEFAULTSCRSIZE[1]], fullscreen = DEFAULTF
 					running = False
 					break
 		
+		
+		#draw sprites
 		pygame.display.flip()
+		
+		#limit frames per second
 		clock.tick(60)
 	
-	
-	#app.close()
+	#exit
 	pygame.quit()
 	return 0
 
@@ -72,5 +93,9 @@ if __name__ == '__main__':
 		elif sys.argv[i] == '-f':
 			fullscr = int(sys.argv[i+1])
 	
-	main(size, fullscr)
+	#initialize everything
+	init(size, fullscr)
+	
+	#enter main function
+	main()
 
