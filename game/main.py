@@ -23,22 +23,54 @@
 #  
 
 
-import pygame
+import pygame, sys
 from pygame.locals import *
 
+DEFAULTSCRSIZE = [800,600]
+DEFAULTFULLSCR = 0
 
 
 
-def main():
+def main(winsize = [DEFAULTSCRSIZE[0], DEFAULTSCRSIZE[1]], fullscreen = DEFAULTFULLSCR):
+	
 	pygame.init()
+	
+	winstyle = FULLSCREEN if fullscreen == 1 else 0
+	bestdepth = pygame.display.mode_ok(winsize, winstyle, 32)
+	
+	screen = pygame.display.set_mode(winsize,winstyle, bestdepth)
+	
 	clock = pygame.time.Clock()
 	
-	while True:
+	running = True	
+	while running:
+		events = pygame.event.get()
+		for e in events:
+			if e.type == QUIT:
+				running = False
+				break
+			if e.type == KEYDOWN:
+				if e.key == K_ESCAPE:
+					running = False
+					break
 		
+		pygame.display.flip()
 		clock.tick(60)
 	
+	
+	#app.close()
+	pygame.quit()
 	return 0
 
 if __name__ == '__main__':
-	main()
+	print "argv:",sys.argv
+	size = [DEFAULTSCRSIZE[0], DEFAULTSCRSIZE[1]]
+	fullscr = DEFAULTFULLSCR
+	for i in range(1,len(sys.argv)):
+		if sys.argv[i] == '-s':
+			size = [sys.argv[i+1], sys.argv[i+2]]
+		elif sys.argv[i] == '-f':
+			fullscr = int(sys.argv[i+1])
+	
+	main(size, fullscr)
 

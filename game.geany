@@ -23,10 +23,14 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=3
-FILE_NAME_0=55;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fgit%2Ffinalproject%2Fgame.py;0;4
-FILE_NAME_1=75;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fgit%2Ffinalproject%2Funits.py;0;4
-FILE_NAME_2=7301;Python;0;16;1;1;0;%2Fusr%2Flib%2Fpython2.6%2Fdist-packages%2Fpygame%2Fexamples%2Faliens.py;0;4
+current_page=6
+FILE_NAME_0=949;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fmain.py;0;4
+FILE_NAME_1=332;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fgui.py;0;4
+FILE_NAME_2=3039;Python;0;16;1;1;0;%2Fusr%2Flib%2Fpython2.6%2Fdist-packages%2Fpygame%2Fexamples%2Faliens.py;0;4
+FILE_NAME_3=4048;Python;0;16;0;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fscroll.py;0;4
+FILE_NAME_4=1906;Python;0;16;0;1;0;%2Fhome%2Fxenoryt%2Fdownloads%2Fpgu-0.18%2Fexamples%2Fgui5.py;0;4
+FILE_NAME_5=29;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fdownloads%2Fpgu-0.18%2Fexamples%2Fgui1.py;0;4
+FILE_NAME_6=1495;Python;0;16;0;1;0;%2Fhome%2Fxenoryt%2Fdownloads%2Fpgu-0.18%2Fexamples%2Fgui18.py;0;4
 
 [VTE]
 last_dir=/home/xenoryt
@@ -36,3 +40,8 @@ source_patterns=*.c;*.C;*.cpp;*.cxx;*.c++;*.cc;
 header_patterns=*.h;*.H;*.hpp;*.hxx;*.h++;*.hh;*.m;
 ignored_dirs_patterns=.*;CVS;
 generate_tags=false
+
+[build-menu]
+EX_00_LB=_Execute
+EX_00_CM=python "%f" 
+EX_00_WD=
