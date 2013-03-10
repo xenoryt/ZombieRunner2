@@ -1,0 +1,22 @@
+Feb 26 (0.5)
+	- started researching/coming up with final project ideas
+
+Mar 04 (2 hour)
+	- Started coding final project in python using pygame
+	- read pygame tutorials
+
+Mar 04 (0.5)
+	- started creating gui classes
+
+Mar 08 (1.5 hour)
+	- fixed button not appearing
+	- fixed button text not appearing
+	- started adding World class
+	- started working on reading/loading map files
+
+Mar 09 (2)
+	- continued working on reading/loading map files
+	- started designing map graphics
+
+Mar 10
+	
