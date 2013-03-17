@@ -18,5 +18,10 @@ Mar 09 (2)
 	- continued working on reading/loading map files
 	- started designing map graphics
 
-Mar 10
+Mar 15 (2)
+	- Started working on game class
+	- Stole 'glok.wav' from Munt
 	
+Mar 16 (2)
+	- Added more stuff to game class
+	- Started working on game states

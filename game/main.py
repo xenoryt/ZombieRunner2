@@ -52,8 +52,7 @@ def init(winsize, fullscreen):
 
 
 def main(screen):
-	#create clock for timing
-	clock = pygame.time.Clock()
+	
 	
 	#setup groups
 	all = pygame.sprite.LayeredUpdates()

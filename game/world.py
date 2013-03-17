@@ -25,16 +25,16 @@ class World:
 			for line in lines:
 				map.append(line.split())
 			
-			#make sure the map dimensions are correct
+			# make sure the map dimensions are correct
 			for i in range(1,len(map)):
 				if len(map[i]) != len(map[i-1]):
 					print "Error: invalid map format!"
 					return -1
 			
-			#store dimensions
+			# store dimensions
 			this.size = (len(map[0]), len(map))
 			
-			#Create 2D array of Tile class
+			# Create 2D array of Tile class
 			for y in range(this.size[1]):
 				this.map.append([])
 				for x in range(this.size[0]):

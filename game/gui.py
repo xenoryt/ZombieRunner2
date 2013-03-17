@@ -41,7 +41,7 @@ class Container(Control):
 		#this.rect = #some algorithm
 
 class Button(Control):
-	def __init__(this, locx = 0, locy = 0, sizex = 2, sizey = 2):
+	def __init__(this, text=""):
 		pygame.sprite.Sprite.__init__(this, this.containers)
 		
 		#set default colors
@@ -55,7 +55,7 @@ class Button(Control):
 		this.rect = this.image.get_rect(topleft=(locx,locy))
 		
 		this._font = pygame.font.Font(None, 22)
-		this._text = ""
+		this._text = text
 		this.updatedText = False
 		
 	

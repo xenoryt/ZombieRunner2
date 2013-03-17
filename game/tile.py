@@ -1,8 +1,6 @@
 import pygame
 from pygame.locals import *
 
-
-
 class Tile(pygame.sprite.Sprite, object):
 """
 Tile()
