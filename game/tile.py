@@ -1,6 +1,32 @@
 import pygame
 from pygame.locals import *
 
+
+class Type:
+	Floor, Wall, Trap, Portal, Player = range(5)
+	
+	_tiles = {'.':Type.Null, '#':Type.Wall, '^':Type.Trap, '*':Type.Portal, '@':Type.Player}
+	
+	def conv(this, c):
+		if c == '@':
+			return Type.Null
+		return _tiles[c]
+	def char(this, t):
+		if type(t) != int:
+			raise TypeError
+		
+		vals = _tiles.values()
+		for i in range(len(vals)):
+			if t == vals[i]:
+				return _tiles.keys()[i]
+		
+class Dmon:
+	Ghost,
+	Imp,
+	Demon,
+	Archdemon,
+	Satan = range(5)
+
 class Tile(pygame.sprite.Sprite, object):
 """
 Tile()
@@ -28,15 +54,7 @@ manipulate the map.
 	@type.setter
 	def type(this, t):
 		if type(t) == str:
-			if   t == '.':
-				t = Type.Null
-			elif t == '#':
-				t = Type.Wall
-			elif t == '^':
-				t = Type.Tower
-			else:
-				t = Type.Null
-			
+			this._type = Type.convert(t)
 		elif type(t) == int: 
 			this._type = t
 			
@@ -54,10 +72,11 @@ manipulate the map.
 		"""
 		this._gridloc = loc
 	
+	
+	
 	@property
 	def maploc(this):
 		return (this._gridloc[0] * this.size[0], this._gridloc[1] * this.size[1])
 	
-	
-	class Type:
-		Null, Wall, Tower = range(3)
+
+

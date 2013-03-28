@@ -25,3 +25,11 @@ Mar 15 (2)
 Mar 16 (2)
 	- Added more stuff to game class
 	- Started working on game states
+
+Mar 27 (3.5)
+	- Thought of new game ideas/features
+	- Thought of game name: "ZombieRunner 2: Survival of Tears"
+	- Decided on a "dungeon crawler" game that automatically generates map
+	- Researched 2D tile map generation
+	- Started working on a map generation class
+	- Modified tile.py to allow more features
