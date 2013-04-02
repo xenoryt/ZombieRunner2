@@ -1,6 +1,90 @@
 import tile, world
 from tile import *
 
+import random
+
+#~ class Point:
+	#~ def __init__(this, x = 0, y = 0):
+		#~ this.x = 0
+		#~ this.y = 0
+	#~ 
+	#~ def __getitem__(this, i):
+		#~ if i == 0:
+			#~ return this.x
+		#~ elif i == 1:
+			#~ return this.y
+		#~ else:
+			#~ raise IndexError
+			
+directions = {"up":[0,-1], "down":[0,1], "left":[-1,0], "right":[1,0]}
+
+def move(loc, dir):
+	pnt = loc[:]
+	pnt[0] += directions[dir][0]
+	pnt[1] += directions[dir][1]
+	return pnt
+
+class Corridor:
+	def __init__(this):
+		this.endpoints = [] #endpoints are connected to rooms or corridors
+		this.endrooms = [] 
+		this.points = []
+		
+	def generate(this, map, areas, cors, loc, lastloc):
+		if map.onBound(loc):
+			return False
+		
+		this.points.append(loc)
+		
+		# Check if this corridor is next to a room
+		for k in directions.keys():
+			tloc = move(loc, direction[k])
+			for area in areas:
+				if area.has(tloc):
+					this.endpoints.append(tloc)
+					this.endrooms.append(area)
+					break
+		
+		for cor in cors:
+			if this is cor:
+				####
+			if cor.has(loc):
+				this.endpoints.append(loc)
+				this.endrooms += cor.endrooms
+				
+				# if this corridor collides into another corridor
+				# include a chance of stopping the construction of 
+				# this corridor
+				if random.randint(0,1) == 0:
+					return True # stop
+		
+		## Move corridor in random direction
+		dir = random.choice(directions.keys())
+	
+	def has(this, point):
+		if point in this.points:
+			return True
+		return False
+
+class Area:
+	def __init__(this, loc = [0,0], size=[0,0]):
+		""" 
+		Stores a list of all the points within an area.
+		It does not store a size (e.g. 45x30) to allow merging of
+		rooms that are connected to eachother
+		"""
+		
+		this.points = [[x,y] for x in range(loc[0],size[0]+loc[0]) for y in range(loc[1], size[1]+loc[1])]
+		this.loc = loc
+		this.corridors = []
+	
+	def has(this, point):
+		if point in this.points:
+			return True
+		return False
+	
+	## TODO: Create merge() method ##
+
 
 class MapGenerator:
 	"""
@@ -10,8 +94,6 @@ class MapGenerator:
 	used will match the character representation used by the Type
 	class (in tile.py).
 	"""
-	
-	
 	
 	
 	def load(this, mapname):
@@ -27,6 +109,9 @@ class MapGenerator:
 		world = World()
 		world.new(64,64, '#')
 		
+		aveHeight = world.size[1] * 0.2
+		maxAreas = world.size[0] * world.size[1]
 		
+		#NOTE: after generating rooms, merge rooms that are connected to each other
 	
 	

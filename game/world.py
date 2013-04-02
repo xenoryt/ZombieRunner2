@@ -106,3 +106,18 @@ class World:
 				map[y][x].image.blit(this.image, map[y][x].maploc)
 		
 		return this.image
+		
+		
+	## Some functions for world generation ##
+	def onBound(this, loc):
+		if loc[0] == 0 or loc[1] == 0:
+			return True
+		if loc[0] == this.size[0]-1 or loc[1] == this.size[1]-1:
+			return True
+		return False
+	def outBound(this, loc):
+		if loc[0] < 0 or loc[1] < 0:
+			return True
+		if loc[0] >= this.size[0] or loc[1] >= this.size[1]:
+			return True
+		return False
