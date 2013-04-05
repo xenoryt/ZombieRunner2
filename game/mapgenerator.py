@@ -1,5 +1,6 @@
 import tile, world
 from tile import *
+import math
 
 import random
 
@@ -30,11 +31,12 @@ class Corridor:
 		this.endrooms = [] 
 		this.points = []
 		
-	def generate(this, map, areas, cors, loc, lastloc):
+	def generate(this, map, areas, cors, loc, prevloc):
 		if map.onBound(loc):
 			return False
 		
-		this.points.append(loc)
+		if loc not in this.points: # NOTE: may be inefficient 
+			this.points.append(loc)
 		
 		# Check if this corridor is next to a room
 		for k in directions.keys():
@@ -60,6 +62,13 @@ class Corridor:
 		
 		## Move corridor in random direction
 		dir = random.choice(directions.keys())
+		while move(loc, dir) == prevloc: 
+			# This loops until the corridor goes in any direction
+			# that is not backwards
+			dir = random.choice(directions.keys())
+		
+		# recursively dig a corridor
+		this.generate(map, areas, cors, move(loc, dir), loc)
 	
 	def has(this, point):
 		if point in this.points:
@@ -84,6 +93,8 @@ class Area:
 		return False
 	
 	## TODO: Create merge() method ##
+	def merge(this, area):
+		this.points += area.points
 
 
 class MapGenerator:
@@ -95,23 +106,33 @@ class MapGenerator:
 	class (in tile.py).
 	"""
 	
+	avgRoomSize = [7,7]
 	
 	def load(this, mapname):
 		raise NotImplementedError
 	
-	def create(this, mapname, size = (64,64)):
+	def create(this, mapname, size = (64,64), density=0):
 		"""
-		Generates a dungeon and saves it in a file called
-		"mapname.map". 
+		Generates a dungeon given a map size and room concentration. 
+		The concentration ranges from 0 to 9, inclusively,
+		with 0 being sparse and 9 being dense.
+		Note that high density will result in more rooms/corridors 
+		that will most likely overlap causing large open areas.
 		Returns a World object.
 		"""
 		
 		world = World()
 		world.new(64,64, '#')
 		
-		aveHeight = world.size[1] * 0.2
-		maxAreas = world.size[0] * world.size[1]
+		# Calculate number of rooms based on map size and difficulty
+		avgHeight = 
+		roomCount = math.ceil(((map.size[1]-2)*(map.size[0]-2) / (this.avgRoomSize[0]*this.avgRoomSize[1])) * (density*0.65+1)/12)
+		
+		
+		# Create rooms (areas) 
+		rooms = []
+		
 		
 		#NOTE: after generating rooms, merge rooms that are connected to each other
-	
+		
 	

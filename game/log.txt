@@ -33,3 +33,7 @@ Mar 27 (3.5)
 	- Researched 2D tile map generation
 	- Started working on a map generation class
 	- Modified tile.py to allow more features
+
+Apr 2 (2)
+	- Continued working on map generation
+	- Worked on Report 1
