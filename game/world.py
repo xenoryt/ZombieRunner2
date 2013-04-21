@@ -1,5 +1,5 @@
 import pygame, os
-from pygame.locals import *
+from pygame.locals import * # this class actually only needs pygame.surface and blitting for rendering purposes
 
 import tile
 from tile import *
@@ -13,13 +13,14 @@ class World:
 	or through [y][x].
 	"""
 	
-	
+	# Constructor
 	def __init__(this):
 		this.size = (0,0)
 		this.map = []
 		this.charmap = []
 		this.image = None
 	
+	# Override the [] operation
 	def __getitem__(this, index):
 		if type(index) != int:
 			x,y = index
@@ -27,6 +28,7 @@ class World:
 		else:
 			return this.map[index]
 	
+	# Override = operator
 	def __set__(this, newmap):
 		this.size = len(newmap), len(newmap[0])
 		if type(newmap[0][0]) == str:
@@ -42,8 +44,7 @@ class World:
 				for x in range(len(this.charmap[y])):
 					this.charmap[y][x] = Type.char(this.map[y][x])
 	
-	def __get__(this):
-		return this.charmap
+		
 	
 	def new(this, size, char='.'):
 		"""
@@ -86,15 +87,35 @@ class World:
 				this.map.append([])
 				for x in range(this.size[0]):
 					this.map[y].append(Tile(map[y][x], (x,y)))
-					this.map
-			
+					# this.map # What was i gonna do again...
 			
 		except:
 			print "Error: unknown error while loading map file"
 			return False
 			
 		return True
-		
+	
+	def dig(this, points):
+		"""
+		This function digs out all the locations given in [points]
+		"""
+		for p in points:
+			this.map[p[0], p[1]] = Type.Floor
+			this.charmap[p[0], p[1]] = '.'
+	
+	def place(this, points, obj):
+		"""
+		This function places [obj] at [points]
+		"""
+		for p in points:
+			if type(obj) == str:
+				this.map[p[0], p[1]] = Type.conv(obj)
+				this.charmap[p[0], p[1]] = obj
+			else:
+				this.map[p[0], p[1]] = obj
+				this.charmap[p[0], p[1]] = Type.char(obj)
+				
+	
 	def renderMap(this):
 		"""
 		renderMap() : pygame.Surface

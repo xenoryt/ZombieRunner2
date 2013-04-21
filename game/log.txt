@@ -37,3 +37,12 @@ Mar 27 (3.5)
 Apr 2 (2)
 	- Continued working on map generation
 	- Worked on Report 1
+
+Apr 15 (2)
+	- Worked on map generation again
+	
+Apr 21 (3)
+	- Changed corridor generation and wall calculation algorithms
+	- Completed(?) basic world generation
+	- Started working on randomly placing objects into world
+	- Still did not debug

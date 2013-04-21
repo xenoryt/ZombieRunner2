@@ -22,6 +22,7 @@
 #  
 #  
 
+# Only tested to run on python 2.7
 
 import pygame, sys
 from pygame.locals import *

@@ -5,11 +5,11 @@ from pygame.locals import *
 class Type:
 	Floor, Wall, Trap, Portal, Player = range(5)
 	
-	_tiles = {'.':Type.Null, '#':Type.Wall, '^':Type.Trap, '*':Type.Portal, '@':Type.Player}
+	_tiles = {'.':Type.Floor, '#':Type.Wall, '^':Type.Trap, '*':Type.Portal, '@':Type.Player}
 	
 	def conv(this, c):
 		if c == '@':
-			return Type.Null
+			return Type.Floor
 		return _tiles[c]
 	def char(this, t):
 		if type(t) != int:
