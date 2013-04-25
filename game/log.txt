@@ -46,3 +46,7 @@ Apr 21 (3)
 	- Completed(?) basic world generation
 	- Started working on randomly placing objects into world
 	- Still did not debug
+	
+Apr 24 (2)
+	- Created item class
+	- Started creating various items and equipment
