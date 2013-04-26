@@ -22,6 +22,7 @@ class World:
 	
 	# Override the [] operation
 	def __getitem__(this, index):
+		print "getting index"
 		if type(index) != int:
 			x,y = index
 			return map[y][x]
@@ -30,6 +31,7 @@ class World:
 	
 	# Override = operator
 	def __set__(this, newmap):
+		print "Setting"
 		this.size = len(newmap), len(newmap[0])
 		if type(newmap[0][0]) == str:
 			this.charmap = newmap
@@ -52,13 +54,15 @@ class World:
 		"""
 		this.size = size
 		
-		map = []
+		this.map = []
+		this.charmap = []
 		for y in range(size[1]):
-			map.append([char for x in range(size[0])])
+			this.charmap.append([char for x in range(size[0])])
+			this.map.append([charToTile(char) for x in range(size[0])])
 			
 		this = map
 	
-	def loadMap(this, mapfile):
+	def load(this, mapfile):
 		try:
 		   with open(mapfile) as fr: pass
 		except IOError as e:
@@ -95,13 +99,28 @@ class World:
 			
 		return True
 	
+	def save(this, mapfile):
+		fw = open(mapfile, "w")
+		
+		for y in range(len(this.charmap)):
+			for x in range(len(this.charmap[y])):
+				fw.write(this.charmap[y][x])
+			fw.write("\n")
+		
+	
 	def dig(this, points):
 		"""
 		This function digs out all the locations given in [points]
 		"""
+		#print points
 		for p in points:
-			this.map[p[0], p[1]] = Type.Floor
-			this.charmap[p[0], p[1]] = '.'
+			print p
+			try:
+				this.map[p[1]][p[0]] = Type.Floor
+				this.charmap[p[1]][p[0]] = '.'
+			except:
+				print "Error: ",len(this.map)
+				return
 	
 	def place(this, points, obj):
 		"""

@@ -1,0 +1,10 @@
+Bugs:
+
+-------------
+This happens only occasionally during map generation:
+
+File "/home/xenoryt/projects/game/mapgenerator.py", line 248, in create
+    if rooms[i].isConnected(rooms[n]):
+IndexError: list index out of range
+
+-------------

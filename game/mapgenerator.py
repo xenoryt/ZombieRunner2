@@ -1,5 +1,6 @@
 import tile, world
 from tile import *
+from world import *
 import math
 
 import random
@@ -21,17 +22,17 @@ directions = {"up":[0,-1], "down":[0,1], "left":[-1,0], "right":[1,0]}
 
 
 def move(loc, dir):
-	pnt = loc[:] # make pnt a clone of loc
-	pnt[0] += directions[dir][0]
-	pnt[1] += directions[dir][1]
-	return pnt
+	nloc = list(loc) # make nloc a list of loc
+	nloc[0] += directions[dir][0]
+	nloc[1] += directions[dir][1]
+	return tuple(nloc)
 	
 def rmove(loc, dir):
 	""" Similar to move(), but moves in opposite direction) """
-	pnt = loc[:]
-	pnt[0] += directions[dir][0]*-1
-	pnt[1] += directions[dir][1]*-1
-	return pnt
+	nloc = list(loc)
+	nloc[0] += directions[dir][0]*-1
+	nloc[1] += directions[dir][1]*-1
+	return tuple(nloc)
 
 class Corridor:
 	def __init__(this):
@@ -47,6 +48,9 @@ class Corridor:
 		cors	- a list of all the corridors
 		loc		- current location of corridor
 		dir		- direction in which the corridor should generate
+		
+		Returns a bool representing whether or not the corridor connected
+		to another room. 
 		""" 
 		if map.onBound(loc): 
 			# This may happen if it starts directly on boundary
@@ -67,7 +71,7 @@ class Corridor:
 		
 		for cor in cors:
 			if this is cor:
-				#### 
+				continue # if it ran into itself...
 			if cor.has(loc):
 				this.endpoints.append(loc)
 				this.endrooms += cor.endrooms
@@ -82,6 +86,9 @@ class Corridor:
 				# else it continues
 		
 		## Make corridor move generally in a straight line
+		d = dir 
+		
+		# Give 1/4 chance of turning
 		if (random.randint(0,4) == 0):
 			while True: 
 				# This loops until the corridor goes in any direction
@@ -95,7 +102,7 @@ class Corridor:
 				break
 		
 		# recursively dig a corridor
-		this.generate(map, areas, cors, move(loc, d), d)
+		return this.generate(map, areas, cors, move(loc, d), d)
 	
 	def has(this, point):
 		if point in this.points:
@@ -120,7 +127,7 @@ class Area:
 		"Creates" an area based on specifications
 		Also calculates the location of walls
 		"""
-		this.points = [[x,y] for x in range(loc[0],size[0]+loc[0]) for y in range(loc[1], size[1]+loc[1])]
+		this.points = [(x,y) for x in range(loc[0],size[0]+loc[0]) for y in range(loc[1], size[1]+loc[1])]
 
 	def calcWalls(this, cleared):
 		""" 
@@ -131,8 +138,8 @@ class Area:
 		"""
 		for point in this.points:
 			for d in directions.keys():
-				if move(point, direction[d]) not in cleared:
-					this.walls.append(move(point, direction[d]), d))
+				if move(point, d) not in cleared:
+					this.walls.append((move(point, d), d))
 					break
 	
 	def has(this, point):
@@ -171,7 +178,7 @@ class MapGenerator:
 	def load(this, mapname):
 		raise NotImplementedError
 	
-	def create(this, mapname, size = (64,64), density=0):
+	def create(this, mapname, size = (64,64), density=1):
 		"""
 		Generates a dungeon given a map size and room concentration. 
 		The concentration ranges from 0 to 9, inclusively,
@@ -200,11 +207,11 @@ class MapGenerator:
 		#############################################################
 		
 		world = World()
-		world.new(64,64, '#')
+		world.new((64,64), '#')
 		
 		# Calculate number of rooms based on map size and difficulty
-		avgHeight = 
-		roomCount = math.ceil(((map.size[1]-2)*(map.size[0]-2) / (this.avgRoomSize[0]*this.avgRoomSize[1])) * (density*0.65+1)/12)
+		#avgHeight = 
+		roomCount = int(math.ceil(((world.size[1]-2)*(world.size[0]-2) / (this.avgRoomSize[0]*this.avgRoomSize[1])) * (density*0.65+1)/12))
 		
 		# Make sure the number of rooms is even
 		# (Algorithm fails if it isnt...)
@@ -219,8 +226,8 @@ class MapGenerator:
 		for i in range(roomCount):
 			#generate an area
 			area = Area()
-			loc = (random.randint(1,world.size[0]-5), random.randint(1,world.size[1]-5))
-			size = (random.randint(avgRoomSize[0]-3, avgRoomSize[0]+3))
+			loc = (random.randint(1,world.size[0]-this.avgRoomSize[0]-3), random.randint(1,world.size[1]-this.avgRoomSize[1]-3))
+			size = (random.randint(this.avgRoomSize[0]-3, this.avgRoomSize[0]+3), random.randint(this.avgRoomSize[1]-3, this.avgRoomSize[1]+3))
 			area.create(loc, size)
 			
 			rooms.append(area)
@@ -240,10 +247,12 @@ class MapGenerator:
 		# After generating rooms, merge rooms that are connected to each other
 		i = 0
 		while i < len(rooms):
-			for n in range(len(rooms)):
+			n = 0
+			while n < len(rooms):
 				if rooms[i].isConnected(rooms[n]):
 					rooms[i].merge(rooms[n])
 					rooms.pop(n)
+				n+=1
 			i+=1
 		
 		
@@ -270,4 +279,5 @@ class MapGenerator:
 		
 		# Place objects and monsters
 		
-		
+		world.save(mapname)
+		return world

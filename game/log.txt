@@ -50,3 +50,11 @@ Apr 21 (3)
 Apr 24 (2)
 	- Created item class
 	- Started creating various items and equipment
+	
+apr 25 (1.5)
+	- debugged for first time
+	- fixed several typos
+	
+apr 26 (2)
+	- Debugged map generation code
+	- Fixed several map generation bugs

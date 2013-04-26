@@ -57,6 +57,10 @@ def CreateItemList():
 	rock = Item(itemType.throw, 1, "Pebble", "How rare...")
 	rock.atk = 1
 	rock.canTarget = True
+	
+	stick = Item(itemType.wpn, 20, "Cypress Stick")
+	stick.atk = 2
+	
 		
 	csword = Item(itemType.wpn, 50, "Cracked Sword", 
 								"It looks like it may break anytime now")

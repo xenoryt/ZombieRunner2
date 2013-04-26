@@ -26,26 +26,26 @@ class Game(object):
 		#~ else:
 			#~ #start game
 			#~ raise NotImplementedError
+		
+		this.state = state
+		
+		# create clock for timing
+		clock = pygame.time.Clock()
+		
+		while this.running:
+			# call state.update()
+			# manage fps
 			
-			this.state = state
+			if this.state != None:
+				this.state.update()
+				this.state.draw()
+			else:
+				this.Error("No state selected")
 			
-			# create clock for timing
-			clock = pygame.time.Clock()
+			# possibly handle AI here as well?
 			
-			while this.running:
-				# call state.update()
-				# manage fps
-				
-				if this.state != None:
-					this.state.update()
-					this.state.draw()
-				else:
-					this.Error("No state selected")
-				
-				# possibly handle AI here as well?
-				
-				#cap fps to 60
-				clock.tick(60)
+			#cap fps to 60
+			clock.tick(60)
 
 	
 	def msgbox(this, text): #TODO: render a messagebox - high priority
@@ -93,9 +93,9 @@ class Game(object):
 		raise NotImplementedError
 		
 		# code under construction #
-		if pause:
-			
-		else:
+		#~ if pause:
+			#~ 
+		#~ else:
 			
 		_paused = not pause
 	
