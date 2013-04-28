@@ -1,5 +1,7 @@
+# this class actually only needs pygame.surface and blitting for rendering purposes
+# it only needs to render the map each time a new map is loaded
 import pygame, os
-from pygame.locals import * # this class actually only needs pygame.surface and blitting for rendering purposes
+from pygame.locals import * 
 
 import tile
 from tile import *
@@ -114,7 +116,7 @@ class World:
 		"""
 		#print points
 		for p in points:
-			print p
+			#print p
 			try:
 				this.map[p[1]][p[0]] = Type.Floor
 				this.charmap[p[1]][p[0]] = '.'
@@ -128,11 +130,11 @@ class World:
 		"""
 		for p in points:
 			if type(obj) == str:
-				this.map[p[0], p[1]] = Type.conv(obj)
-				this.charmap[p[0], p[1]] = obj
+				this.map[p[1]][p[0]] = Type.conv(obj)
+				this.charmap[p[1]][p[0]] = obj
 			else:
-				this.map[p[0], p[1]] = obj
-				this.charmap[p[0], p[1]] = Type.char(obj)
+				this.map[p[1]][p[0]] = obj
+				this.charmap[p[1]][p[0]] = Type.char(obj)
 				
 	
 	def renderMap(this):

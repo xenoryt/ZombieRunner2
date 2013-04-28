@@ -4,7 +4,34 @@ Bugs:
 This happens only occasionally during map generation:
 
 File "/home/xenoryt/projects/game/mapgenerator.py", line 248, in create
-    if rooms[i].isConnected(rooms[n]):
+    if rooms[i].isOverlap(rooms[n]):
 IndexError: list index out of range
+
+-------------
+
+The map generation seems to occasionally destroy the outer most walls.
+This should never happen.
+
+-------------
+
+"Error: 64" ????
+It creates a map with random holes everywhere
+
+Possibly line 124 of world.py in dig()
+print "Error: ",len(this.map)
+
+Would explain holes since it does not finish digging all the holes.
+This means it generated an area OUTSIDE the map.
+May be related with BUG #2 where it outermost walls are destroyed.
+
+
+-------------
+
+There was one instance where not all rooms were connected (even though they should be)
+I believe I have fixed this, but not 100% sure.
+
+-------------
+
+
 
 -------------

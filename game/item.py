@@ -20,14 +20,10 @@ class Item(object):
 		this.ID = this.__class__._curID
 		this.__class__._curID += 1
 		
-		# buffs for the player when equipped
-		this.atk = 0
-		this.blk = 0
-		this.str = 0
-		this.dex = 0
-		this.int = 0
-		
-		this.heal = 0
+		# A dictionary for status buffs/debuffs
+		# e.g. "hp":20 to increase hp by 20 or 
+		# "atk":-10 to decrease attack by 10
+		this.attributes = {"hp":0}
 		
 		items.append(this)
 	
@@ -52,11 +48,11 @@ def CreateItemList():
 	# items list upon initializing
 	
 	shp = Item(itemType.edible, 2, "Small HP Potion", "Heals a bit of your hp")
-	shp.heal = 25
+	shp.attributes = {"heal": 25}
 	
 	rock = Item(itemType.throw, 1, "Pebble", "How rare...")
-	rock.atk = 1
 	rock.canTarget = True
+	rock.attributes = {"atk":2,"rng":6}
 	
 	stick = Item(itemType.wpn, 20, "Cypress Stick")
 	stick.atk = 2

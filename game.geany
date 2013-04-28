@@ -23,16 +23,17 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=1
+current_page=2
 FILE_NAME_0=1936;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fgame.py;0;4
-FILE_NAME_1=1273;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fmain.py;0;4
-FILE_NAME_2=6237;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fmapgenerator.py;0;4
+FILE_NAME_1=1091;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fmain.py;0;4
+FILE_NAME_2=1419;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fmapgenerator.py;0;4
 FILE_NAME_3=1557;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fgui.py;0;4
-FILE_NAME_4=1433;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fworld.py;0;4
-FILE_NAME_5=157;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Ftile.py;0;4
-FILE_NAME_6=1020;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fitem.py;0;4
-FILE_NAME_7=1334;None;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Flog.txt;0;4
-FILE_NAME_8=127;Python;0;16;0;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Ftest.py;0;4
+FILE_NAME_4=2938;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fworld.py;0;4
+FILE_NAME_5=172;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Ftile.py;0;4
+FILE_NAME_6=1273;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fitem.py;0;4
+FILE_NAME_7=1411;None;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Flog.txt;0;4
+FILE_NAME_8=311;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Ftest.py;0;4
+FILE_NAME_9=667;None;0;16;0;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fbugs.txt;0;4
 
 [VTE]
 last_dir=/home/xenoryt

@@ -5,21 +5,8 @@ import math
 
 import random
 
-#~ class Point:
-	#~ def __init__(this, x = 0, y = 0):
-		#~ this.x = 0
-		#~ this.y = 0
-	#~ 
-	#~ def __getitem__(this, i):
-		#~ if i == 0:
-			#~ return this.x
-		#~ elif i == 1:
-			#~ return this.y
-		#~ else:
-			#~ raise IndexError
-			
-directions = {"up":[0,-1], "down":[0,1], "left":[-1,0], "right":[1,0]}
 
+directions = {"up":[0,-1], "down":[0,1], "left":[-1,0], "right":[1,0]}
 
 def move(loc, dir):
 	nloc = list(loc) # make nloc a list of loc
@@ -40,10 +27,10 @@ class Corridor:
 		this.endrooms = [] 
 		this.points = []
 		
-	def generate(this, map, areas, cors, loc, dir):
+	def generate(this, world, areas, cors, loc, dir):
 		"""
 		A recursive function to connect the rooms together.
-		map 	- a World object. 
+		world 	- a World object. 
 		areas 	- a list of all the rooms
 		cors	- a list of all the corridors
 		loc		- current location of corridor
@@ -51,32 +38,45 @@ class Corridor:
 		
 		Returns a bool representing whether or not the corridor connected
 		to another room. 
+		
+		The corridor's endroom may contain the same room more than once.
+		You will need to remove duplicates after generating corridor.
+		This generation does not automatically put this corridor
+		inside the room's array of corridors (in case this generation
+		fails).
 		""" 
-		if map.onBound(loc): 
+		
+		if world.onBound(loc): 
 			# This may happen if it starts directly on boundary
 			return False
 		
-		if loc not in this.points: # NOTE: may be inefficient (try using set())
+		if loc not in this.points:
 			this.points.append(loc)
 		
-		# Check if this corridor is connected to a room
+		# Check if this corridor is connected to an isolated room
 		for area in areas:
-			if len(area.corridors) > 0:
+			# if the current position of the corridor is on the
+			# wall of a room
+			if area in this.endrooms:
 				continue
-			if loc in area.walls:
-				area.corridors.append(this)
+			if loc in map(lambda x: x[0], area.walls):
+				# Mark the room as connected
+				#area.corridors.append(this)
 				this.endpoints.append(loc)
 				this.endrooms.append(area)
-				return True
+				
+				# If this room does not have any other corridors connected
+				if len(area.corridors) <= 2:
+					return True # end corridor generation
 		
 		for cor in cors:
 			if this is cor:
-				continue # if it ran into itself...
+				continue # why check if you are connected to yourself?
 			if cor.has(loc):
 				this.endpoints.append(loc)
 				this.endrooms += cor.endrooms
-				for area in cor.endrooms:
-					area.corridors.append(this)
+				#for area in cor.endrooms:
+				#	area.corridors.append(this)
 				
 				# if this corridor collides into another corridor
 				# include a chance of stopping the construction of 
@@ -93,16 +93,16 @@ class Corridor:
 			while True: 
 				# This loops until the corridor goes in any direction
 				# that is not backwards
-				# and does not go off the map
+				# and does not go off the world
 				d = random.choice(directions.keys())
 				if move(loc, d) == rmove(loc,dir):
 					continue
-				if map.onBound(move(loc,d)):
+				if world.onBound(move(loc,d)):
 					continue
 				break
 		
 		# recursively dig a corridor
-		return this.generate(map, areas, cors, move(loc, d), d)
+		return this.generate(world, areas, cors, move(loc, d), d)
 	
 	def has(this, point):
 		if point in this.points:
@@ -147,7 +147,7 @@ class Area:
 			return True
 		return False
 	
-	def isConnected(this, area):
+	def isOverlap(this, area):
 		"""
 		Checks if this area overlaps with the given area
 		"""
@@ -157,6 +157,23 @@ class Area:
 			if area.has(point):
 				return True
 		return False
+	
+	def getConnectedRooms(this, connected = []):
+		"""
+		Returns a list of rooms that this room is directly and
+		indirectly connected to
+		"""
+		
+		if connected == []:
+			connected.append(this)
+		
+		for hall in this.corridors:
+			for endroom in hall.endrooms:
+				if endroom not in connected:
+					connected += endroom.getConnectedRooms(connected + [endroom])
+		
+		return connected
+		
 	
 	def merge(this, area):
 		# Merges two areas together
@@ -178,7 +195,7 @@ class MapGenerator:
 	def load(this, mapname):
 		raise NotImplementedError
 	
-	def create(this, mapname, size = (64,64), density=1):
+	def create(this, mapname, size = (64,64), density=5):
 		"""
 		Generates a dungeon given a map size and room concentration. 
 		The concentration ranges from 0 to 9, inclusively,
@@ -198,16 +215,26 @@ class MapGenerator:
 		# 4) Connect all the rooms with corridors
 		# 	- Corridors are recursively generated (and can be buggy)
 		# 	- The corridor generation is completely random
-		# 	- It only stops when it reaches a room
+		# 	- It only stops when it reaches a room or another corridor
 		# 	- It is theoretically possible for the entire map
 		# 	  to be one corridor
-		# 5) Write all these points into the world as floors
-		# 6) Place random objects throughout the map
-		# 7) Write again and save
+		# 5) Check if all rooms are connected
+		#	- If not, redo map entire generation process from start
+		# 6) Write all these points into the world as floors
+		# 7) Place random objects throughout the map
+		# 8) Write again and save
 		#############################################################
 		
+		
+		# Generate a new world filled with only walls
 		world = World()
 		world.new((64,64), '#')
+		
+		# Create lists of rooms, corridors and points of the map
+		# that are no longer occupied by a wall (aka "dug out")
+		rooms = []
+		halls = []
+		cleared = [] # locations that have been dug out
 		
 		# Calculate number of rooms based on map size and difficulty
 		#avgHeight = 
@@ -218,66 +245,118 @@ class MapGenerator:
 		if roomCount % 2 != 0:
 			roomCount + 1
 		
-		# Create rooms (areas) 
-		rooms = []
-		halls = []
-		cleared = [] # locations that have been dug out
-		
-		for i in range(roomCount):
-			#generate an area
-			area = Area()
-			loc = (random.randint(1,world.size[0]-this.avgRoomSize[0]-3), random.randint(1,world.size[1]-this.avgRoomSize[1]-3))
-			size = (random.randint(this.avgRoomSize[0]-3, this.avgRoomSize[0]+3), random.randint(this.avgRoomSize[1]-3, this.avgRoomSize[1]+3))
-			area.create(loc, size)
+		# This infinite while loop is here to repeat the map generation
+		# process in case an "invalid" map has been generated
+		while True:
+			# clear any old data
+			del rooms[:]
+			del halls[:]
+			del cleared[:]
 			
-			rooms.append(area)
-		
-			# add the points in the area to cleared
-			cleared += area.points
-		
-		# Remove duplicates from the tuple of cleared areas
-		# This is also performed again later, but cleared will
-		# be accessed a lot. Clearing duplicates now will save cpu
-		cleared = list(set(cleared))
-		
-		# Calculate locations of walls for each room
-		for r in rooms:
-			r.calcWalls(cleared)
-		
-		# After generating rooms, merge rooms that are connected to each other
-		i = 0
-		while i < len(rooms):
-			n = 0
-			while n < len(rooms):
-				if rooms[i].isConnected(rooms[n]):
-					rooms[i].merge(rooms[n])
-					rooms.pop(n)
-				n+=1
-			i+=1
-		
-		
-		# Now connect rooms via corridors
-		for i in range(len(rooms)):
-			if len(rooms[i].corridors) == 0:
-				hall = Corridor()
-				loc, d = random.choice(rooms[i].walls)
+			#~ print len(rooms)
+			#~ print len(halls)
+			#~ print len(cleared)
+			
+			# Create rooms (areas) 
+			for i in range(roomCount):
+				# Generate a new room
+				area = Area()
+				loc = (random.randint(1,world.size[0]-this.avgRoomSize[0]-4), random.randint(1,world.size[1]-this.avgRoomSize[1]-4))
+				size = (random.randint(this.avgRoomSize[0]-3, this.avgRoomSize[0]+3), random.randint(this.avgRoomSize[1]-3, this.avgRoomSize[1]+3))
+				area.create(loc, size)
 				
-				# Start generating
-				hall.generate(world, rooms, halls, loc, d) # Prepare for crashes
-				
-				# Appened corridors to cleared areas
-				cleared += hall.points
-		
-		# Remove duplicates from the tuple of cleared areas
-		cleared = list(set(cleared))
-		
-		# dig out rooms and corridors
-		world.dig(cleared)
-		
-		## Randomly place objects and monsters ##
-		
-		
-		# Place objects and monsters
-		
+				# Add the new room to the list of rooms
+				rooms.append(area)
+			
+				# add the all the locations the room occupies to [cleared]
+				cleared += area.points
+			
+			# Remove duplicates from the tuple of cleared areas
+			# This is also performed again later, but cleared will
+			# be accessed a lot. Clearing duplicates now will save cpu
+			cleared[:] = list(set(cleared))
+			
+			
+			
+			# After generating rooms, merge rooms that are connected to each other
+			i = 0
+			while i < len(rooms):
+				# n = i + 1 because all the rooms before i have already been checked
+				n = i+1
+				while n < len(rooms):
+					if rooms[i].isOverlap(rooms[n]):
+						# Merge the two rooms
+						rooms[i].merge(rooms[n])
+						
+						# Remove the second room (room[n]) since that one
+						# is now a part of the current room (room[i])
+						rooms.pop(n)
+						
+						# Recheck the current room with the rest again
+						n = i
+						continue
+					n+=1
+				i+=1
+			
+			# Calculate locations of walls for each room
+			for r in rooms:
+				r.calcWalls(cleared)
+			
+			# Now connect rooms via corridors
+			for i in range(len(rooms)):
+				if len(rooms[i].corridors) == 0:
+					while True:
+						hall = Corridor()
+						loc, d = random.choice(rooms[i].walls)
+						
+						hall.endrooms.append(rooms[i])
+						
+						# if this hall generated properly
+						if hall.generate(world, rooms, halls, loc, d):
+							# Add this corridor to all the rooms
+							# it connected to
+							for room in hall.endrooms:
+								room.corridors.append(hall)
+							break # exit
+											
+					hall.endrooms[:] = list(set(hall.endrooms))
+					
+					# Appened corridors to cleared areas
+					cleared += hall.points
+			print "out"
+			# Remove duplicates from the tuple of cleared areas
+			cleared[:] = list(set(cleared))
+			
+			# Check if all the rooms are connected
+			connected = rooms[0].getConnectedRooms()
+			connected[:] = list(set(connected))
+			print len(connected),"is connected"
+			print len(rooms),"were generated"
+			if len(connected) < len(rooms):
+				print "Invalid map detected\nRegenerating..."
+				del connected[:]
+				continue
+			elif len(connected) > len(rooms):
+				print "Something is wrong here..."
+				raise ValueError
+			
+			
+			# dig out rooms and corridors
+			world.dig(cleared)
+			
+			## Randomly place objects and monsters ##
+			# TODO: create a way to calculate how many of each object to place
+			
+			nchests = 3
+			nlowlvl = 9
+			nhighlvl = 2
+			nportal = 1
+			nplayer = 1
+			
+			
+			
+			# Place objects and monsters
+			break
+			
 		world.save(mapname)
 		return world

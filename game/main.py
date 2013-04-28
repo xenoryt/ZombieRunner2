@@ -24,26 +24,27 @@
 
 # Only tested to run on python 2.7
 
-import pygame, sys
-from pygame.locals import *
+#~ import pygame, sys
+#~ from pygame.locals import *
 
-from game import Game
+#~ from game import Game
 import mapgenerator
 from mapgenerator import MapGenerator
-import tile
-from tile import *
+#~ import tile
+#~ from tile import *
 
-class testState(Game.State):
-	def update(this):
-		# you can never be too safe
-		if not isCurrent:
-			Game.Error("Updating an inactive state")
-			
-		
+#~ class testState(Game.State):
+	#~ def update(this):
+		#~ # you can never be too safe
+		#~ if not isCurrent:
+			#~ Game.Error("Updating an inactive state")
+			#~ 
+		#~ 
 
 def main():
 	worldgenerator = MapGenerator()
-	world = worldgenerator.create("map1.txt", (64,64), 1)
+	world = worldgenerator.create("map.txt", (64,64), 9)
+	
 	#world.save("map1.txt")
 	return 0
 

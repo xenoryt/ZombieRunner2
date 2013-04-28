@@ -55,6 +55,14 @@ apr 25 (1.5)
 	- debugged for first time
 	- fixed several typos
 	
-apr 26 (2)
+apr 26 (3)
 	- Debugged map generation code
 	- Fixed several map generation bugs
+
+Apr 27 (4)
+	- Added method to calculate all the rooms a room is connected to
+	- Attempted make map generation only generation maps where all the rooms are connected
+	
+Apr 28 (2)
+	- Fixed bug with map generation making isolated rooms
+	- Removed the generation of dead ends to produce prettier maps

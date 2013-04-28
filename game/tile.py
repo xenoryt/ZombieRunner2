@@ -4,14 +4,21 @@ from pygame.locals import *
 
 
 class Type:
-	Floor, Wall, Trap, Portal, Player = range(5)
+	Floor, Wall, Trap, Chest, Portal, \
+	Ghost, Hound, Zombie, \
+	Ghoul, Demon, Guardian, Dragon, \
+	Player = range(13)
 	
-	_tiles = {'.':Floor, '#':Wall, '^':Trap, '*':Portal, '@':Player}
+	_tiles = {'.':Floor, '#':Wall, '^':Trap, '$':Chest, '*':Portal, 
+				'g':Ghost, 'h':Hound, 'z':Zombie,
+				'G':Ghoul, 'D':Demon, 'A':Guardian, 'R':Dragon,
+				'@':Player}
 	
 	def conv(this,c):
-		if c == '@':
-			return this.Floor
+		if type(c) != str:
+			raise TypeError
 		return this._tiles[c]
+	
 	def char(this, t):
 		if type(t) != int:
 			raise TypeError
