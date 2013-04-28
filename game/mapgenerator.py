@@ -27,7 +27,7 @@ class Corridor:
 		this.endrooms = [] 
 		this.points = []
 		
-	def generate(this, world, areas, cors, loc, dir):
+	def generate(this, world, areas, cors, loc, dir, maxCors = 2, conCors = True):
 		"""
 		A recursive function to connect the rooms together.
 		world 	- a World object. 
@@ -35,9 +35,11 @@ class Corridor:
 		cors	- a list of all the corridors
 		loc		- current location of corridor
 		dir		- direction in which the corridor should generate
+		maxCors	- the maximum number of corridors allowed for one room
+		conCors	- allow connecting corridor to corridor
 		
-		Returns a bool representing whether or not the corridor connected
-		to another room. 
+		Returns a bool representing whether or not the corridor 
+		generation succeeded or failed (by running into edge of map)
 		
 		The corridor's endroom may contain the same room more than once.
 		You will need to remove duplicates after generating corridor.
@@ -66,24 +68,26 @@ class Corridor:
 				this.endrooms.append(area)
 				
 				# If this room does not have any other corridors connected
-				if len(area.corridors) <= 2:
+				if len(area.corridors) <= maxCors:
 					return True # end corridor generation
 		
-		for cor in cors:
-			if this is cor:
-				continue # why check if you are connected to yourself?
-			if cor.has(loc):
-				this.endpoints.append(loc)
-				this.endrooms += cor.endrooms
-				#for area in cor.endrooms:
-				#	area.corridors.append(this)
-				
-				# if this corridor collides into another corridor
-				# include a chance of stopping the construction of 
-				# this corridor
-				if random.randint(0,1) == 0:
-					return True # stop
-				# else it continues
+		
+		#~ for cor in cors:
+			#~ if this is cor:
+				#~ continue # why check if you are connected to yourself?
+			#~ if cor.has(loc):
+				#~ this.endpoints.append(loc)
+				#~ this.endrooms += cor.endrooms
+				#~ #for area in cor.endrooms:
+				#~ #	area.corridors.append(this)
+				#~ 
+				#~ # if this corridor collides into another corridor
+				#~ # include a chance of stopping the construction of 
+				#~ # this corridor
+				#~ if conCors and random.randint(0,1) == 0:
+					#~ return True # stop
+				#~ # else it continues
+				#~ break
 		
 		## Make corridor move generally in a straight line
 		d = dir 
@@ -228,7 +232,7 @@ class MapGenerator:
 		
 		# Generate a new world filled with only walls
 		world = World()
-		world.new((64,64), '#')
+		world.new(size, '#')
 		
 		# Create lists of rooms, corridors and points of the map
 		# that are no longer occupied by a wall (aka "dug out")
@@ -245,9 +249,12 @@ class MapGenerator:
 		if roomCount % 2 != 0:
 			roomCount + 1
 		
+		tries = 0
+		
 		# This infinite while loop is here to repeat the map generation
 		# process in case an "invalid" map has been generated
 		while True:
+			tries += 1
 			# clear any old data
 			del rooms[:]
 			del halls[:]
@@ -320,25 +327,63 @@ class MapGenerator:
 							break # exit
 											
 					hall.endrooms[:] = list(set(hall.endrooms))
-					
+					#halls.append(hall)
 					# Appened corridors to cleared areas
 					cleared += hall.points
-			print "out"
+			
 			# Remove duplicates from the tuple of cleared areas
 			cleared[:] = list(set(cleared))
 			
 			# Check if all the rooms are connected
-			connected = rooms[0].getConnectedRooms()
-			connected[:] = list(set(connected))
-			print len(connected),"is connected"
-			print len(rooms),"were generated"
-			if len(connected) < len(rooms):
-				print "Invalid map detected\nRegenerating..."
-				del connected[:]
-				continue
-			elif len(connected) > len(rooms):
-				print "Something is wrong here..."
-				raise ValueError
+			while True:
+				tries += 1
+				connected = rooms[0].getConnectedRooms()
+				connected[:] = list(set(connected))
+				print len(connected),"is connected"
+				print len(rooms),"were generated"
+				if len(connected) < len(rooms):
+					print "Invalid map detected"
+					print "connecting unconnected rooms..."
+					
+					
+					# Get list of all the rooms that are not connected
+					unconnected = map(lambda x: x if x not in connected else None, rooms)
+					unconnected = list(set(unconnected))
+					unconnected.remove(None)
+					
+					print len(unconnected),"rooms are unconnected"
+					
+					# Choose a connected room and connect with an unconnected one
+					room = random.choice(connected)
+					
+					while True:
+						hall = Corridor()
+						loc, d = random.choice(rooms[i].walls)
+						
+						hall.endrooms.append(room)
+						
+						# if this hall generated properly
+						if hall.generate(world, unconnected, halls, loc, d, 10, False):
+							print "Connected",len(hall.endrooms)-1
+							# Add this corridor to all the rooms
+							# it connected to
+							for room in hall.endrooms:
+								room.corridors.append(hall)
+							break # exit
+											
+					hall.endrooms[:] = list(set(hall.endrooms))
+					#halls.append(hall)
+					# Appened corridors to cleared areas
+					cleared += hall.points
+					cleared[:] = list(set(cleared))
+					del connected[:]
+					del unconnected[:]
+					continue
+					
+				elif len(connected) > len(rooms):
+					print "Something is wrong here..."
+					raise ValueError
+				break
 			
 			
 			# dig out rooms and corridors
@@ -357,6 +402,9 @@ class MapGenerator:
 			
 			# Place objects and monsters
 			break
-			
+		
+		print "- - - - - - - - - - - - - - - - - - -"
+		print "Generated world with",len(rooms),"rooms in",tries,"tries"
+		
 		world.save(mapname)
 		return world

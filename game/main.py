@@ -31,7 +31,7 @@
 import mapgenerator
 from mapgenerator import MapGenerator
 #~ import tile
-#~ from tile import *
+#~ from tile import *5
 
 #~ class testState(Game.State):
 	#~ def update(this):
@@ -43,9 +43,8 @@ from mapgenerator import MapGenerator
 
 def main():
 	worldgenerator = MapGenerator()
-	world = worldgenerator.create("map.txt", (64,64), 9)
+	world = worldgenerator.create("map.txt", (64,64), 4)
 	
-	#world.save("map1.txt")
 	return 0
 
 if __name__ == '__main__':
