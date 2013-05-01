@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 
 class Control(pygame.sprite.Sprite, object):
+	this.layer = 0
 	def __init__(this):
 		pygame.sprite.Sprite.__init__(this, this.containers)
 		this.rect = pygame.Rect(0,0,0,0)
@@ -35,6 +36,8 @@ class Container(Control):
 		this._font = pygame.font.Font(f, size)
 		
 		this.ctrls = []
+		
+		this.layer = 0
 	
 	def add (ctrl):
 		this.ctrls.append(ctrl)
@@ -56,8 +59,9 @@ class Button(Control):
 		
 		this._font = pygame.font.Font(None, 22)
 		this._text = text
-		this.updatedText = False
+		this.requireUpdate = False # True means text is up to date
 		
+		this.layer = 1
 	
 	def font(this, f, size):
 		this._font = pygame.font.Font(f, size)
@@ -69,16 +73,19 @@ class Button(Control):
 	@text.setter
 	def text(this, msg):
 		this._text = msg
-		this.updatedText = False
+		this.requireUpdate = False
 	
 	def update(this):
-		if not this.updatedText:
+		if not this.requireUpdate:
 			img = this._font.render(this.text, True, this.fgColor)
 			this.image.blit(img, (this.rect.w/2-img.get_rect().w/2,this.rect.h/2-img.get_rect().h/2))
-			this.updatedText = True
+			this.requireUpdate = True
 
 	def draw(this,surface):
 		this.image.blit(surface, this.rect)
+		
+	def onClick(this):
+		pass
 
 class gui(pygame.sprite.Sprite):
 	def __init__(this):

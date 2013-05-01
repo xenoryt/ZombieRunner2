@@ -43,7 +43,7 @@ from mapgenerator import MapGenerator
 
 def main():
 	worldgenerator = MapGenerator()
-	world = worldgenerator.create("map.txt", (120,120), 7)
+	world = worldgenerator.create("map.txt", (128,128), 7)
 	
 	return 0
 

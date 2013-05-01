@@ -254,6 +254,7 @@ class MapGenerator:
 		# This infinite while loop is here to repeat the map generation
 		# process in case an "invalid" map has been generated
 		while True:
+			tries += 1
 			# clear any old data
 			del rooms[:]
 			del halls[:]
@@ -357,7 +358,7 @@ class MapGenerator:
 					
 					while True:
 						hall = Corridor()
-						loc, d = random.choice(room.walls)
+						loc, d = random.choice(rooms[i].walls)
 						
 						hall.endrooms.append(room)
 						
@@ -366,8 +367,8 @@ class MapGenerator:
 							print "Connected",len(hall.endrooms)-1
 							# Add this corridor to all the rooms
 							# it connected to
-							for conroom in hall.endrooms:
-								conroom.corridors.append(hall)
+							for room in hall.endrooms:
+								room.corridors.append(hall)
 							break # exit
 											
 					hall.endrooms[:] = list(set(hall.endrooms))
