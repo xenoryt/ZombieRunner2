@@ -4,16 +4,19 @@ from pygame.locals import *
 
 ## This is a singleton class ##
 class Game(object):
-	running = False
-	_paused = False
-	_state = None
-	_prevState = None
-	
-	def __init__(this):
-		# Shouldnt need to be inited... #
-		raise NotImplementedError
-	
-	
+	def __init__(this, screensize = (800,600), caption = "ZombieRunner 2: Survival of Tears"):
+		this.running = False
+		this._paused = False
+		this._state = None
+		this._prevState = None
+		this.screensize = screensize
+		
+		# initialize pygame stuff
+		pygame.init()
+		this.screen = pygame.display.set_mode(screensize)
+		pygame.display.set_caption(caption)
+		
+		
 	
 	### Public Fn  ###
 	def run(this, state):
@@ -27,7 +30,9 @@ class Game(object):
 			#~ #start game
 			#~ raise NotImplementedError
 		
-		this.state = state
+		
+		this.state = state()
+		this.running = True
 		
 		# create clock for timing
 		clock = pygame.time.Clock()
@@ -38,19 +43,18 @@ class Game(object):
 			
 			if this.state != None:
 				this.state.update()
-				this.state.draw()
+				this.state.draw(this.screen)
 			else:
 				this.Error("No state selected")
-			
-			# possibly handle AI here as well?
 			
 			#cap fps to 60
 			clock.tick(60)
 
 	
-	def msgbox(this, text): #TODO: render a messagebox - high priority
+	def msgbox(this, text = "Message"): #TODO: render a messagebox - high priority
 		""" Renders a messagebox and pauses the game """
-		raise NotImplementedError
+		this.running = False
+		#raise NotImplementedError
 		# possibly create a specific messagebox state?
 		
 	
@@ -62,7 +66,8 @@ class Game(object):
 		print "Error %d: %s" % (errtype, err)
 		this.msgbox("Error %d: %s" % (errtype, err))
 		# Application.Exit()
-		
+	
+	
 	
 	
 	### Properties ###
@@ -75,7 +80,7 @@ class Game(object):
 	
 	@property
 	def state(this):
-		return _state
+		return this._state
 	@state.setter
 	def state(this, state):
 		if this._state != None:
@@ -147,4 +152,7 @@ class Game(object):
 			# This should not handle FPS
 			
 			raise NotImplementedError
-		
+
+# Declares a singleton
+# Do not ever create another object of Game ever again
+game = Game() 
