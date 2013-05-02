@@ -73,10 +73,11 @@ class testState(Game.State):
 		
 
 def main():
-	#~ worldgenerator = MapGenerator()
-	#~ world = worldgenerator.create("map.txt", (120,120), 7)
+	worldgenerator = MapGenerator()
+	world = worldgenerator.create("map.txt", (100,100), 7)
+	world.renderMap()
 	
-	game.run(testState)
+	#~ game.run(testState)
 	
 	return 0
 

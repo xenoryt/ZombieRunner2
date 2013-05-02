@@ -1,0 +1,1 @@
+E:\PortablePython\App\python.exe main.py

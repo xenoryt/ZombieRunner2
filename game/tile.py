@@ -53,7 +53,7 @@ class Tile(pygame.sprite.Sprite, object):
 	"""
 	
 	images = []
-	size = (64,64)
+	size = (48,48)
 	def __init__(this, type = None, loc=(0,0)):
 		pygame.sprite.Sprite.__init__(this)
 		this._type = type

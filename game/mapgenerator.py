@@ -194,7 +194,7 @@ class MapGenerator:
 	class (in tile.py).
 	"""
 	
-	avgRoomSize = [7,7]
+	avgRoomSize = [9,9]
 	
 	def load(this, mapname):
 		raise NotImplementedError

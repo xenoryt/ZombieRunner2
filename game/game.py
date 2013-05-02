@@ -149,7 +149,7 @@ class Game(object):
 			# - rendering images
 			# - displaying onto screen
 			# - other display related stuff
-			# This should not handle FPS
+			# This should not handle FPS (that is handled auto-magically)
 			
 			raise NotImplementedError
 
