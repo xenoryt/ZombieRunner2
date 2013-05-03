@@ -47,24 +47,29 @@ def CreateItemList():
 	# Items will automatically be placed into the global
 	# items list upon initializing
 	
-	shp = Item(itemType.edible, 2, "Small HP Potion", "Heals a bit of your hp")
-	shp.attributes = {"heal": 25}
+	shp = Item(itemType.edible, "Small HP Potion", "Heals a bit of your HP")
+	shp.attributes = {"heal": 20}
+	mhp = Item(itemType.edible, "Medium HP Potion", "Heals a decent amount of HP")
+	mhp.attributes = {"heal":50}
+	lhp = Item(itemType.edible, "Large HP Potion", "Heals a Large amount of HP")
+	lhp.attributes = {"heal":100}
 	
-	rock = Item(itemType.throw, 1, "Pebble", "How rare...")
+	rock = Item(itemType.throw, "Pebble", "How rare...")
 	rock.canTarget = True
 	rock.attributes = {"atk":2,"rng":6}
 	
-	stick = Item(itemType.wpn, 20, "Cypress Stick")
-	stick.atk = 2
-	
+	stick = Item(itemType.wpn, "Cypress Stick")
+	stick.attributes = {"atk":2}	
 		
-	csword = Item(itemType.wpn, 50, "Cracked Sword", 
+	csword = Item(itemType.wpn, "Cracked Sword", 
 								"It looks like it may break anytime now")
-	csword.atk = 5
+	csword.attributes = {"atk":5}
 	
-	sword = Item(itemType.wpn, 72,  "Sword", "Ordinary sword")
-	sword.atk = 12
-	sword.str = 1
+	sword = Item(itemType.wpn, "Sword", "Ordinary sword")
+	sword.attributes = {"atk":12, "str":1}
+	
+	gsword = Item(itemType.wpn, "Great Sword", "A sword that has been through many battles")
+	gsword.attributes = {"atk":20, "hp":25}
 	
 	
 	return items
