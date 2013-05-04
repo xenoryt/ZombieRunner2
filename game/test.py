@@ -10,17 +10,25 @@
 
 
 import random
-def t(i,l):
+#~ def t(i,l):
+	#~ 
+	#~ if random.randint(0,6) == 0:
+		#~ print "return"
+		#~ return
+	#~ l[:] = [n for n in range(random.randint(1,10))]
+	#~ print i,l
+	#~ i+=1
+	#~ t(i,l)
+	#~ print i-1,l
 	
-	if random.randint(0,6) == 0:
-		print "return"
-		return
-	l[:] = [n for n in range(random.randint(1,10))]
-	print i,l
-	i+=1
-	t(i,l)
-	print i-1,l
-	
-t(0,[])
-	
+#~ t(0,[])
+
+i = 0
+
+def t():
+	pass
+
+t = (lambda x: x + 3)
+
+print t()
 	

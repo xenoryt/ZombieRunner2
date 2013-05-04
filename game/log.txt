@@ -67,3 +67,13 @@ Apr 28 (4.5)
 	- Fixed bug with map generation making isolated rooms
 	- Removed the generation of dead ends to produce prettier maps
 	- Optimized map generation
+
+Apr 30 (0.5)
+	- Fixed bug with map generating with some rooms unconnected
+	
+May 2 (0.5)
+	- Optimized code slightly
+
+May (1.5)
+	- Started working on graphics
+	- Finished some of the basic map tiles

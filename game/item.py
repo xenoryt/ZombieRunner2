@@ -48,9 +48,9 @@ def CreateItemList():
 	# items list upon initializing
 	
 	shp = Item(itemType.edible, "Small HP Potion", "Heals a bit of your HP")
-	shp.attributes = {"heal": 20}
+	shp.attributes = {"heal": 10}
 	mhp = Item(itemType.edible, "Medium HP Potion", "Heals a decent amount of HP")
-	mhp.attributes = {"heal":50}
+	mhp.attributes = {"heal":30}
 	lhp = Item(itemType.edible, "Large HP Potion", "Heals a Large amount of HP")
 	lhp.attributes = {"heal":100}
 	
@@ -69,7 +69,12 @@ def CreateItemList():
 	sword.attributes = {"atk":12, "str":1}
 	
 	gsword = Item(itemType.wpn, "Great Sword", "A sword that has been through many battles")
-	gsword.attributes = {"atk":20, "hp":25}
+	gsword.attributes = {"atk":20, "hp":25, "agi":-2}
 	
+	requiem = Item(itemType.wpn, "Requiem", "A light sword with a glowing aura around it")
+	requiem.attributes = {"atk":35, "str":3, "agi":6}
+	
+	thammer = Item(itemType.wpn, "Thor's Hammer", "A hammer used by Thor. How did it end up here?")
+	thammer.attributes = {"atk":50, "hp":40, "str":6, "agi":-10}
 	
 	return items

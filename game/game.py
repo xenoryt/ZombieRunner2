@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-
+from state import State
 
 ## This is a singleton class ##
 class Game(object):
@@ -118,40 +118,7 @@ class Game(object):
 			_state.update()
 		
 	
-	###  Classes  ###
-	class State():
-		"""
-		This class is a base class
-		Game states are derived from this class
-		"""
-		isCurrent = False
-		def update(this):
-			# This is just a place holder #
-			
-			# The real update function should contain
-			# - event checking and handling
-			# - update objects related to the state
-			# - some error checking to make sure the current
-			#	state is active (you never know...)
-			#
-			# Note: This should only calls update functions of the 
-			#		objects within this state. It does not manage FPS.
-			
-			raise NotImplementedError
-			if not isCurrent:
-				Game.Error("Updating an inactive state")
-		
-		
-		def draw(this,screen):
-			# This is just a place holder #
-			
-			# The real draw function should contain
-			# - rendering images
-			# - displaying onto screen
-			# - other display related stuff
-			# This should not handle FPS (that is handled auto-magically)
-			
-			raise NotImplementedError
+	
 
 # Declares a singleton
 # Do not ever create another object of Game ever again
