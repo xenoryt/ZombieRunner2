@@ -45,7 +45,6 @@ def tileToChar(this, t):
 
 class Tile(pygame.sprite.Sprite, object):
 	"""
-	Tile()
 	This class is used to store data on individual tiles on the map.
 	It can store and retrieve data on the objects located standing on the 
 	tile. The World class contains a 2D array of this class to draw and 

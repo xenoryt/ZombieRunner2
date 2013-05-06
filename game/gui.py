@@ -33,13 +33,23 @@ class Container(Control):
 		this.image.fill(this.bgColor)
 		this.rect = this.image.get_rect(topleft=(locx,locy))
 		
-		this._font = pygame.font.Font(f, size)
+		# Number of rows and columns
+		this._rows = 1
+		this._cols = 1
+		
+		this._font = pygame.font.Font("data/font/pix.ttf", 12)
 		
 		this.ctrls = []
 		
 		this.layer = 0
 	
-	def add (ctrl):
+	
+	def center(this, loc):
+		this.rect.center = loc
+	
+	def add (this,ctrl, row, col):
+		ctrl.row = row
+		ctrl.col = col
 		this.ctrls.append(ctrl)
 		#this.rect = #some algorithm
 

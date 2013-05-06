@@ -53,7 +53,7 @@ class Game(object):
 	
 	def msgbox(this, text = "Message"): #TODO: render a messagebox - high priority
 		""" Renders a messagebox and pauses the game """
-		this.running = False
+		this.state = msgboxState()
 		#raise NotImplementedError
 		# possibly create a specific messagebox state?
 		

@@ -1,3 +1,4 @@
+import gui
 
 class State():
 	"""
@@ -41,8 +42,12 @@ class State():
 class MessageboxState(State):
 	def __init__(this, text):
 		this.text = text
+		this.button = gui.Button("OK")
 	
 	def update(this):
 		return None
+	
+	def draw(this, screen):
+		pass
 	
 

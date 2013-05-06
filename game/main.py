@@ -30,12 +30,20 @@
 from game import *
 import mapgenerator
 from mapgenerator import MapGenerator
+from world import World
 #~ import tile
 #~ from tile import *5
 
-class testState(Game.State):
+import gui
+
+def button_Click():
+	game.msgbox("asd")
+
+class testState(State):
 	def __init__(this):
 		this.isCurrent = False
+		this.button = gui.Button("Click Me!")
+		this.button.onClick = 
 		
 	def update(this):
 		# you can never be too safe
@@ -73,8 +81,11 @@ class testState(Game.State):
 		
 
 def main():
-	worldgenerator = MapGenerator()
-	world = worldgenerator.create("map.txt", (100,100), 7)
+	#~ worldgenerator = MapGenerator()
+	#~ world = worldgenerator.create("map.txt", (100,100), 7)
+	world = World()
+	if not world.load("map.txt"):
+		return -1
 	world.renderMap()
 	
 	#~ game.run(testState)

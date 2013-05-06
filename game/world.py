@@ -66,23 +66,24 @@ class World:
 	
 	def load(this, mapfile):
 		try:
-		   with open(mapfile) as fr: pass
+		  fr = open(mapfile, "r")
 		except IOError as e:
 		   print 'Error: file %s not found' % mapfile
 		   return False
 		
 		try:
 			# read in map file
-			map = fr.readlines()
-			lines = map.split('\n')
+			lines = fr.readlines()
 			map = []
 			for line in lines:
+				line.strip('\n')
 				map.append(line.split())
 			
 			# make sure the map dimensions are correct
 			for i in range(1,len(map)):
 				if len(map[i]) != len(map[i-1]):
 					print "Error: invalid map format detected"
+					fr.close()
 					return False
 			
 			# store dimensions
@@ -95,10 +96,12 @@ class World:
 					this.map[y].append(Tile(map[y][x], (x,y)))
 					# this.map # What was i gonna do again...
 			
-		except:
-			print "Error: unknown error while loading map file"
+		except Exception, e:
+			print "Error while loading map:", e
+			fr.close()
 			return False
-			
+		
+		fr.close()
 		return True
 	
 	def save(this, mapfile):
