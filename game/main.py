@@ -31,8 +31,8 @@ from game import *
 import mapgenerator
 from mapgenerator import MapGenerator
 from world import World
-#~ import tile
-#~ from tile import *5
+import tile
+import os
 
 import gui
 
@@ -80,15 +80,23 @@ class testState(State):
 			
 		
 
+def loadImages():
+	files = ["floor.png", "wall.png", "floor.png", "floor.png", "stairs.png"]
+	for file in files:
+		tile.Tile.images.append(pygame.image.load(os.path.join("data",file)))
+
 def main():
 	#~ worldgenerator = MapGenerator()
 	#~ world = worldgenerator.create("map.txt", (100,100), 7)
+	
+	loadImages()
+	
 	world = World()
 	if not world.load("map.txt"):
 		return -1
 	world.renderMap()
 	
-	#~ game.run(testState)
+	game.run(testState)
 	
 	return 0
 

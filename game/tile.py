@@ -55,12 +55,14 @@ class Tile(pygame.sprite.Sprite, object):
 	size = (48,48)
 	def __init__(this, type = None, loc=(0,0)):
 		pygame.sprite.Sprite.__init__(this)
-		this._type = type
 		this._gridloc = loc
-		this.image = None
+		this.type = type
+		
+		this.image = this.images[this.type]
+		this.rect = this.image.get_rect(topleft=this.maploc)
 	
-	def loadImages():
-		raise NotImplementedError
+	def __str__(this):
+		return charToTile(this._type)
 	
 	@property
 	def type(this):
@@ -72,11 +74,12 @@ class Tile(pygame.sprite.Sprite, object):
 	@type.setter
 	def type(this, t):
 		if type(t) == str:
-			this._type = Type.convert(t)
+			this._type = charToTile(t)
 		elif type(t) == int: 
 			this._type = t
 			
 		this.image = this.images[this._type]
+		this.rect = this.image.get_rect(topleft=this.maploc)
 		
 	
 	@property

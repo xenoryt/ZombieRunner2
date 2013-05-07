@@ -1,4 +1,5 @@
 import gui
+import game
 
 class State():
 	"""
@@ -42,10 +43,13 @@ class State():
 class MessageboxState(State):
 	def __init__(this, text):
 		this.text = text
-		this.button = gui.Button("OK")
+		
 		this.box = gui.Container()
-		this.box.rect.center = # center of screen
+		this.box.rect.center = (game.screensize[0]/2, game.screensize[1]/2)
 		this.box.add(button)
+		this.button = gui.Button("OK")
+		
+		# Create label for messagebox and put it into this.box
 	
 	def update(this):
 		this.box.update()

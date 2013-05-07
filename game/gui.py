@@ -2,9 +2,9 @@ import pygame
 from pygame.locals import *
 
 class Control(pygame.sprite.Sprite, object):
-	this.layer = 5
+	layer = 5
 	def __init__(this):
-		pygame.sprite.Sprite.__init__(this, this.containers)
+		pygame.sprite.Sprite.__init__(this, this.groupa)
 		this.rect = pygame.Rect(0,0,0,0)
 		this.image = None
 		
@@ -16,7 +16,7 @@ class Control(pygame.sprite.Sprite, object):
 
 class Container(Control):
 	def __init__(this, locx = 0, locy = 0, sizex = 2, sizey = 2):
-		pygame.sprite.Sprite.__init__(this, this.containers)
+		pygame.sprite.Sprite.__init__(this, this.groupa)
 		
 		this.bgColor = Color("red")
 		
@@ -60,7 +60,7 @@ class Container(Control):
 		this.image.blit(screen, this.rect)
 		
 		for ctrl in this.ctrls:
-			ctrl.draw(screen):
+			ctrl.draw(screen)
 	
 	# Functions that alter the container's geometry
 	def center(this, loc):
@@ -118,7 +118,7 @@ class Container(Control):
 	
 class Button(Control):
 	def __init__(this, text=""):
-		pygame.sprite.Sprite.__init__(this, this.containers)
+		pygame.sprite.Sprite.__init__(this, this.groupa)
 		
 		#set default colors
 		this.bgColor = Color('white')

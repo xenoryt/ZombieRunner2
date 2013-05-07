@@ -1,5 +1,4 @@
 import pygame
-from pygame.locals import *
 from state import State
 
 ## This is a singleton class ##

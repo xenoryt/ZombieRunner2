@@ -386,7 +386,7 @@ class MapGenerator:
 			
 			
 			# dig out rooms and corridors
-			world.dig(cleared)
+			world.place(cleared, '.')
 			
 			## Randomly place objects and monsters ##
 			# TODO: create a way to calculate how many of each object to place
