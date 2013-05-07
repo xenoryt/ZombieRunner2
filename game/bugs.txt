@@ -2,11 +2,6 @@ Bugs:
 
 -------------
 
-There was one instance where not all rooms were connected (even though they should be)
-I believe I have fixed this, but not 100% sure.
-
--------------
-
-
+None so far!
 
 -------------

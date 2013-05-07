@@ -43,7 +43,7 @@ class testState(State):
 	def __init__(this):
 		this.isCurrent = False
 		this.button = gui.Button("Click Me!")
-		this.button.onClick = 
+		this.button.onClick = button_Click
 		
 	def update(this):
 		# you can never be too safe

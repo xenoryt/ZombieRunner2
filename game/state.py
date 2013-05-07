@@ -43,11 +43,16 @@ class MessageboxState(State):
 	def __init__(this, text):
 		this.text = text
 		this.button = gui.Button("OK")
+		this.box = gui.Container()
+		this.box.rect.center = # center of screen
+		this.box.add(button)
 	
 	def update(this):
+		this.box.update()
 		return None
 	
 	def draw(this, screen):
+		this.box.draw(screen)
 		pass
 	
 

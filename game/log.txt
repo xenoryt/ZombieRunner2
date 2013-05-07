@@ -74,6 +74,13 @@ Apr 30 (0.5)
 May 2 (0.5)
 	- Optimized code slightly
 
-May (1.5)
+May 3 (1.5)
 	- Started working on graphics
 	- Finished some of the basic map tiles
+	
+May 5 (1)
+	- Implemented graphics
+	- Fixed some errors with map rendering
+	
+May 6 (2)
+	- Resumed working on GUI classes
