@@ -104,21 +104,6 @@ class World:
 				fw.write(this.map[y][x])
 			fw.write("\n")
 		
-	
-	def dig(this, points):
-		"""
-		This function digs out all the locations given in [points]
-		"""
-		#print points
-		for p in points:
-			#print p
-			try:
-				this.map[p[1]][p[0]] = Type.Floor
-				this.charmap[p[1]][p[0]] = '.'
-			except:
-				print "Error: Outside bounds (%d)" % len(this.map)
-				return
-	
 	def place(this, points, obj):
 		"""
 		This function places [obj] at [points]
@@ -135,7 +120,7 @@ class World:
 		this.image = pygame.Surface((this.size[0] * Tile.size[0], this.size[1]*Tile.size[1]))
 		for y in range(this.size[1]):
 			for x in range(this.size[0]):
-				this.map[y][x].image.blit(this.image, this.map[y][x].maploc)
+				this.image.blit(this.map[y][x].image, this.map[y][x].maploc)
 		
 		return this.image
 		

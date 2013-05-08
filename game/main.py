@@ -24,8 +24,8 @@
 
 # Only tested to run on python 2.7
 
-#~ import pygame, sys
-#~ from pygame.locals import *
+import pygame, sys
+from pygame.locals import *
 
 from game import *
 import mapgenerator
@@ -41,15 +41,16 @@ def button_Click():
 
 class testState(State):
 	def __init__(this):
+		print "Initializing test state"
 		this.isCurrent = False
 		this.button = gui.Button("Click Me!")
 		this.button.onClick = button_Click
 		
 	def update(this):
 		# you can never be too safe
-		if not this.isCurrent:
-			game.Error("Updating an inactive state")
-			raise ValueError
+		#~ if not this.isCurrent:
+			#~ game.Error("Updating an inactive state")
+			#~ raise ValueError
 		
 		# Get input
 		for event in pygame.event.get():
@@ -59,7 +60,7 @@ class testState(State):
 				if event.key == K_ESCAPE:
 					game.running = False
 				elif event.key == K_1:
-					game.msgbox()
+					game.msgbox("Hello World!")
 					
 	def draw(this,screen):
 		# Fill background
@@ -76,7 +77,7 @@ class testState(State):
 
 		# Blit everything to the screen
 		screen.blit(background, (0, 0))
-		pygame.display.flip()
+		
 			
 		
 

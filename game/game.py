@@ -1,5 +1,7 @@
 import pygame
+import state
 from state import State
+import gui
 
 ## This is a singleton class ##
 class Game(object):
@@ -40,23 +42,38 @@ class Game(object):
 			# call state.update()
 			# manage fps
 			
+			# Handle mouse events
+			gui.Button.mouseup = False
+			for event in pygame.event.get(pygame.locals.MOUSEBUTTONUP):
+				if event.button == 1:
+					gui.Button.mouseup = True
+			
 			if this.state != None:
-				this.state.update()
+				this.state.update()				
 				this.state.draw(this.screen)
+				pygame.display.flip()
 			else:
 				this.Error("No state selected")
 			
 			#cap fps to 60
 			clock.tick(60)
-
-	
-	def msgbox(this, text = "Message"): #TODO: render a messagebox - high priority
-		""" Renders a messagebox and pauses the game """
-		this.state = msgboxState()
-		#raise NotImplementedError
-		# possibly create a specific messagebox state?
 		
+		# TODO: Handle cleanup here #
+		#############################
 	
+	def revertState(this):
+		print "- Reverting state -"
+		this._state = this.state.prevState
+	
+	
+	def Pause(this):
+		""" Pause the game """
+		this.state = MessageboxState("Paused: Press OK to unpause")
+	
+	def msgbox(this, text = "Message"):
+		""" Renders a messagebox and pauses the game """
+		this.state = state.MessageboxState(text)
+		
 	def Error(this, err, errtype=1):
 		""" 
 		Similar to messagebox but with specific message for 
@@ -67,16 +84,7 @@ class Game(object):
 		# Application.Exit()
 	
 	
-	
-	
 	### Properties ###
-	@property
-	def isPaused(this): #TODO safely access global variable (for threading)
-		return _paused
-	@isPaused.setter
-	def isPaused(this, p):
-		_Pause(p) # call a Pause state maybe?
-	
 	@property
 	def state(this):
 		return this._state
@@ -85,40 +93,13 @@ class Game(object):
 		if this._state != None:
 			this._state.isCurrent = False
 		
-		this._prevState = this._state
+		state.prevState = this._state
 		this._state = state
 		this._state.isCurrent = True
 	
 	##################
 	
-	### Private Fn ###
-	def _Pause(this, pause):
-		""" Pause the game """
-		raise NotImplementedError
-		
-		# code under construction #
-		#~ if pause:
-			#~ 
-		#~ else:
-			
-		_paused = not pause
 	
-	def _Update(this):
-		"""
-		A thread that calls the update function in the current state.
-		Also manages fps
-		"""
-		while this.running:
-			
-			# pause the state if Game.isPaused
-			while this.isPaused:
-				pygame.time.wait(10) 
-			
-			_state.update()
-		
-	
-	
-
 # Declares a singleton
-# Do not ever create another object of Game ever again
+# Warning: Do not ever create another object of Game ever again
 game = Game() 

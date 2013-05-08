@@ -9,7 +9,7 @@
 	#~ print math.ceil(((size[1]-2)*(size[0]-2) / (avgRoomSize[0]*avgRoomSize[1])) * (density*0.65+1)/12)
 
 
-import random
+#~ import random
 #~ def t(i,l):
 	#~ 
 	#~ if random.randint(0,6) == 0:
@@ -22,13 +22,19 @@ import random
 	#~ print i-1,l
 	
 #~ t(0,[])
+#~ 
+#~ i = 0
+#~ 
+#~ def t():
+	#~ pass
+#~ 
+#~ t = (lambda x: x + 3)
+#~ 
+#~ print t()
 
-i = 0
+import test2
+from test2 import b
 
-def t():
-	pass
-
-t = (lambda x: x + 3)
-
-print t()
-	
+b.var = 3
+print test2.b.var
+test2.p()

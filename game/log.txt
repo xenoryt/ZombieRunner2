@@ -82,5 +82,11 @@ May 5 (1)
 	- Implemented graphics
 	- Fixed some errors with map rendering
 	
-May 6 (2)
+May 6 (2.5)
 	- Resumed working on GUI classes
+
+May 7 (4)
+	- Tested and attempted to implement GUI classes
+	- Fixed various bugs with GUI classes
+	- Created a MessageboxState
+	- Added checking for mouse events for buttons
