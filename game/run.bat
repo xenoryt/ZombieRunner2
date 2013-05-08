@@ -1,1 +1,1 @@
-E:\PortablePython\App\python.exe main.py
+F:\PortablePython\App\python.exe main.py
