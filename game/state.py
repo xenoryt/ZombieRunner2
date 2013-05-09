@@ -2,6 +2,8 @@ import gui
 import game
 import pygame
 from pygame.locals import *
+import world
+import mapgenerator
 
 class State():
 	"""
@@ -76,10 +78,31 @@ class MessageboxState(State):
 				elif event.key == K_2:
 					game.game.revertState()
 		this.box.update()
-		return 0 # should return something to indicate action
 	
 	def draw(this, screen):
 		this.box.draw(screen)
 		
 	
+class MainMenuState(State):
+	def __init__(this):
+		this.btnStart = gui.Button("Start")
+		this.btnExit = gui.Button("Exit")
+
+class GameState(State):
+	def __init__(this, level = 1):
+		this.world = None
+		this.level = level
+		
+	def newWorld(this):
+		if this.world != None:
+			this.world.save()
+		this.loadWorld(mapgenerator.generate("map"+str(level)+".txt"))
+	
+	def loadWorld(world = None):
+		if this.world != None:
+			this.world.save()
+		this.world = world
+		#TODO: LOAD WORLD ENTITIES HERE
+		
+
 

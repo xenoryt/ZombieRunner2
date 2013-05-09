@@ -16,10 +16,11 @@ class World:
 	"""
 	
 	# Constructor
-	def __init__(this):
+	def __init__(this, name):
 		this.size = (0,0)
 		this.map = []
 		this.image = None
+		this.name = name
 	
 	# Override the [] operation
 	def __getitem__(this, index):
@@ -67,7 +68,8 @@ class World:
 		   print 'Error: file %s not found' % mapfile
 		   return False
 		
-	
+		this.name = mapfile
+		
 		# read in map file
 		lines = fr.readlines()
 		map = []
@@ -96,8 +98,8 @@ class World:
 		fr.close()
 		return True
 	
-	def save(this, mapfile):
-		fw = open(mapfile, "w")
+	def save(this):
+		fw = open(this.name, "w")
 		
 		for y in range(len(this.charmap)):
 			for x in range(len(this.charmap[y])):

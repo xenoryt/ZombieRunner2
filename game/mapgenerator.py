@@ -231,7 +231,7 @@ class MapGenerator:
 		
 		
 		# Generate a new world filled with only walls
-		world = World()
+		world = World(mapname)
 		world.new(size, '#')
 		
 		# Create lists of rooms, corridors and points of the map
@@ -405,5 +405,5 @@ class MapGenerator:
 		print "- - - - - - - - - - - - - - - - - - -"
 		print "Generated world with",len(rooms),"rooms in",tries,"tries"
 		
-		world.save(mapname)
+		world.save()
 		return world
