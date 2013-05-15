@@ -180,7 +180,7 @@ class _Label(Control):
 	def font(this, f, size):
 		this._font = pygame.font.Font(f, size)
 		this.requireUpdate = True
-	
+	#TODO: Change resize function to button's?
 	def resize(this, w = -1,h = -1):
 		# Set width and height if none given
 		w,h = this._font.size(this.text)
@@ -260,6 +260,7 @@ class Label(Control):
 
 class Button(Control):
 	mouseup = False
+	images = []
 	def __init__(this, text="", locx = 0, locy = 0):
 		pygame.sprite.Sprite.__init__(this)
 		
@@ -276,12 +277,8 @@ class Button(Control):
 		# initialize the background image
 		# set the size to the required size of the text
 		
-		this.image = pygame.Surface(this._font.size(text))
-		this.image.fill(this.bgColor)
-		
+		this.image = pygame.transform.scale(this.images[0], this._font.size(text))
 		this.rect = this.image.get_rect(topleft=(locx,locy))
-		
-		
 		
 		this.requireUpdate = True # False means text is up to date
 		this.layer = 6
@@ -295,9 +292,7 @@ class Button(Control):
 		w,h = this._font.size(this.text)
 		
 		# Create background image
-		this.image = pygame.Surface((w, h))
-		this.image = this.image.convert()
-		this.image.fill(this.bgColor)
+		this.image = pygame.transform.scale(this.images[0], this._font.size(this.text))
 		this.rect = this.image.get_rect(topleft=this.rect.topleft)
 	
 	def setMouseover(this, text = ""):

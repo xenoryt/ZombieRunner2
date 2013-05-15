@@ -125,6 +125,14 @@ class World:
 				this.image.blit(this.map[y][x].image, this.map[y][x].maploc)
 		
 		return this.image
+	
+	def draw(this, surface, camera):
+		"""
+		Draws this map onto the surface
+		"""
+		for tile in this.map:
+			tile.draw(surface)
+		
 		
 		
 	## Some functions for world generation ##

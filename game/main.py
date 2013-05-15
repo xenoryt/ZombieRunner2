@@ -78,13 +78,13 @@ class testState(State):
 		# Blit everything to the screen
 		screen.blit(background, (0, 0))
 		
-			
-		
-
 def loadImages():
 	files = ["floor.png", "wall.png", "floor.png", "floor.png", "stairs.png"]
 	for file in files:
 		tile.Tile.images.append(pygame.image.load(os.path.join("data",file)))
+	
+	gui.Button.images.append(pygame.image.load(os.path.join("data","button_normal.png")))
+	gui.Button.images.append(pygame.image.load(os.path.join("data","button_hover.png")))
 
 def main():
 	#~ worldgenerator = MapGenerator()
@@ -92,7 +92,7 @@ def main():
 	
 	loadImages()
 	
-	world = World()
+	world = World("map.txt")
 	if not world.load("map.txt"):
 		return -1
 	world.renderMap()
