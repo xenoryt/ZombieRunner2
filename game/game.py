@@ -17,8 +17,6 @@ class Game(object):
 		this.screen = pygame.display.set_mode(screensize)
 		pygame.display.set_caption(caption)
 		
-		
-	
 	### Public Fn  ###
 	def run(this, state):
 		""" 
@@ -60,6 +58,9 @@ class Game(object):
 		
 		# TODO: Handle cleanup here #
 		#############################
+	
+	def assignState(this, state):
+		this.state = state
 	
 	def revertState(this):
 		print "- Reverting state -"

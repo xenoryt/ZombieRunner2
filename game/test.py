@@ -27,14 +27,14 @@
 #~ 
 #~ def t():
 	#~ pass
-#~ 
-#~ t = (lambda x: x + 3)
-#~ 
-#~ print t()
 
-import test2
-from test2 import b
 
-b.var = 3
-print test2.b.var
-test2.p()
+
+x = None
+def a():
+	return 3
+	
+t = (lambda: (x = a()))
+
+t()
+print x

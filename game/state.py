@@ -80,18 +80,37 @@ class MessageboxState(State):
 		this.box.update()
 	
 	def draw(this, screen):
+		background = pygame.Surface(screen.get_size())
+		background = background.convert()
+		background.fill((250, 250, 250))
+		screen.blit(background, (0, 0))
+		
 		this.box.draw(screen)
 		
-	
+def assignState(state):
+	""" 
+	This function is needed since you can't assign
+	in a lambda
+	"""
+	game.state = state
+
 class MainMenuState(State):
 	def __init__(this):
 		this.btnStart = gui.Button("Start")
 		this.btnExit = gui.Button("Exit")
+		
+		this.btnStart.onClick = lambda: game.assignState(GameState())
+		this.btnExit.onClick = lambda: game.revertState()
+	
+	def update(this):
+		this.btnStart.update()
+		this.btnExit.update()
 
 class GameState(State):
 	def __init__(this, level = 1):
 		this.world = None
 		this.level = level
+		this.camera = game.screensize
 		
 	def newWorld(this):
 		if this.world != None:
@@ -103,6 +122,33 @@ class GameState(State):
 			this.world.save()
 		this.world = world
 		#TODO: LOAD WORLD ENTITIES HERE
-		
-
-
+	
+	def update(this):
+		# Get input
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				game.game.running = False
+			if event.type == KEYDOWN:
+				if event.key == K_ESCAPE:
+					game.game.running = False
+				elif event.key == K_UP:
+					this.camera.y -= 2
+					if this.camera.top < 0:
+						this.camera.top = 0;
+				elif event.key == K_DOWN:
+					this.camera.y += 2
+					if this.camera.bottom > game.screensize[1]:
+						this.camera.bottom = game.screensize[1]
+				elif event.key == K_LEFT:
+					this.camera.x -= 2
+					if this.camera.left < 0:
+						this.camera.left = 0
+				elif event.key == K_RIGHT:
+					this.camera.x += 2
+					if this.camera.right > game.screensize[0]:
+						this.camera.right = game.screensize[0]
+					
+		#TODO: Update world entities here
+	
+	def draw(this, screen):
+		world.draw(screen, this.camera)

@@ -58,11 +58,16 @@ class Tile(pygame.sprite.Sprite, object):
 		this._gridloc = loc
 		this.type = type
 		
-		this.image = this.images[this.type]
-		this.rect = this.image.get_rect(topleft=this.maploc)
+		#~ this.image = this.images[this.type]
+		#~ this.rect = this.image.get_rect(topleft=this.maploc)
 	
 	def __str__(this):
 		return charToTile(this._type)
+	
+	def draw(this, surface):
+		""" Draws the tile onto a surface """
+		#TODO: Do not draw when tile is not visible
+		surface.blit(this.image, tilerect)
 	
 	@property
 	def type(this):
@@ -77,9 +82,11 @@ class Tile(pygame.sprite.Sprite, object):
 			this._type = charToTile(t)
 		elif type(t) == int: 
 			this._type = t
-			
+		
+		
 		this.image = this.images[this._type]
-		this.rect = this.image.get_rect(topleft=this.maploc)
+		this.rect = this.image.get_rect()
+		this.rect.topleft = this.maploc
 		
 	
 	@property
@@ -91,9 +98,8 @@ class Tile(pygame.sprite.Sprite, object):
 		"""
 		loc should be a tuple like (0,0)
 		"""
-		this._gridloc = loc
-	
-	
+		this._gridloc[0] = loc[0]*this.size[0]
+		this._gridloc[1] = loc[1]*this.size[1]
 	
 	@property
 	def maploc(this):
