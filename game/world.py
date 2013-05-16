@@ -16,8 +16,11 @@ class World:
 	"""
 	
 	# Constructor
-	def __init__(this, name):
+	def __init__(this, name = "map.map"):
+		# the size of the grid
+		# the size of the map is a property defined later on
 		this.size = (0,0)
+		
 		this.map = []
 		this.image = None
 		this.name = name
@@ -47,7 +50,10 @@ class World:
 				#~ for x in range(len(this.charmap[y])):
 					#~ this.charmap[y][x] = Type.char(this.map[y][x])
 	
-		
+	@property
+	def mapsize(this):
+		""" Returns the size of the world in pixels (not the grid) """
+		return (this.size[0]*Tile.size[0],this.size[1]*Tile.size[1])
 	
 	def new(this, size, char='.'):
 		"""
@@ -74,7 +80,7 @@ class World:
 		lines = fr.readlines()
 		map = []
 		for line in lines:
-			map.append(line.strip('\n'))
+			map.append(line.strip('\n').strip('\r'))
 		
 		# make sure the map dimensions are correct
 		for i in range(1,len(map)):
@@ -101,9 +107,9 @@ class World:
 	def save(this):
 		fw = open(this.name, "w")
 		
-		for y in range(len(this.charmap)):
-			for x in range(len(this.charmap[y])):
-				fw.write(this.map[y][x])
+		for y in range(len(this.map)):
+			for x in range(len(this.map[y])):
+				fw.write(str(this.map[y][x]))
 			fw.write("\n")
 		
 	def place(this, points, obj):
@@ -118,6 +124,7 @@ class World:
 		"""
 		renderMap() : pygame.Surface
 		Blits all the tiles onto a surface and returns it
+		- This function is obsolete -
 		"""
 		this.image = pygame.Surface((this.size[0] * Tile.size[0], this.size[1]*Tile.size[1]))
 		for y in range(this.size[1]):
@@ -130,8 +137,9 @@ class World:
 		"""
 		Draws this map onto the surface
 		"""
-		for tile in this.map:
-			tile.draw(surface)
+		for row in this.map:
+			for tile in row:
+				tile.draw(surface, camera)
 		
 		
 		

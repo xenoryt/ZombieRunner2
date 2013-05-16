@@ -60,7 +60,7 @@ class testState(State):
 				if event.key == K_ESCAPE:
 					game.running = False
 				elif event.key == K_1:
-					game.msgbox("Hello World!")
+					game.msgbox("Generating map!")
 					
 	def draw(this,screen):
 		# Fill background
@@ -87,17 +87,17 @@ def loadImages():
 	gui.Button.images.append(pygame.image.load(os.path.join("data","button_hover.png")))
 
 def main():
-	#~ worldgenerator = MapGenerator()
-	#~ world = worldgenerator.create("map.txt", (100,100), 7)
 	
 	loadImages()
 	
-	world = World("map.txt")
+	worldgenerator = MapGenerator()
+	world = worldgenerator.create("map.txt", (100,100), 7)
+	
 	if not world.load("map.txt"):
 		return -1
 	world.renderMap()
 	
-	game.run(testState)
+	game.run(state.GameState)
 	
 	return 0
 

@@ -66,7 +66,7 @@ Apr 27 (4)
 Apr 28 (4.5)
 	- Fixed bug with map generation making isolated rooms
 	- Removed the generation of dead ends to produce prettier maps
-	- Optimized map generation
+	- Optimized map generation (5 min -> 30 secs)
 
 Apr 30 (0.5)
 	- Fixed bug with map generating with some rooms unconnected
@@ -90,3 +90,16 @@ May 7 (4)
 	- Fixed various bugs with GUI classes
 	- Created a MessageboxState
 	- Added checking for mouse events for buttons
+
+May 8-14 (0)
+	- Coffee Break
+
+May 15 (5)
+	- Added custom button backgrounds
+	- Added camera class
+	- Renders tile only if it is within view of camera
+	- Updated the main game state 
+	- Finished map rendering
+	- Added a keys class to keep track of button presses
+	
+	

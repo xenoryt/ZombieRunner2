@@ -5,6 +5,9 @@ from pygame.locals import *
 import world
 import mapgenerator
 
+from camera import Camera
+from keys import Keys
+
 class State():
 	"""
 	This class is a base class.
@@ -110,21 +113,29 @@ class GameState(State):
 	def __init__(this, level = 1):
 		this.world = None
 		this.level = level
-		this.camera = game.screensize
+		this.camera = Camera(game.game.screensize)
+		this.keys = Keys()
+		this.scrollamt = 6
+		
+		# TODO: Add checking for continues
+		
+		this.loadWorld("map.txt")
 		
 	def newWorld(this):
 		if this.world != None:
 			this.world.save()
 		this.loadWorld(mapgenerator.generate("map"+str(level)+".txt"))
 	
-	def loadWorld(world = None):
+	def loadWorld(this, mapname):
 		if this.world != None:
 			this.world.save()
-		this.world = world
+		this.world = world.World()
+		this.world.load(mapname)
 		#TODO: LOAD WORLD ENTITIES HERE
 	
 	def update(this):
-		# Get input
+		
+		# Get input 
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				game.game.running = False
@@ -132,23 +143,51 @@ class GameState(State):
 				if event.key == K_ESCAPE:
 					game.game.running = False
 				elif event.key == K_UP:
-					this.camera.y -= 2
-					if this.camera.top < 0:
-						this.camera.top = 0;
+					this.keys.up = True
 				elif event.key == K_DOWN:
-					this.camera.y += 2
-					if this.camera.bottom > game.screensize[1]:
-						this.camera.bottom = game.screensize[1]
+					this.keys.down = True
 				elif event.key == K_LEFT:
-					this.camera.x -= 2
-					if this.camera.left < 0:
-						this.camera.left = 0
+					this.keys.left = True
 				elif event.key == K_RIGHT:
-					this.camera.x += 2
-					if this.camera.right > game.screensize[0]:
-						this.camera.right = game.screensize[0]
-					
+					this.keys.right = True
+				
+				elif event.key == K_EQUALS:
+					this.scrollamt += 2
+				elif event.key == K_MINUS:
+					this.scrollamt -= 2
+				
+			if event.type == KEYUP:
+				if event.key == K_UP:
+					this.keys.up = False
+				elif event.key == K_DOWN:
+					this.keys.down = False
+				elif event.key == K_LEFT:
+					this.keys.left = False
+				elif event.key == K_RIGHT:
+					this.keys.right = False
+						
+		
+		
+		if this.keys.up:
+			this.camera.rect.y -= this.scrollamt
+			if this.camera.rect.top < 0:
+				this.camera.rect.top = 0;
+		if this.keys.down:
+			this.camera.rect.y += this.scrollamt
+			if this.camera.rect.bottom > this.world.mapsize[1]:
+				this.camera.rect.bottom = this.world.mapsize[1]
+		if this.keys.left:
+			this.camera.rect.x -= this.scrollamt
+			if this.camera.rect.left < 0:
+				this.camera.rect.left = 0
+		if this.keys.right:
+			this.camera.rect.x += this.scrollamt
+			if this.camera.rect.right > this.world.mapsize[0]:
+				this.camera.rect.right = this.world.mapsize[0]
+		
+		
+		#print this.camera.rect.left, this.camera.rect.top
 		#TODO: Update world entities here
 	
 	def draw(this, screen):
-		world.draw(screen, this.camera)
+		this.world.draw(screen, this.camera)

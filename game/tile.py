@@ -33,7 +33,7 @@ def charToTile(c):
 		return Type.Floor
 	return Type._tiles[c]
 
-def tileToChar(this, t):
+def tileToChar(t):
 	if type(t) != int:
 		raise TypeError
 	
@@ -53,21 +53,39 @@ class Tile(pygame.sprite.Sprite, object):
 	
 	images = []
 	size = (48,48)
-	def __init__(this, type = None, loc=(0,0)):
+	def __init__(this, type = None, gridloc=(0,0)):
 		pygame.sprite.Sprite.__init__(this)
-		this._gridloc = loc
+		this._gridloc = gridloc
 		this.type = type
+		
+		# this var is to store how bright the tile is lit
+		this.lighting = 0
 		
 		#~ this.image = this.images[this.type]
 		#~ this.rect = this.image.get_rect(topleft=this.maploc)
 	
 	def __str__(this):
-		return charToTile(this._type)
+		return tileToChar(this._type)
 	
-	def draw(this, surface):
+	def update(this):
+		this.lighting = 0
+	
+	def draw(this, surface, camera):
 		""" Draws the tile onto a surface """
-		#TODO: Do not draw when tile is not visible
-		surface.blit(this.image, tilerect)
+		# Check if the tile is NOT visible
+		if this.rect.right < camera.rect.left or this.rect.left > camera.rect.right:
+			return None
+		if this.rect.top > camera.rect.bottom or this.rect.bottom < camera.rect.top:
+			return None
+		
+		#TODO: Add lighting option
+		
+		# if the tile is within the camera
+		surface.blit(this.image, camera.getrect(this.rect))
+	
+	#~ @property
+	#~ def rect(this):
+		#~ return pygame.Rect(this.maploc[0], this.maploc[1], this.size[0], this.size[1])
 	
 	@property
 	def type(this):
@@ -85,8 +103,8 @@ class Tile(pygame.sprite.Sprite, object):
 		
 		
 		this.image = this.images[this._type]
-		this.rect = this.image.get_rect()
-		this.rect.topleft = this.maploc
+		this.rect = this.image.get_rect(topleft = this.maploc)
+		
 		
 	
 	@property
