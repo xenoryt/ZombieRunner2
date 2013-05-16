@@ -2,6 +2,6 @@ Bugs:
 
 -------------
 
-None so far!
+Occasionally reaches maximum recursion depth on map generation
 
 -------------
