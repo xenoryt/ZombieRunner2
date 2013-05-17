@@ -103,3 +103,12 @@ May 15 (6)
 	- Added a keys class to keep track of button presses
 	
 	
+May 16 (8)
+	- Updated Sprite class
+	- Changed the way objects are placed/stored onto map 
+	- Optimized code (noticed it was using 80-90% on a 1.5 GHz cpu)
+		- now uses 45%
+		- further optimizing will be done later
+	- Started coding Monster class
+	- Started coding AI class
+	

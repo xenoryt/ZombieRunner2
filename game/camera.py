@@ -15,3 +15,5 @@ class Camera(object):
 		rect.left -= this.rect.left
 		rect.top -= this.rect.top
 		return rect
+	
+	

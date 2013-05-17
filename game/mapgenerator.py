@@ -386,16 +386,10 @@ class MapGenerator:
 			
 			
 			# dig out rooms and corridors
-			world.place(cleared, '.')
+			world.tile(cleared, '.')
 			
 			## Randomly place objects and monsters ##
-			# TODO: create a way to calculate how many of each object to place
-			
-			nchests = 3
-			nlowlvl = 9
-			nhighlvl = 2
-			nportal = 1
-			nplayer = 1
+			this.place(world)
 			
 			
 			
@@ -407,3 +401,22 @@ class MapGenerator:
 		
 		world.save()
 		return world
+		
+	
+	def place(this, world, level = 0):
+		"""
+		This function places objects (e.g. stairs, chests) and monsters
+		randomly in the world. The type of items and monsters
+		that are placed depends on the level of the dungeon
+		(better items and harder monsters the higher the level)
+		"""
+		
+		## TODO: Implement everything
+		
+		# TODO: create a way to calculate how many of each object to place
+		
+		nchests = 3
+		nlowlvl = 9
+		nhighlvl = 2
+		nportal = 1
+		nplayer = 1

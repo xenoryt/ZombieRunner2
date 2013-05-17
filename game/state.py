@@ -165,7 +165,6 @@ class GameState(State):
 					this.keys.left = False
 				elif event.key == K_RIGHT:
 					this.keys.right = False
-						
 		
 		
 		if this.keys.up:

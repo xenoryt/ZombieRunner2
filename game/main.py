@@ -89,9 +89,11 @@ def loadImages():
 def main():
 	
 	loadImages()
+	#~ 
+	#~ worldgenerator = MapGenerator()
+	#~ world = worldgenerator.create("map.txt", (100,100), 7)
 	
-	worldgenerator = MapGenerator()
-	world = worldgenerator.create("map.txt", (100,100), 7)
+	world = World()
 	
 	if not world.load("map.txt"):
 		return -1

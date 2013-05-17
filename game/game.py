@@ -54,7 +54,7 @@ class Game(object):
 				this.Error("No state selected")
 			
 			#cap fps to 60
-			clock.tick(60)
+			clock.tick(30)
 		
 		# TODO: Handle cleanup here #
 		#############################

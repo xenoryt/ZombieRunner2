@@ -4,6 +4,7 @@ import os # for loading fonts
 
 class Control(pygame.sprite.Sprite, object):
 	layer = 5
+	controls = []
 	def __init__(this):
 		pygame.sprite.Sprite.__init__(this)
 		this.rect = pygame.Rect(0,0,0,0)
@@ -34,6 +35,9 @@ class Container(Control):
 		this.ctrls = []
 		
 		this.layer = 5
+		
+		# Add this control to the list of controls
+		
 	
 	
 	# Functions that are called by the game

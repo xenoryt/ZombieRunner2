@@ -24,6 +24,12 @@ class World:
 		this.map = []
 		this.image = None
 		this.name = name
+		
+		# List of all the monsters in the world
+		this.monsters = []
+		
+		# The main player
+		this.player = None
 	
 	# Override the [] operation
 	def __getitem__(this, index):
@@ -111,13 +117,21 @@ class World:
 			for x in range(len(this.map[y])):
 				fw.write(str(this.map[y][x]))
 			fw.write("\n")
-		
-	def place(this, points, obj):
-		"""
-		This function places [obj] at [points]
-		"""
+	
+	def tile(this, points, type):
 		for p in points:
-			this.map[p[1]][p[0]] = Tile(obj, (p[0],p[1]))
+			this.map[p[1]][p[0]].type = type
+	
+	def place(this, points, objs):
+		"""
+		points - an array of coordinates
+		objs - an array of the objects 
+		"""
+		for i in range(len(objs)):
+			if this.map[points[i][1]][points[i][0]] == None:
+				raise TypeError("Tile on map has not been set")
+			
+			this.map[points[i][1]][points[i][0]].contains.append(objs[i]) #ATTN: NEED TO ADD ITEM
 				
 	
 	def renderMap(this):
@@ -137,9 +151,17 @@ class World:
 		"""
 		Draws this map onto the surface
 		"""
-		for row in this.map:
-			for tile in row:
-				tile.draw(surface, camera)
+		
+		# Calculate the approximate visible area - this saved 30% cpu
+		startx = camera.rect.left / Tile.size[0]
+		starty = camera.rect.top / Tile.size[1]
+		endx = camera.rect.right / Tile.size[0]
+		endy = camera.rect.bottom/ Tile.size[1]
+		
+		
+		for y in range(starty, endy+1):
+			for x in range(startx, endx+1):
+				this.map[y][x].draw(surface, camera)
 		
 		
 		

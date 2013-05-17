@@ -58,25 +58,36 @@ class Tile(pygame.sprite.Sprite, object):
 		this._gridloc = gridloc
 		this.type = type
 		
+		# Stores the sprites/entities that are above this tile
+		this.contains = []
+		
 		# this var is to store how bright the tile is lit
 		this.lighting = 0
 		
 		#~ this.image = this.images[this.type]
 		#~ this.rect = this.image.get_rect(topleft=this.maploc)
+		
+		# Set whether or not a sprite can walk onto this tile
+		this.passable = True if this.type == Type.Floor else False
 	
 	def __str__(this):
 		return tileToChar(this._type)
 	
 	def update(this):
+		# Set whether or not a sprite can walk onto this tile
+		if this.type == Type.Floor:
+			this.passable = True if len(this.contains) == 0 else False
+		
 		this.lighting = 0
 	
 	def draw(this, surface, camera):
 		""" Draws the tile onto a surface """
 		# Check if the tile is NOT visible
-		if this.rect.right < camera.rect.left or this.rect.left > camera.rect.right:
-			return None
-		if this.rect.top > camera.rect.bottom or this.rect.bottom < camera.rect.top:
-			return None
+		#  - world.draw now handles this. This check is now obsolete
+		#~ if this.rect.right < camera.rect.left or this.rect.left > camera.rect.right:
+			#~ return None
+		#~ if this.rect.top > camera.rect.bottom or this.rect.bottom < camera.rect.top:
+			#~ return None
 		
 		#TODO: Add lighting option
 		
