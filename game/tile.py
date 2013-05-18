@@ -81,7 +81,6 @@ class Tile(pygame.sprite.Sprite, object):
 		if this.type == Type.Floor:
 			this.passable = True if len(this.contains) == 0 else False
 		
-		this.lighting = 0
 	
 	def draw(this, surface, camera):
 		""" Draws the tile onto a surface """

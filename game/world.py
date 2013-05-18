@@ -125,6 +125,7 @@ class World:
 				fw.write(str(this.map[y][x]))
 			fw.write("\n")
 	
+	
 	def tile(this, points, type):
 		for p in points:
 			this.map[p[1]][p[0]].type = type
@@ -141,18 +142,7 @@ class World:
 			this.map[points[i][1]][points[i][0]].contains.append(objs[i]) #ATTN: NEED TO ADD ITEM
 				
 	
-	def renderMap(this):
-		"""
-		renderMap() : pygame.Surface
-		Blits all the tiles onto a surface and returns it
-		- This function is obsolete -
-		"""
-		this.image = pygame.Surface((this.size[0] * Tile.size[0], this.size[1]*Tile.size[1]))
-		for y in range(this.size[1]):
-			for x in range(this.size[0]):
-				this.image.blit(this.map[y][x].image, this.map[y][x].maploc)
-		
-		return this.image
+	
 	
 	def draw(this, surface, camera):
 		"""

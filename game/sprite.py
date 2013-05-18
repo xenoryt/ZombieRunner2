@@ -3,6 +3,12 @@ from ai import AI
 
 directions = {"up":[0,-1], "down":[0,1], "left":[-1,0], "right":[1,0], "none":[0,0]}
 
+def move(loc, dir):
+	nloc = list(loc) # make nloc a list of loc
+	nloc[0] += directions[dir][0]
+	nloc[1] += directions[dir][1]
+	return tuple(nloc)
+
 class Sprite(pygame.sprite.Sprite, object):
 	"""
 	The main sprite class.
@@ -21,12 +27,10 @@ class Sprite(pygame.sprite.Sprite, object):
 		# The tile the sprite is standing on
 		this._tile = None 
 		
-		
 		# Stats
 		this.hp = 0
 		this.def = 0
 		this.atk = 0
-		this.str = 0
 		
 		# This is how many actions per turn the sprite gets to perform
 		# 0.5 means 1 action every 2 turns
@@ -60,7 +64,9 @@ class Sprite(pygame.sprite.Sprite, object):
 			this._tile.contains.remove(this)
 		this._tile = tile
 		this._tile.contains.append(this)
-		# TODO: change tile distance values and update lighting
+		
+		# Update tile distance values 
+		this.markTiles()
 	
 	@property
 	def moving(this):
@@ -92,10 +98,32 @@ class Sprite(pygame.sprite.Sprite, object):
 		this._attacking = isAtk
 	
 	
+	def markTiles(this):
+		"""
+		Use breadth first search to mark all tiles around the 
+		player with a value of how far away it is from the player
+		"""
+		for tile in this.world.markedtiles:
+			tile.distance = -1
+			tile.lighting = 0
+		
+		
+		marked = [] # Stores tiles that have already been marked
+		queue = [this.tile] # Stores tiles that have not yet been marked
+		
+		for dist in range(15):
+			newqueue = []
+			for tile in queue:
+				tile.distance = dist
+				if dist < this.sight: 
+					tile.lighting = this.sight - dist
+				for d in directions:
+					loc = move(tile.gridloc, d)
+					if world.map[loc[1]][loc[0]] not in marked:
+						newqueue.append(world.map[loc[1]][loc[0]])
+			queue = list(set(newqueue))
+	
 	def update(this):
-		"""
-		Updates the sprite 
-		"""
 		#TODO: updating animation frames
 	
 	def getCurrentTile(this):
@@ -113,19 +141,24 @@ class Sprite(pygame.sprite.Sprite, object):
 		if this.world == None:
 			raise ValueError("World instance in sprite not set!")
 		
-		found = False
-		for row in this.world.map:
-			for tile in row:
-				if tile.rect.right < this.rect.left or tile.rect.left > this.rect.right:
-					continue
-				if tile.rect.top < this.rect.bottom or tile.rect.bottom > this.rect.top:
-					continue
-				
-				this.tile = tile
-				found = True
-				break
-			if found:
-				break
+		# ATTN: Hard coded in tile size (48,48)
+		loc = this.rect.center
+		gridloc = (loc[0]/48, loc[1]/48) 
+		this.tile = map[gridloc[1]][gridloc[0]]
+		#~ 
+		#~ found = False
+		#~ for row in this.world.map:
+			#~ for tile in row:
+				#~ if tile.rect.right < this.rect.left or tile.rect.left > this.rect.right:
+					#~ continue
+				#~ if tile.rect.top < this.rect.bottom or tile.rect.bottom > this.rect.top:
+					#~ continue
+				#~ 
+				#~ this.tile = tile
+				#~ found = True
+				#~ break
+			#~ if found:
+				#~ break
 	
 	def move(this, direction):
 		""" 
@@ -166,34 +199,27 @@ class Monster(Sprite):
 	"""
 	images = []
 	
-	monsters = []
-	
 	def __init__(this, world = None):
-		pygame.sprite.Sprite.__init__(this, this.groups)
-		this.image = None
-		this.rect = None
+		#~ pygame.sprite.Sprite.__init__(this, this.groups)
 		
-		# Carry a reference to the world
-		this.world = world
-		
-		# The tile the sprite is standing over
-		this._tile = None 
-		
-		# Stats
-		this.hp = 0
-		this.def = 0
-		this.atk = 0
-		
-		this.spd = 1
-		this.actions = 0
-		this.sight = 5
-		this.brightness = 0
-		this._animating = False
+		# Call the parent constructor
+		super(Monster, this).__init__(world)
 		
 		this.ai = AI(this)
 		
 		# Add this monster to list of monsters
 		world.monsters.append(this)
+	
+	@property
+	def tile(this):
+		return this._tile
+	
+	@tile.setter
+	def tile(this, tile):
+		if this._tile != None:
+			this._tile.contains.remove(this)
+		this._tile = tile
+		this._tile.contains.append(this)
 	
 	def update(this):
 		pass
