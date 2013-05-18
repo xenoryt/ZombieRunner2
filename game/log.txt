@@ -112,3 +112,10 @@ May 16 (8)
 	- Started coding Monster class
 	- Started coding AI class
 	
+May 17 (4)
+	- Updated Sprite class
+	- Added more things to AI class
+	- Added more stuff to Monster class
+	- Changed the way monster instances are stored
+		- Monsters are now stored in the World class
+	- Changed the AI's pathfinding

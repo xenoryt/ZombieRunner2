@@ -1,7 +1,7 @@
 import pygame
 from ai import AI
 
-directions = {"up":[0,-1], "down":[0,1], "left":[-1,0], "right":[1,0]}
+directions = {"up":[0,-1], "down":[0,1], "left":[-1,0], "right":[1,0], "none":[0,0]}
 
 class Sprite(pygame.sprite.Sprite, object):
 	"""
@@ -60,6 +60,7 @@ class Sprite(pygame.sprite.Sprite, object):
 			this._tile.contains.remove(this)
 		this._tile = tile
 		this._tile.contains.append(this)
+		# TODO: change tile distance values and update lighting
 	
 	@property
 	def moving(this):
@@ -132,7 +133,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		Note: Direction is a string such as "up" 
 		"""
 		
-		# If its not moving in any direction
+		# If its not moving in any direction, do nothing
 		if direction[0] == 0 and direction[1] == 0:
 			return False
 		
@@ -194,4 +195,5 @@ class Monster(Sprite):
 		# Add this monster to list of monsters
 		world.monsters.append(this)
 	
-	
+	def update(this):
+		pass

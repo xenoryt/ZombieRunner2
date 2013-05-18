@@ -64,6 +64,9 @@ class Tile(pygame.sprite.Sprite, object):
 		# this var is to store how bright the tile is lit
 		this.lighting = 0
 		
+		# this var stores how far this tile is from the player
+		this.distance = -1
+		
 		#~ this.image = this.images[this.type]
 		#~ this.rect = this.image.get_rect(topleft=this.maploc)
 		

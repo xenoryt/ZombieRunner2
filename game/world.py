@@ -30,6 +30,13 @@ class World:
 		
 		# The main player
 		this.player = None
+		
+		# this array stores a list of tiles that have been "marked"
+		# marked tiles are used by monsters to pathfind the shortest 
+		# path to the player. These tiles have their .distance value
+		# set a value other than -1 and need to be reset when the 
+		# player moves.
+		this.markedtiles = []
 	
 	# Override the [] operation
 	def __getitem__(this, index):
