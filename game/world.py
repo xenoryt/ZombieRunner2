@@ -174,7 +174,7 @@ class World:
 		try:
 			fr = open(this.name + "_inventory.txt", "r")
 		except IOError as e:
-			print 'Error: file %s not found' % (mapname + "_inventory.txt")
+			print 'Error: file %s not found' % (this.name + "_inventory.txt")
 			return False
 		
 		lines = fr.readlines()
@@ -191,7 +191,7 @@ class World:
 		try:
 			fr = open(this.name + "_explored.txt", "r")
 		except IOError as e:
-			print 'Error: file %s not found' % (mapname + "_inventory.txt")
+			print 'Error: file %s not found' % (this.name + "_inventory.txt")
 			return False
 		
 		lines = fr.readlines()
