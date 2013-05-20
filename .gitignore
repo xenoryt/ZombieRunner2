@@ -1,3 +1,4 @@
 *.pyc
 map.txt
 map_*
+*.geany
