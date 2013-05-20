@@ -27,7 +27,7 @@ class Corridor:
 		this.endrooms = [] 
 		this.points = []
 		
-	def generate(this, world, areas, cors, loc, dir, maxCors = 2, conCors = True):
+	def generate(this, world, areas, cors, loc, dir, depth = 0, maxCors = 2, conCors = True):
 		"""
 		A recursive function to connect the rooms together.
 		world 	- a World object. 
@@ -50,6 +50,10 @@ class Corridor:
 		
 		if world.onBound(loc): 
 			# This may happen if it starts directly on boundary
+			return False
+		
+		if depth > 950:
+			print "Max recursion depth reached: retrying"
 			return False
 		
 		if loc not in this.points:
@@ -106,7 +110,7 @@ class Corridor:
 				break
 		
 		# recursively dig a corridor
-		return this.generate(world, areas, cors, move(loc, d), d)
+		return this.generate(world, areas, cors, move(loc, d), d, depth + 1)
 	
 	def has(this, point):
 		if point in this.points:

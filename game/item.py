@@ -4,12 +4,11 @@ class Item(object):
 	# This variable is static (same across all class instances
 	_curID = 0 
 	
-	def __init__(this, type = 0, weight = 0, name = "", desc = ""): #initializer
+	def __init__(this, type = 0, name = "", desc = ""): #initializer
 		# Item descriptions
 		this.Type = type
 		this.Name = name
 		this.Description = desc
-		this.weight = weight
 		
 		# Item settings
 		this.canTarget = False
@@ -27,8 +26,16 @@ class Item(object):
 		
 		items.append(this)
 	
-	def onThrow(this, target):
-		pass # do nothing
+	def __str__(this):
+		atts = ""
+		for k in this.attributes.keys():
+			plus = "+" if this.attributes[k] >= 0 else ""
+			atts += k + ": " + plus+str(this.attributes[k]) + "\n"
+		
+		# atts[:len(atts)-1] is to remove the last \n
+		return this.Name + "\n" + this.Description+"\n"+atts[:len(atts)-1]
+	
+	
 	
 	
 	
@@ -65,7 +72,7 @@ def CreateItemList():
 								"It looks like it may break anytime now")
 	csword.attributes = {"atk":5}
 	
-	sword = Item(itemType.wpn, "Sword", "Ordinary sword")
+	sword = Item(itemType.wpn, "Sword", "An ordinary sword")
 	sword.attributes = {"atk":12, "str":1}
 	
 	gsword = Item(itemType.wpn, "Great Sword", "A sword that has been through many battles")

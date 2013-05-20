@@ -2,6 +2,8 @@ Bugs:
 
 -------------
 
-Occasionally reaches maximum recursion depth on map generation
+Occasionally reaches maximum recursion depth during map generation
++ Should be fixed now:
+	+ Set manual recursion depth and upon reaching it, it exits by returning False
 
 -------------

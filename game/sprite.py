@@ -1,5 +1,6 @@
 import pygame
 from ai import AI
+import os
 
 directions = {"up":[0,-1], "down":[0,1], "left":[-1,0], "right":[1,0], "none":[0,0]}
 
@@ -9,17 +10,32 @@ def move(loc, dir):
 	nloc[1] += directions[dir][1]
 	return tuple(nloc)
 
+
+def loadImages(sprite, imagefile, d):
+	sheet = pygame.image.load(os.path.join("data",imagefile))
+	sheetrect = sheet.get_rect()
+	images = []
+	#~ print imagefile, d, range(sheetrect.width/48)
+	for x in range(sheetrect.width/48):
+		rect = pygame.Rect(x*48,0, 48,48)
+		image = pygame.Surface((48,48))
+		image.blit(sheet, (0,0),rect)
+		image.set_colorkey((255,0,255))
+		images.append(image)
+	sprite.images[d] = images
+
+
 class Sprite(pygame.sprite.Sprite, object):
 	"""
 	The main sprite class.
 	It is intended to be used to store data on the player,
 	however the Monster class is derived from this class.
 	"""
-	images = []
+	images = {}
 	def __init__(this, world = None):
 		pygame.sprite.Sprite.__init__(this)
-		this.image = this.images[0]
-		this.rect = this.image.get_rect()
+		
+		this.rect = this.images["up"][0].get_rect()
 		
 		# Carry a reference to the world
 		this.world = world
@@ -53,11 +69,14 @@ class Sprite(pygame.sprite.Sprite, object):
 		# Stores the current animation frame
 		this.aniframe = 0
 		
+		# Stores how much to increment/decrement animation frame
+		this.nextframe = 0.2
+		
 		this._moving = False
 		this._attacking = False
 		
 		# Stores the direction the sprite is facing/moving
-		this.direction = "none"
+		this.direction = "down"
 		
 		# Stores the tile the sprite is walking towards
 		this.nextTile = None
@@ -162,6 +181,11 @@ class Sprite(pygame.sprite.Sprite, object):
 				this.tile = this.nextTile
 				this.nextTile = None
 				
+			# Update animation
+			this.aniframe += this.nextframe
+			nimages = len(this.images[this.direction])
+			if round(this.aniframe,1) == nimages-1 or round(this.aniframe,1) == 0:
+				this.nextframe = -this.nextframe
 		
 	
 	def getCurrentTile(this):
@@ -217,11 +241,12 @@ class Sprite(pygame.sprite.Sprite, object):
 		if this.moving:
 			return False
 		
+		d = direction
 		# If its not moving in any direction, do nothing
-		if direction[0] == 0 and direction[1] == 0:
+		if directions[d][0] == 0 and directions[d][1] == 0:
 			return False
 		
-		d = direction
+		
 		if this.tile == None:
 			this.getCurrentTile()
 		
@@ -251,7 +276,7 @@ class Sprite(pygame.sprite.Sprite, object):
 	
 	def draw(this, screen, camera):
 		if this.tile.lighting > 0 or (this.nextTile != None and this.nextTile.lighting > 0):
-			screen.blit(this.image, camera.getrect(this.rect))
+			screen.blit(this.images[this.direction][int(round(this.aniframe))], camera.getrect(this.rect))
 		
 
 
@@ -261,7 +286,7 @@ class Monster(Sprite):
 	Monsters are also automagically recorded in a list in the current
 	world.
 	"""
-	images = []
+	images = {}
 	
 	def __init__(this, world = None):
 		#~ pygame.sprite.Sprite.__init__(this, this.groups)
@@ -293,8 +318,10 @@ class Monster(Sprite):
 		if this.actions >= 1 and not this.moving:
 			this.move(this.ai.nextStep())
 		
-		# Check for animations
+		
+		
 		if this.moving:
+			# Move the monster
 			this.rect.x += directions[this.direction][0]*4
 			this.rect.y += directions[this.direction][1]*4
 			
@@ -302,6 +329,14 @@ class Monster(Sprite):
 				this.moving = False
 				this.tile = this.nextTile
 				this.nextTile = None
+				
+			# Update animation
+			this.aniframe += this.nextframe
+			nimages = len(this.images[this.direction])
+			if round(this.aniframe, 1) == nimages-1 or round(this.aniframe, 1) == 0:
+				this.nextframe = -this.nextframe
+		
+		
 
 class Chest(Sprite):
 	image = None

@@ -87,8 +87,16 @@ def loadImages():
 	gui.Button.images.append(pygame.image.load(os.path.join("data","button_normal.png")))
 	gui.Button.images.append(pygame.image.load(os.path.join("data","button_hover.png")))
 	
-	sprite.Sprite.images.append(pygame.image.load(os.path.join("data","player.png")))
-	sprite.Monster.images.append(pygame.image.load(os.path.join("data","monster.png")))
+	sprite.loadImages(sprite.Sprite, "player_up.png", "up")
+	sprite.loadImages(sprite.Sprite, "player_down.png", "down")
+	sprite.loadImages(sprite.Sprite, "player_right.png", "right")
+	sprite.loadImages(sprite.Sprite, "player_left.png", "left")
+	
+	sprite.loadImages(sprite.Monster, "dragon_up.png", "up")
+	sprite.loadImages(sprite.Monster, "dragon_down.png", "down")
+	sprite.loadImages(sprite.Monster, "dragon_right.png", "right")
+	sprite.loadImages(sprite.Monster, "dragon_left.png", "left")
+	
 
 def main():
 	
