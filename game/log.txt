@@ -134,8 +134,10 @@ May 19 (7)
 	- Finished implementing lighting
 	- Finished implementing movement
 
-May 20 (1.5)
+May 20 (4)
 	- Implemented turn based movement
 	- Started implementing chests/items
+	- Implemented walking animations
+	- Added new monster and player sprites
 	
 

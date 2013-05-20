@@ -11,6 +11,7 @@ class Game(object):
 		this._state = None
 		this._prevState = None
 		this.screensize = screensize
+		this.fullscreen = False
 		
 		# initialize pygame stuff
 		pygame.init()
@@ -30,7 +31,7 @@ class Game(object):
 			#~ raise NotImplementedError
 		
 		
-		this.state = state()
+		this.state = state(this)
 		this.running = True
 		
 		# create clock for timing
@@ -84,6 +85,8 @@ class Game(object):
 		this.msgbox("Error %d: %s" % (errtype, err))
 		# Application.Exit()
 	
+	def Exit(this):
+		this.running = False
 	
 	### Properties ###
 	@property

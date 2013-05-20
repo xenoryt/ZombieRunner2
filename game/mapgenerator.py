@@ -421,7 +421,7 @@ class MapGenerator:
 		
 		print "cleared:",len(cleared)
 		nchests = len(cleared)/(250)
-		nmonsters = len(cleared)/(75-level*8)
+		nmonsters = len(cleared)/( 15 if (58-level*8) < 15 else (58-level*8) )
 		
 		# Set player location
 		loc = random.choice(cleared)

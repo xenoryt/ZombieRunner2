@@ -1,5 +1,4 @@
 import gui
-import game
 import pygame
 from pygame.locals import *
 import world
@@ -12,7 +11,7 @@ class State():
 	"""
 	This class is a base class.
 	Game states are derived from this class.
-	Everything a game.game state does will be contained
+	Everything a this.game state does will be contained
 	in a class derived from this State class.
 	"""
 	isCurrent = False
@@ -42,24 +41,27 @@ class State():
 		# - other display related stuff
 		# This should not handle FPS (that is handled auto-magically)
 		
-		raise NotImplementedError
+		raise NotImplementedError("Used default draw function in state class")
 
 
 ## Some game states ##
 
 def btnMsgboxClick():
-	game.game.revertState()
+	this.game.revertState()
 	return 0
 
 class MessageboxState(State):
-	def __init__(this, text):
+	def __init__(this, game, text):
 		print "Entered messagebox state"
 		print text
 		print ""
+		
+		this.game = game
+		
 		this.text = text
 		
 		this.box = gui.Container()
-		this.box.rect.center = (game.game.screensize[0]/2, game.game.screensize[1]/2)
+		this.box.rect.center = (this.game.screensize[0]/2, this.game.screensize[1]/2)
 		#~ this.box.rect.organize()
 		
 		this.button = gui.Button("OK")
@@ -74,12 +76,12 @@ class MessageboxState(State):
 		# Get input
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				game.game.running = False
+				this.game.running = False
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
-					game.game.running = False
+					this.game.running = False
 				elif event.key == K_2:
-					game.game.revertState()
+					this.game.revertState()
 		this.box.update()
 	
 	def draw(this, screen):
@@ -90,32 +92,60 @@ class MessageboxState(State):
 		
 		this.box.draw(screen)
 		
-def assignState(state):
-	""" 
-	This function is needed since you can't assign
-	in a lambda
-	"""
-	game.state = state
 
 class MainMenuState(State):
-	def __init__(this):
+	def __init__(this, world = None):
 		this.btnStart = gui.Button("Start")
 		this.btnExit = gui.Button("Exit")
 		
-		this.btnStart.onClick = lambda: game.assignState(GameState())
-		this.btnExit.onClick = lambda: game.revertState()
+		this.btnStart.onClick = lambda: this.game.assignState(GameState())
+		this.btnExit.onClick = lambda: this.game.revertState()
 	
 	def update(this):
 		this.btnStart.update()
 		this.btnExit.update()
 
+
+class PauseState(State):
+	def __init__(this, game, world = None):
+		this.game = game
+		
+		this.btnResume = gui.Button("Resume")
+		this.btnExit = gui.Button("Exit")
+		this.box = gui.Container()
+		
+		this.box.add(this.btnResume, 1,1)
+		this.box.add(this.btnExit, 2,1)
+		
+		this.btnResume.onClick = lambda: this.game.revertState()
+		this.btnExit.onClick = lambda: this.game.Exit()
+		
+		this.box.center((this.game.screensize[0]/2,this.game.screensize[1]/2))
+		
+	def update(this):
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				this.game.running = False
+			if event.type == KEYDOWN:
+				if event.key == K_ESCAPE:
+					this.game.revertState()
+		this.box.update()
+	
+	def draw(this, screen):
+		this.box.draw(screen)
+
 class GameState(State):
-	def __init__(this, level = 1):
+	def __init__(this, game, level = 1):
+		this.game = game
+		
 		this.world = None
 		this.level = level
-		this.camera = Camera(game.game.screensize)
+		this.camera = Camera(this.game.screensize)
 		this.keys = Keys()
+		
+		# Allows player to pan camera across the map
 		this.scrollamt = 6
+		this.mapmode = False
 		
 		# TODO: Add checking for continues
 		
@@ -139,12 +169,12 @@ class GameState(State):
 		# Get input 
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				game.game.running = False
+				this.game.Exit()
 				this.world.save()
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
-					game.game.running = False
 					this.world.save()
+					this.game.assignState(PauseState(this.game))
 				elif event.key == K_UP:
 					this.keys.up = True
 				elif event.key == K_DOWN:
@@ -158,6 +188,14 @@ class GameState(State):
 					this.scrollamt += 2
 				elif event.key == K_MINUS:
 					this.scrollamt -= 2
+				elif event.key == K_m:
+					this.mapmode = not this.mapmode
+				elif event.key == K_F11:
+					this.game.fullscreen = not this.game.fullscreen
+					if this.game.fullscreen:
+						pygame.display.set_mode(this.game.screensize, pygame.FULLSCREEN)
+					else:
+						pygame.display.set_mode(this.game.screensize)
 				
 			if event.type == KEYUP:
 				if event.key == K_UP:
@@ -188,13 +226,33 @@ class GameState(State):
 				#~ this.camera.rect.right = this.world.mapsize[0]
 				
 		if this.keys.up:
-			this.world.player.move("up")
-		elif this.keys.down:
-			this.world.player.move("down")
-		elif this.keys.right:
-			this.world.player.move("right")
-		elif this.keys.left:
-			this.world.player.move("left")
+			if not this.mapmode:
+				this.world.player.move("up")
+			else:
+				this.camera.rect.y -= this.scrollamt
+				if this.camera.rect.top < 0:
+					this.camera.rect.top = 0;
+		if this.keys.down:
+			if not this.mapmode:
+				this.world.player.move("down")
+			else:
+				this.camera.rect.y += this.scrollamt
+				if this.camera.rect.bottom > this.world.mapsize[1]:
+					this.camera.rect.bottom = this.world.mapsize[1];
+		if this.keys.right:
+			if not this.mapmode:
+				this.world.player.move("right")
+			else:
+				this.camera.rect.x += this.scrollamt
+				if this.camera.rect.right > this.world.mapsize[0]:
+					this.camera.rect.right = this.world.mapsize[0]
+		if this.keys.left:
+			if not this.mapmode:
+				this.world.player.move("left")
+			else:
+				this.camera.rect.x -= this.scrollamt
+				if this.camera.rect.left < 0:
+					this.camera.rect.left = 0
 		
 		turn = False
 		if this.world.player.actions == 0:
@@ -208,8 +266,9 @@ class GameState(State):
 				m.turn()
 			m.update()
 		
-		# Center the camera on the player
-		this.camera.rect.center = this.world.player.rect.center
+		if not this.mapmode:
+			# Center the camera on the player
+			this.camera.rect.center = this.world.player.rect.center
 		
 		#print this.camera.rect.left, this.camera.rect.top
 		#TODO: Update world entities here

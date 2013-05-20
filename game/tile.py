@@ -124,8 +124,6 @@ class Tile(pygame.sprite.Sprite, object):
 		
 		this.image = this.images[this._type]
 		this.rect = this.image.get_rect(topleft = this.maploc)
-		
-		
 	
 	@property
 	def gridloc(this):

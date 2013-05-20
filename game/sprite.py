@@ -44,7 +44,8 @@ class Sprite(pygame.sprite.Sprite, object):
 		this._tile = None 
 		
 		# Stats
-		this.hp = 0
+		this.maxhp = 100
+		this.hp = this.maxhp
 		this.atk = 0
 		
 		# This is how many actions per turn the sprite gets to perform
@@ -296,6 +297,8 @@ class Monster(Sprite):
 		
 		this.spd = 0.7
 		this.actions = 0
+		
+		this.atk = 5
 		
 		this.ai = AI(this)
 		this.sight = 4
