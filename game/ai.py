@@ -25,7 +25,8 @@ def unitVect(v):
 
 	
 def move(loc, dir):
-	nloc = list(loc) # make nloc a list of loc
+	nloc = list(loc)
+	#print nloc
 	nloc[0] += directions[dir][0]
 	nloc[1] += directions[dir][1]
 	return tuple(nloc)
@@ -56,16 +57,22 @@ class AI(object):
 		
 		# Check if target is in range
 		# If it isn't don't need to move monster
-		dx,dy = distance(loc, dest)
+		dx,dy = distance(this.body.tile.gridloc, this.body.world.player.tile.gridloc)
 		if abs(dx) + abs(dy) > this.body.sight:
 			return "none"
 		
 		# Check which tile to move to 
+		lowest = [this.body.sight + 1, "none"]
 		for d in directions:
-			loc = move(this.body.tile.gridloc, directions[d])
-			if this.world.map[loc[1]][loc[0]].distance < this.body.sight:
-				return d
+			if d == "none":
+				continue
+			loc = move(this.body.tile.gridloc, d)
+			tile = this.world.map[loc[1]][loc[0]]
+			if tile.type == 1:
+				continue
+			if tile.distance < lowest[0]:
+				lowest = [tile.distance, d]
 		
 		# Player out of range
-		return "none"
+		return lowest[1]
 		

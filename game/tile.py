@@ -3,44 +3,36 @@ from pygame.locals import *
 
 
 
-class Type:
-	Floor, Wall, Trap, Chest, Portal, \
-	Ghost, Hound, Zombie, \
-	Ghoul, Demon, Guardian, Dragon, \
-	Player = range(13)
-	
-	_tiles = {'.':Floor, '#':Wall, '^':Trap, '$':Chest, '*':Portal, 
-				'g':Ghost, 'h':Hound, 'z':Zombie,
-				'G':Ghoul, 'D':Demon, 'A':Guardian, 'R':Dragon,
-				'@':Player}
-	
-	def conv(this,c):
-		if type(c) != str:
-			raise TypeError
-		return this._tiles[c]
-	
-	def char(this, t):
-		if type(t) != int:
-			raise TypeError
-		
-		vals = this._tiles.values()
-		for i in range(len(vals)):
-			if t == vals[i]:
-				return this._tiles.keys()[i]
+#~ class Type:
+	#~ Floor, Wall, Trap, Chest, Portal, \
+	#~ Ghost, Hound, Zombie, \
+	#~ Ghoul, Demon, Guardian, Dragon, \
+	#~ Player = range(13)
+	#~ 
+	#~ _tiles = {'.':Floor, '#':Wall, '^':Trap, '$':Chest, '*':Portal, 
+				#~ 'g':Ghost, 'h':Hound, 'z':Zombie,
+				#~ 'G':Ghoul, 'D':Demon, 'A':Guardian, 'R':Dragon,
+				#~ '@':Player}
+	#~ 
+	#~ def conv(this,c):
+		#~ if type(c) != str:
+			#~ raise TypeError
+		#~ return this._tiles[c]
+	#~ 
+	#~ def char(this, t):
+		#~ if type(t) != int:
+			#~ raise TypeError
+		#~ 
+		#~ vals = this._tiles.values()
+		#~ for i in range(len(vals)):
+			#~ if t == vals[i]:
+				#~ return this._tiles.keys()[i]
 
 def charToTile(c):
-	if c == '@':
-		return Type.Floor
-	return Type._tiles[c]
+	return 0 if c == '.' else 1
 
 def tileToChar(t):
-	if type(t) != int:
-		raise TypeError
-	
-	vals = Type._tiles.values()
-	for i in range(len(vals)):
-		if t == vals[i]:
-			return Type._tiles.keys()[i]
+	return '.' if t == 0 else '#'
 
 
 class Tile(pygame.sprite.Sprite, object):
@@ -65,20 +57,23 @@ class Tile(pygame.sprite.Sprite, object):
 		this.lighting = 0
 		
 		# this var stores how far this tile is from the player
-		this.distance = -1
+		this.distance = 99
 		
 		#~ this.image = this.images[this.type]
 		#~ this.rect = this.image.get_rect(topleft=this.maploc)
 		
 		# Set whether or not a sprite can walk onto this tile
-		this.passable = True if this.type == Type.Floor else False
+		this.passable = True if this.type == 0 else False
+		
+		# Set whether or not the tile has been seen by the player before
+		this.explored = False
 	
 	def __str__(this):
 		return tileToChar(this._type)
 	
 	def update(this):
 		# Set whether or not a sprite can walk onto this tile
-		if this.type == Type.Floor:
+		if this.type == 0:
 			this.passable = True if len(this.contains) == 0 else False
 		
 	
@@ -91,11 +86,23 @@ class Tile(pygame.sprite.Sprite, object):
 		#~ if this.rect.top > camera.rect.bottom or this.rect.bottom < camera.rect.top:
 			#~ return None
 		
-		#TODO: Add lighting option
+		# If lighting is 0, draw just black image
+		if this.lighting <= 0:
+			fog = pygame.Surface(this.size)
+			fog = fog.convert()			
+			if this.explored:
+				fog.fill((50,50,50))
+				fog.set_alpha(128)
+				surface.blit(this.image, camera.getrect(this.rect))
+				surface.blit(fog, camera.getrect(this.rect))
+			else:
+				fog.fill((0,0,0))
+				surface.blit(fog, camera.getrect(this.rect))
+		else:
+			# Else draw the tile
+			surface.blit(this.image, camera.getrect(this.rect))
 		
-		# if the tile is within the camera
-		surface.blit(this.image, camera.getrect(this.rect))
-	
+		
 	#~ @property
 	#~ def rect(this):
 		#~ return pygame.Rect(this.maploc[0], this.maploc[1], this.size[0], this.size[1])

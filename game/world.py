@@ -6,6 +6,8 @@ from pygame.locals import *
 import tile
 from tile import *
 
+import sprite
+
 class World:
 	"""
 	A class that stores all the information about a single map.
@@ -16,7 +18,7 @@ class World:
 	"""
 	
 	# Constructor
-	def __init__(this, name = "map.map"):
+	def __init__(this, name = "map"):
 		# the size of the grid
 		# the size of the map is a property defined later on
 		this.size = (0,0)
@@ -30,6 +32,12 @@ class World:
 		
 		# The main player
 		this.player = None
+		
+		# The exit
+		this.staircase = None
+		
+		# A dictionary of item id's and the amount the player is carrying
+		this.inventory = {}
 		
 		# this array stores a list of tiles that have been "marked"
 		# marked tiles are used by monsters to pathfind the shortest 
@@ -80,14 +88,14 @@ class World:
 			
 		this = map
 	
-	def load(this, mapfile):
+	def load(this, mapname):
 		try:
-		  fr = open(mapfile, "r")
+		  fr = open(mapname + ".txt", "r")
 		except IOError as e:
-		   print 'Error: file %s not found' % mapfile
+		   print 'Error: file %s not found' % (mapname + ".txt")
 		   return False
 		
-		this.name = mapfile
+		this.name = mapname
 		
 		# read in map file
 		lines = fr.readlines()
@@ -112,19 +120,118 @@ class World:
 				this.map[y].append(Tile(map[y][x], (x,y)))
 				# this.map # What was i gonna do again...
 			
-		
-		
 		fr.close()
+		
+		
+		
+		try:
+			fr = open(this.name + "_objects.txt", "r")
+		except IOError as e:
+			print 'Error: file %s not found' % (mapname + "_objects.txt")
+			return False
+		
+		# Delete previous references to objects if there were any
+		del this.monsters
+		del this.player
+		this.monsters = []
+		lines = fr.readlines()
+		for i in range(len(lines)):
+			line = lines[i].split(' ')
+			
+			# The objects file should follow the following format
+			# <ObjectType> <LocX> <LocY>
+			locx = int(line[1])
+			locy = int(line[2])
+			
+			this.placeObject(line[0], locx, locy)
+		
+		
+		this.loadInventory()
+		this.loadExplored()
+		
 		return True
 	
-	def save(this):
-		fw = open(this.name, "w")
+	def placeObject(this, type, locx, locy):
+		"""
+		Places objects such as players, monsters and chests at the 
+		specified grid location.
+		"""
+		if type == "player":
+			this.player = sprite.Sprite(this)
+			this.player.rect.topleft = (locx*48, locy*48)
+			this.player.tile = this.map[locy][locx]
+		if type == "monster":
+			m = sprite.Monster(this)
+			m.rect.topleft = (locx*48, locy*48)
+			m.tile = this.map[locy][locx]
+			this.monsters.append(m)
+		
+	
+	def loadInventory(this):
+		try:
+			fr = open(this.name + "_inventory.txt", "r")
+		except IOError as e:
+			print 'Error: file %s not found' % (mapname + "_inventory.txt")
+			return False
+		
+		lines = fr.readlines()
+		for i in range(len(lines)):
+			line = lines[i].split(' ')
+			
+			# The inventory file should follow the following format
+			# <ItemID> <Amount>
+			this.inventory[int(line[0])] = int(line[1])
+	
+	def loadExplored(this):
+		try:
+			fr = open(this.name + "_explored.txt", "r")
+		except IOError as e:
+			print 'Error: file %s not found' % (mapname + "_inventory.txt")
+			return False
+		
+		lines = fr.readlines()
+		for line in lines:
+			data = line.split()
+			loc = [int(data[0]), int(data[1])]
+			this.map[loc[1]][loc[0]].explored = True
+	
+	def savemap(this):
+		fw = open(this.name + ".txt", "w")
 		
 		for y in range(len(this.map)):
 			for x in range(len(this.map[y])):
 				fw.write(str(this.map[y][x]))
 			fw.write("\n")
+		fw.close()
 	
+	def save(this):
+		fw = open(this.name + "_inventory.txt", "w")
+		
+		for item in this.inventory.keys():
+			fw.write(str(item) + " " + str(this.inventory[item]) +"\n")
+		fw.close()
+		fw = open(this.name + "_objects.txt", "w")
+		
+		# Write player data
+		fw.write("player " + str(this.player.tile.gridloc[0]) + " " + str(this.player.tile.gridloc[1])+"\n")
+		
+		# Write monster data
+		for m in this.monsters:
+			fw.write("monster " + str(m.tile.gridloc[0]) + " " + str(m.tile.gridloc[1]) + '\n')
+		
+		#TODO: Write chest data
+		
+		
+		fw.close()
+		
+		# Write areas that have been explored
+		fw = open(this.name + "_explored.txt", "w")
+		#ATTN: This is a TAD bit inefficient...
+		for y in range(this.size[0]):
+			for x in range(this.size[1]):
+				if this.map[y][x].explored:
+					fw.write(str(x) + " " + str(y) + '\n')
+		fw.close()
 	
 	def tile(this, points, type):
 		for p in points:
@@ -155,10 +262,15 @@ class World:
 		endx = camera.rect.right / Tile.size[0]
 		endy = camera.rect.bottom/ Tile.size[1]
 		
-		
+		startx = 0 if startx < 0 else startx
+		starty = 0 if starty < 0 else starty
+		endx = this.size[0]-1 if endx > this.size[0]-1 else endx
+		endy = this.size[1]-1 if endy > this.size[1]-1 else endy
+				
 		for y in range(starty, endy+1):
 			for x in range(startx, endx+1):
 				this.map[y][x].draw(surface, camera)
+		
 		
 		
 		

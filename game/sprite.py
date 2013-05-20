@@ -17,9 +17,9 @@ class Sprite(pygame.sprite.Sprite, object):
 	"""
 	images = []
 	def __init__(this, world = None):
-		pygame.sprite.Sprite.__init__(this, this.groups)
-		this.image = None
-		this.rect = None
+		pygame.sprite.Sprite.__init__(this)
+		this.image = this.images[0]
+		this.rect = this.image.get_rect()
 		
 		# Carry a reference to the world
 		this.world = world
@@ -29,7 +29,6 @@ class Sprite(pygame.sprite.Sprite, object):
 		
 		# Stats
 		this.hp = 0
-		this.def = 0
 		this.atk = 0
 		
 		# This is how many actions per turn the sprite gets to perform
@@ -41,7 +40,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		
 		# how far the sprite can see 
 		# 5 is slightly less than half the screen height
-		this.sight = 5
+		this.sight = 6
 		
 		# This var sets the radius of the area that is lit up 
 		# around this sprite
@@ -51,8 +50,18 @@ class Sprite(pygame.sprite.Sprite, object):
 		# is in the middle of an animation
 		this.animating = False
 		
+		# Stores the current animation frame
+		this.aniframe = 0
+		
 		this._moving = False
 		this._attacking = False
+		
+		# Stores the direction the sprite is facing/moving
+		this.direction = "none"
+		
+		# Stores the tile the sprite is walking towards
+		this.nextTile = None
+		
 	
 	@property
 	def tile(this):
@@ -62,8 +71,11 @@ class Sprite(pygame.sprite.Sprite, object):
 	def tile(this, tile):
 		if this._tile != None:
 			this._tile.contains.remove(this)
+		
 		this._tile = tile
-		this._tile.contains.append(this)
+		
+		if tile != None:
+			this._tile.contains.append(this)
 		
 		# Update tile distance values 
 		this.markTiles()
@@ -104,10 +116,10 @@ class Sprite(pygame.sprite.Sprite, object):
 		player with a value of how far away it is from the player
 		"""
 		for tile in this.world.markedtiles:
-			tile.distance = -1
+			tile.distance = 99
 			tile.lighting = 0
 		
-		
+		this.tile.lighting = this.sight
 		marked = [] # Stores tiles that have already been marked
 		queue = [this.tile] # Stores tiles that have not yet been marked
 		
@@ -115,16 +127,38 @@ class Sprite(pygame.sprite.Sprite, object):
 			newqueue = []
 			for tile in queue:
 				tile.distance = dist
-				if dist < this.sight: 
-					tile.lighting = this.sight - dist
+				
 				for d in directions:
 					loc = move(tile.gridloc, d)
-					if world.map[loc[1]][loc[0]] not in marked:
-						newqueue.append(world.map[loc[1]][loc[0]])
+					if this.world.outBound(loc):
+						continue
+					nexttile = this.world.map[loc[1]][loc[0]]
+					if tile.type == 0 and tile.lighting > 0:
+						if nexttile.lighting < this.sight-dist-1:
+							nexttile.lighting = this.sight-dist-1
+							nexttile.explored = True
+					if nexttile.type == 0 and (nexttile not in marked):
+						newqueue.append(nexttile)
+				
+			marked += queue
 			queue = list(set(newqueue))
+		
+		this.world.markedtiles = marked
 	
 	def update(this):
 		#TODO: updating animation frames
+		
+		# Check for animations
+		if this.moving:
+			this.rect.x += directions[this.direction][0]*4
+			this.rect.y += directions[this.direction][1]*4
+			
+			if this.rect.center == this.nextTile.rect.center:
+				this.moving = False
+				this.tile = this.nextTile
+				this.nextTile = None
+				
+		
 	
 	def getCurrentTile(this):
 		"""
@@ -166,6 +200,10 @@ class Sprite(pygame.sprite.Sprite, object):
 		Note: Direction is a string such as "up" 
 		"""
 		
+		# If the sprite is currently in the process of moving
+		if this.moving:
+			return False
+		
 		# If its not moving in any direction, do nothing
 		if direction[0] == 0 and direction[1] == 0:
 			return False
@@ -176,18 +214,29 @@ class Sprite(pygame.sprite.Sprite, object):
 		
 		# Check if the tile the sprite is moving to is passable
 		loc = this.tile.gridloc
-		if map[loc[1] + d[1]][loc[0] + d[0]].passable:			
-			this.rect.x += directions[direction][0]
-			this.rect.y += directions[direction][1]
+		nextTile = this.world.map[loc[1] + directions[d][1]][loc[0] + directions[d][0]]
+		if nextTile.passable:
+			# Set this sprite to move
+			this.direction = d
+			this.moving = True
 			
-			# Check if this sprite has moved off of its current tile
-			if this.rect.centerx < this.tile.rect.left or this.rect.centerx > this.tile.rect.right:
-				this.tile = map[loc[1] + d[1]][loc[0] + d[0]]
-			elif this.rect.centery < this.tile.rect.top or this.rect.centery > this.tile.rect.bottom:
-				this.tile = map[loc[1] + d[1]][loc[0] + d[0]]
+			this.nextTile = nextTile
+			
+			#~ this.rect.x += directions[direction][0]
+			#~ this.rect.y += directions[direction][1]
+			#~ 
+			#~ # Check if this sprite has moved off of its current tile
+			#~ if this.rect.centerx < this.tile.rect.left or this.rect.centerx > this.tile.rect.right:
+				#~ this.tile = map[loc[1] + d[1]][loc[0] + d[0]]
+			#~ elif this.rect.centery < this.tile.rect.top or this.rect.centery > this.tile.rect.bottom:
+				#~ this.tile = map[loc[1] + d[1]][loc[0] + d[0]]
 		
 		return True
 		
+	
+	def draw(this, screen, camera):
+		if this.tile.lighting > 0 or (this.nextTile != None and this.nextTile.lighting > 0):
+			screen.blit(this.image, camera.getrect(this.rect))
 		
 
 
@@ -206,9 +255,10 @@ class Monster(Sprite):
 		super(Monster, this).__init__(world)
 		
 		this.ai = AI(this)
+		this.sight = 14
 		
 		# Add this monster to list of monsters
-		world.monsters.append(this)
+		#~ world.monsters.append(this)
 	
 	@property
 	def tile(this):
@@ -222,4 +272,15 @@ class Monster(Sprite):
 		this._tile.contains.append(this)
 	
 	def update(this):
-		pass
+		if not this.moving:
+			this.move(this.ai.nextStep())
+		
+		# Check for animations
+		if this.moving:
+			this.rect.x += directions[this.direction][0]*4
+			this.rect.y += directions[this.direction][1]*4
+			
+			if this.rect.center == this.nextTile.rect.center:
+				this.moving = False
+				this.tile = this.nextTile
+				this.nextTile = None

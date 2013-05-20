@@ -121,3 +121,16 @@ May 17 (8)
 	- Changed the AI's pathfinding
 	- Started implementing lighting
 	- Started getting monster sprites
+	
+May 18 (5)
+	- Added inventory
+	- Added more files to store data on world objects and player inventory
+	- Started implementing random object placement in world generation
+	- Started implementing turn-based sprite movement and attacking
+
+May 19 (7)
+	- Finished generic monster AI
+	- Finished implementing file operations (loading & saving)
+	- Finished implementing lighting
+	- Finished implementing movement
+	- 

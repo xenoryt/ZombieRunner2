@@ -119,18 +119,19 @@ class GameState(State):
 		
 		# TODO: Add checking for continues
 		
-		this.loadWorld("map.txt")
+		this.loadWorld("map")
 		
 	def newWorld(this):
 		if this.world != None:
-			this.world.save()
+			this.world.savemap()
 		this.loadWorld(mapgenerator.generate("map"+str(level)+".txt"))
 	
 	def loadWorld(this, mapname):
 		if this.world != None:
-			this.world.save()
+			this.world.savemap()
 		this.world = world.World()
 		this.world.load(mapname)
+		this.camera.rect.center = this.world.player.rect.center
 		#TODO: LOAD WORLD ENTITIES HERE
 	
 	def update(this):
@@ -139,9 +140,11 @@ class GameState(State):
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				game.game.running = False
+				this.world.save()
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
 					game.game.running = False
+					this.world.save()
 				elif event.key == K_UP:
 					this.keys.up = True
 				elif event.key == K_DOWN:
@@ -167,26 +170,45 @@ class GameState(State):
 					this.keys.right = False
 		
 		
+		#~ if this.keys.up:
+			#~ this.camera.rect.y -= this.scrollamt
+			#~ if this.camera.rect.top < 0:
+				#~ this.camera.rect.top = 0;
+		#~ if this.keys.down:
+			#~ this.camera.rect.y += this.scrollamt
+			#~ if this.camera.rect.bottom > this.world.mapsize[1]:
+				#~ this.camera.rect.bottom = this.world.mapsize[1]
+		#~ if this.keys.left:
+			#~ this.camera.rect.x -= this.scrollamt
+			#~ if this.camera.rect.left < 0:
+				#~ this.camera.rect.left = 0
+		#~ if this.keys.right:
+			#~ this.camera.rect.x += this.scrollamt
+			#~ if this.camera.rect.right > this.world.mapsize[0]:
+				#~ this.camera.rect.right = this.world.mapsize[0]
+				
 		if this.keys.up:
-			this.camera.rect.y -= this.scrollamt
-			if this.camera.rect.top < 0:
-				this.camera.rect.top = 0;
-		if this.keys.down:
-			this.camera.rect.y += this.scrollamt
-			if this.camera.rect.bottom > this.world.mapsize[1]:
-				this.camera.rect.bottom = this.world.mapsize[1]
-		if this.keys.left:
-			this.camera.rect.x -= this.scrollamt
-			if this.camera.rect.left < 0:
-				this.camera.rect.left = 0
-		if this.keys.right:
-			this.camera.rect.x += this.scrollamt
-			if this.camera.rect.right > this.world.mapsize[0]:
-				this.camera.rect.right = this.world.mapsize[0]
+			this.world.player.move("up")
+		elif this.keys.down:
+			this.world.player.move("down")
+		elif this.keys.right:
+			this.world.player.move("right")
+		elif this.keys.left:
+			this.world.player.move("left")
 		
+		this.world.player.update()
+		
+		for m in this.world.monsters:
+			m.update()
+		
+		# Center the camera on the player
+		this.camera.rect.center = this.world.player.rect.center
 		
 		#print this.camera.rect.left, this.camera.rect.top
 		#TODO: Update world entities here
 	
 	def draw(this, screen):
 		this.world.draw(screen, this.camera)
+		this.world.player.draw(screen, this.camera)
+		for m in this.world.monsters:
+			m.draw(screen, this.camera)

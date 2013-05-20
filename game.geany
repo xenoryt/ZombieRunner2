@@ -23,17 +23,17 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=8
-FILE_NAME_0=2846;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fmain.py;0;4
-FILE_NAME_1=1113;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fgame.py;0;4
-FILE_NAME_2=3843;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fstate.py;0;4
-FILE_NAME_3=0;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fgui.py;0;4
-FILE_NAME_4=2913;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fworld.py;0;4
-FILE_NAME_5=738;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Ftile.py;0;4
-FILE_NAME_6=309;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fsprite.py;0;4
-FILE_NAME_7=175;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fcamera.py;0;4
-FILE_NAME_8=0;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fmapgenerator.py;0;4
-FILE_NAME_9=192;Python;0;16;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fkeys.py;0;4
+current_page=9
+FILE_NAME_0=2866;Python;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fmain.py;0;4
+FILE_NAME_1=1361;Python;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fgame.py;0;4
+FILE_NAME_2=5658;Python;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fstate.py;0;4
+FILE_NAME_3=871;Python;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fgui.py;0;4
+FILE_NAME_4=5203;Python;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fworld.py;0;4
+FILE_NAME_5=2454;Python;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Ftile.py;0;4
+FILE_NAME_6=2724;Python;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fsprite.py;0;4
+FILE_NAME_7=1554;Python;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fai.py;0;4
+FILE_NAME_8=12670;Python;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Fmapgenerator.py;0;4
+FILE_NAME_9=3718;None;0;EUTF-8;1;1;0;%2Fhome%2Fxenoryt%2Fprojects%2Fgame%2Flog.txt;0;4
 
 [VTE]
 last_dir=/home/xenoryt

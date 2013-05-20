@@ -389,7 +389,7 @@ class MapGenerator:
 			world.tile(cleared, '.')
 			
 			## Randomly place objects and monsters ##
-			this.place(world)
+			this.place(world, cleared)
 			
 			
 			
@@ -399,13 +399,13 @@ class MapGenerator:
 		print "- - - - - - - - - - - - - - - - - - -"
 		print "Generated world with",len(rooms),"rooms in",tries,"tries"
 		
-		world.save()
+		world.savemap()
 		return world
 		
 	
-	def place(this, world, level = 0):
+	def place(this, world, cleared, level = 0):
 		"""
-		This function places objects (e.g. stairs, chests) and monsters
+		This function places objects (e.g. stairs, chests, monsters)
 		randomly in the world. The type of items and monsters
 		that are placed depends on the level of the dungeon
 		(better items and harder monsters the higher the level)
@@ -415,8 +415,27 @@ class MapGenerator:
 		
 		# TODO: create a way to calculate how many of each object to place
 		
-		nchests = 3
-		nlowlvl = 9
-		nhighlvl = 2
-		nportal = 1
-		nplayer = 1
+		print "cleared:",len(cleared)
+		nchests = len(cleared)/(250)
+		nmonsters = len(cleared)/(60-level*8)
+		
+		# Set player location
+		loc = random.choice(cleared)
+		world.placeObject("player", loc[0], loc[1])
+		
+		# Set staircase location
+		loc = random.choice(cleared)
+		world.placeObject("exit", loc[0], loc[1])
+		
+		# Set chest locations
+		for chest in range(nchests):
+			loc = random.choice(cleared)
+			world.placeObject("chest", loc[0], loc[1])
+		
+		# Set monster locations
+		for monster in range(nmonsters):
+			loc = random.choice(cleared)
+			world.placeObject("monster", loc[0], loc[1])
+		
+		world.save()
+		

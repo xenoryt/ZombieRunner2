@@ -33,6 +33,7 @@ from mapgenerator import MapGenerator
 from world import World
 import tile
 import os
+import sprite
 
 import gui
 
@@ -79,25 +80,27 @@ class testState(State):
 		screen.blit(background, (0, 0))
 		
 def loadImages():
-	files = ["floor.png", "wall.png", "floor.png", "floor.png", "stairs.png"]
+	files = ["floor.png", "wall.png"]
 	for file in files:
 		tile.Tile.images.append(pygame.image.load(os.path.join("data",file)))
 	
 	gui.Button.images.append(pygame.image.load(os.path.join("data","button_normal.png")))
 	gui.Button.images.append(pygame.image.load(os.path.join("data","button_hover.png")))
+	
+	sprite.Sprite.images.append(pygame.image.load(os.path.join("data","player.png")))
+	sprite.Monster.images.append(pygame.image.load(os.path.join("data","monster.png")))
 
 def main():
 	
 	loadImages()
-	#~ 
+	
 	#~ worldgenerator = MapGenerator()
-	#~ world = worldgenerator.create("map.txt", (100,100), 7)
+	#~ world = worldgenerator.create("map", (100,100), 2)
 	
 	world = World()
 	
-	if not world.load("map.txt"):
+	if not world.load("map"):
 		return -1
-	world.renderMap()
 	
 	game.run(state.GameState)
 	
