@@ -133,4 +133,8 @@ May 19 (7)
 	- Finished implementing file operations (loading & saving)
 	- Finished implementing lighting
 	- Finished implementing movement
-	- 
+
+May 20 
+	
+	
+

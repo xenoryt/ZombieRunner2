@@ -145,9 +145,12 @@ class World:
 			
 			this.placeObject(line[0], locx, locy)
 		
+		fr.close()
 		
-		this.loadInventory()
-		this.loadExplored()
+		if not this.loadInventory():
+			return False
+		if not this.loadExplored():
+			return False
 		
 		return True
 	
@@ -181,6 +184,8 @@ class World:
 			# The inventory file should follow the following format
 			# <ItemID> <Amount>
 			this.inventory[int(line[0])] = int(line[1])
+		
+		return True
 	
 	def loadExplored(this):
 		try:
@@ -194,6 +199,8 @@ class World:
 			data = line.split()
 			loc = [int(data[0]), int(data[1])]
 			this.map[loc[1]][loc[0]].explored = True
+		
+		return True
 	
 	def savemap(this):
 		fw = open(this.name + ".txt", "w")

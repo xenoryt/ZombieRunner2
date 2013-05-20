@@ -145,6 +145,10 @@ class Sprite(pygame.sprite.Sprite, object):
 		
 		this.world.markedtiles = marked
 	
+	def turn(this):
+		if this.actions < 1:
+			this.actions += this.spd
+	
 	def update(this):
 		#TODO: updating animation frames
 		
@@ -171,6 +175,11 @@ class Sprite(pygame.sprite.Sprite, object):
 		This function requires this.world to be set to 
 		the current instance of the world else this function fails.
 		This function can also be very processor intensive.
+		
+		Note 2:
+		This function is kinda obsolete since the world usually sets the 
+		tile the sprite is standing on when a new sprite is loaded. 
+		But this function will be used in case it was not set.
 		"""
 		if this.world == None:
 			raise ValueError("World instance in sprite not set!")
@@ -200,6 +209,10 @@ class Sprite(pygame.sprite.Sprite, object):
 		Note: Direction is a string such as "up" 
 		"""
 		
+		# If there isn't enough action points to perform a move
+		if this.actions < 1:
+			return False
+		
 		# If the sprite is currently in the process of moving
 		if this.moving:
 			return False
@@ -221,7 +234,9 @@ class Sprite(pygame.sprite.Sprite, object):
 			this.moving = True
 			
 			this.nextTile = nextTile
-			
+			this.nextTile.passable = False
+			this.tile.passable = True
+			this.actions -= 1
 			#~ this.rect.x += directions[direction][0]
 			#~ this.rect.y += directions[direction][1]
 			#~ 
@@ -254,8 +269,9 @@ class Monster(Sprite):
 		# Call the parent constructor
 		super(Monster, this).__init__(world)
 		
+		this.spd = 0.7
 		this.ai = AI(this)
-		this.sight = 14
+		this.sight = 4
 		
 		# Add this monster to list of monsters
 		#~ world.monsters.append(this)
@@ -272,7 +288,7 @@ class Monster(Sprite):
 		this._tile.contains.append(this)
 	
 	def update(this):
-		if not this.moving:
+		if this.actions >= 1 and not this.moving:
 			this.move(this.ai.nextStep())
 		
 		# Check for animations
@@ -284,3 +300,37 @@ class Monster(Sprite):
 				this.moving = False
 				this.tile = this.nextTile
 				this.nextTile = None
+
+class Chest(Sprite):
+	image = None
+	def __init__(this, world = None):
+		pygame.sprite.Sprite.__init__(this)
+		this.rect = this.image.get_rect()
+		
+		# Carry a reference to the world
+		this.world = world
+		
+		# The tile the sprite is standing on
+		this._tile = None 
+	
+	@property
+	def tile(this):
+		return this._tile
+	
+	@tile.setter
+	def tile(this, tile):
+		if this._tile != None:
+			this._tile.contains.remove(this)
+		
+		this._tile = tile
+		
+		if tile != None:
+			this._tile.contains.append(this)
+	
+	
+	def update(this):
+		pass
+	
+	def draw(this, camera):
+		if this.tile.lighting > 0:
+			screen.blit(this.image, camera.getrect(this.rect))

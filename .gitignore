@@ -1,4 +1,4 @@
 *.pyc
-map.txt
-map_*
+map*.txt
+map*_*
 *.geany

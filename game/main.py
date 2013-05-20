@@ -94,13 +94,12 @@ def main():
 	
 	loadImages()
 	
-	#~ worldgenerator = MapGenerator()
-	#~ world = worldgenerator.create("map", (100,100), 2)
-	
 	world = World()
 	
 	if not world.load("map"):
-		return -1
+		worldgenerator = MapGenerator()
+		world = worldgenerator.create("map", (100,100), 2)
+	
 	
 	game.run(state.GameState)
 	

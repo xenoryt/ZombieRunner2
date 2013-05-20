@@ -196,9 +196,16 @@ class GameState(State):
 		elif this.keys.left:
 			this.world.player.move("left")
 		
+		turn = False
+		if this.world.player.actions == 0:
+			this.world.player.turn()
+			turn = True
+		
 		this.world.player.update()
 		
 		for m in this.world.monsters:
+			if turn:
+				m.turn()
 			m.update()
 		
 		# Center the camera on the player
