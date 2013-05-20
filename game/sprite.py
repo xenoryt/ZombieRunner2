@@ -36,7 +36,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.spd = 1
 		
 		# This var stores how many actions are left to perform
-		this.actions = 0
+		this.actions = 1
 		
 		# how far the sprite can see 
 		# 5 is slightly less than half the screen height
@@ -270,6 +270,8 @@ class Monster(Sprite):
 		super(Monster, this).__init__(world)
 		
 		this.spd = 0.7
+		this.actions = 0
+		
 		this.ai = AI(this)
 		this.sight = 4
 		

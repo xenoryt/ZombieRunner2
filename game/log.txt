@@ -134,7 +134,8 @@ May 19 (7)
 	- Finished implementing lighting
 	- Finished implementing movement
 
-May 20 
-	
+May 20 (1.5)
+	- Implemented turn based movement
+	- Started implementing chests/items
 	
 
