@@ -10,6 +10,7 @@ player = {}
 
 def loadImages(imagefile, d):
 	sheet = pygame.image.load(os.path.join("data",imagefile))
+	sheet = sheet.convert()
 	sheetrect = sheet.get_rect()
 	images = []
 	#~ print imagefile, d, range(sheetrect.width/48)
@@ -19,7 +20,9 @@ def loadImages(imagefile, d):
 		image = pygame.Surface((48,48))
 		
 		image.blit(sheet, (0,0),rect)
-		image.set_colorkey((0,0,0))
+		#~ image = image.convert()
+		image.set_colorkey((255,0,255))
+		#~ image = image.convert()
 		images.append(image)
 	player[d] = images
 	
@@ -29,6 +32,8 @@ loadImages("player_right.png", "right")
 loadImages("player_left.png", "left")
 
 sheet = pygame.image.load(os.path.join("data","player_down.png"))
+sheet.set_colorkey((255,0,255))
+sheet = sheet.convert()
 
 print "loaded"
 

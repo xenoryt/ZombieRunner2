@@ -113,9 +113,9 @@ class Tile(pygame.sprite.Sprite, object):
 			if obj.type == "player":
 				return obj
 		return None
-	def getChest(this):
+	def getObject(this):
 		for obj in this.contains:
-			if obj.type == "chest":
+			if obj.type == "object":
 				return obj
 		return None
 	

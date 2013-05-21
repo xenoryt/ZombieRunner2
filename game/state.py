@@ -209,7 +209,7 @@ class GameState(State):
 			msg+= "Died on floor: " + str(this.world.level)
 			this.world.terminate()
 			this.game.msgbox(msg)
-			this.game.Exit()
+			#this.game.Exit()
 			return 
 		
 		# Check for key events
@@ -244,6 +244,11 @@ class GameState(State):
 		
 		turn = False
 		if this.world.player.actions == 0 and not this.world.player.animating:
+			# Check if player is standing on chest or staircase
+			obj = this.world.player.tile.getObject()
+			if obj != None and obj.name == "stair":
+				generator = mapgenerator.MapGenerator()
+				this.world = generator.create("map", this.world.level+1)
 			this.world.player.turn()
 			turn = True
 		
@@ -263,6 +268,9 @@ class GameState(State):
 	
 	def draw(this, screen):
 		this.world.draw(screen, this.camera)
+		for obj in this.world.objects:
+			obj.draw(screen, this.camera)
 		this.world.player.draw(screen, this.camera)
 		for m in this.world.monsters:
 			m.draw(screen, this.camera)
+		

@@ -203,7 +203,7 @@ class MapGenerator:
 	def load(this, mapname):
 		raise NotImplementedError
 	
-	def create(this, mapname, size = (64,64), density=5):
+	def create(this, mapname, level, size = (100,100), density=5):
 		"""
 		Generates a dungeon given a map size and room concentration. 
 		The concentration ranges from 0 to 9, inclusively,
@@ -439,7 +439,7 @@ class MapGenerator:
 		
 		# Set staircase location
 		loc = random.choice(cleared)
-		world.placeObject("exit", loc[0], loc[1])
+		world.placeObject("stair", loc[0], loc[1])
 		
 		# Set chest locations
 		for chest in range(nchests):
@@ -455,7 +455,7 @@ class MapGenerator:
 			#~ world.placeObject("skel", loc[0], loc[1])
 		for i in range(ndrag):
 			loc = random.choice(cleared)
-			world.placeObject("drag", loc[0], loc[1])
+			world.placeObject("dragon", loc[0], loc[1])
 		for i in range(nreap):
 			loc = random.choice(cleared)
 			world.placeObject("reaper", loc[0], loc[1])

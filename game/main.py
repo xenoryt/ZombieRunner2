@@ -112,6 +112,8 @@ def loadImages():
 	sprite.loadImages(sprite.Dragon, "dragon_right.png", "right")
 	sprite.loadImages(sprite.Dragon, "dragon_left.png", "left")
 	
+	sprite.Chest.image = pygame.image.load(os.path.join("data","chest.png"))
+	sprite.Stair.image = pygame.image.load(os.path.join("data","stairs2.png"))
 
 def main():
 	
@@ -121,7 +123,7 @@ def main():
 	
 	if not world.load("map"):
 		worldgenerator = MapGenerator()
-		world = worldgenerator.create("map", (100,100), 2)
+		world = worldgenerator.create("map", 1, (100,100), 2)
 	
 	
 	game.run(state.GameState)

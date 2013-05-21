@@ -29,6 +29,9 @@ class World:
 		
 		this.level = level
 		
+		# List of all the objects in the game
+		this.objects = []
+		
 		# List of all the monsters in the world
 		this.monsters = []
 		
@@ -106,14 +109,14 @@ class World:
 			map.append(line.strip('\n').strip('\r'))
 		
 		# make sure the map dimensions are correct
-		for i in range(1,len(map)):
+		for i in range(1,len(map)-1):
 			if len(map[i]) != len(map[i-1]):
 				print "Error: invalid map format detected"
 				fr.close()
 				return False
 		
 		# store dimensions
-		this.size = (len(map[0]), len(map))
+		this.size = (len(map[0]), len(map)-1)
 		
 		# Create 2D array of Tile class
 		for y in range(this.size[1]):
@@ -121,10 +124,8 @@ class World:
 			for x in range(this.size[0]):
 				this.map[y].append(Tile(map[y][x], (x,y)))
 				# this.map # What was i gonna do again...
-			
+		this.level = int(map[this.size[1]][this.size[0]])
 		fr.close()
-		
-		
 		
 		try:
 			fr = open(this.name + "_objects.txt", "r")
@@ -156,46 +157,56 @@ class World:
 		
 		return True
 	
-	def placeObject(this, type, locx, locy, hp = -1):
+	def placeObject(this, name, locx, locy, hp = -1):
 		"""
 		Places objects such as players, monsters and chests at the 
 		specified grid location.
 		"""
-		if type == "player":
+		if name == "chest":
+			chest = sprite.Chest(this.level, this)
+			chest.rect.topleft = (locx*48, locy*48)
+			chest.tile = this.map[locy][locx]
+			this.objects.append(chest)
+		if name == "stair":
+			stair = sprite.Stair(this.level, this)
+			stair.rect.topleft = (locx*48, locy*48)
+			stair.tile = this.map[locy][locx]
+			this.objects.append(stair)
+		if name == "player":
 			this.player = sprite.Sprite(this)
 			this.player.rect.topleft = (locx*48, locy*48)
 			this.player.tile = this.map[locy][locx]
 			if hp != -1:
 				this.player.hp = hp
-		if type == "monster":
+		if name == "monster":
 			m = sprite.Monster(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
 			if hp != -1:
 				m.hp = hp
 			this.monsters.append(m)
-		if type == "bat":
+		if name == "bat":
 			m = sprite.Bat(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
 			if hp != -1:
 				m.hp = hp
 			this.monsters.append(m)
-		if type == "skel":
+		if name == "skel":
 			m = sprite.Skel(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
 			if hp != -1:
 				m.hp = hp
 			this.monsters.append(m)
-		if type == "reaper":
+		if name == "reaper":
 			m = sprite.Reaper(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
 			if hp != -1:
 				m.hp = hp
 			this.monsters.append(m)
-		if type == "dragon":
+		if name == "dragon":
 			m = sprite.Dragon(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
@@ -260,6 +271,10 @@ class World:
 		for m in this.monsters:
 			loc = str(m.tile.gridloc[0]) + " " + str(m.tile.gridloc[1])
 			fw.write(m.name+" " + loc + " "+ str(m.hp) + '\n')
+		
+		for o in this.objects:
+			loc = str(o.tile.gridloc[0]) + " " + str(o.tile.gridloc[1])
+			fw.write(o.name+" " + loc + " 0" + '\n')
 		
 		#TODO: Write chest data
 		

@@ -14,6 +14,7 @@ def move(loc, dir):
 
 def loadImages(sprite, imagefile, d):
 	sheet = pygame.image.load(os.path.join("data",imagefile))
+	sheet = sheet.convert()
 	sheetrect = sheet.get_rect()
 	images = []
 	#~ print imagefile, d, range(sheetrect.width/48)
@@ -21,6 +22,7 @@ def loadImages(sprite, imagefile, d):
 		rect = pygame.Rect(x*48,0, 48,48)
 		image = pygame.Surface((48,48))
 		image.blit(sheet, (0,0),rect)
+		#~ image = image.convert()
 		image.set_colorkey((255,0,255))
 		images.append(image)
 	sprite.images[d] = images
@@ -62,10 +64,6 @@ class Sprite(pygame.sprite.Sprite, object):
 		# how far the sprite can see 
 		# 5 is slightly less than half the screen height
 		this.sight = 6
-		
-		# This var sets the radius of the area that is lit up 
-		# around this sprite
-		this.brightness = 0
 		
 		# This var is used to store whether or not the sprite
 		# is in the middle of an animation
@@ -284,6 +282,13 @@ class Sprite(pygame.sprite.Sprite, object):
 			this.nextTile.passable = False
 			this.tile.passable = True
 			this.actions -= 1
+			
+			# If there is a chest or staircase on the tile
+			obj = nextTile.getObject()
+			if obj != None:
+				if obj.name == "chest":
+					obj.pickup()
+			
 		else:
 			# check if the next tile contains an attackable object
 			if len(nextTile.contains) == 0:
@@ -459,11 +464,14 @@ class Reaper(Monster):
 	
 
 
-class Chest(Sprite):
+class Object(pygame.sprite.Sprite, object):
 	image = None
-	def __init__(this, world = None):
+	def __init__(this, level, world = None):
 		pygame.sprite.Sprite.__init__(this)
 		this.rect = this.image.get_rect()
+		
+		this.type = "object"
+		this.name = "object"
 		
 		# Carry a reference to the world
 		this.world = world
@@ -489,6 +497,26 @@ class Chest(Sprite):
 	def update(this):
 		pass
 	
-	def draw(this, camera):
+	def draw(this, screen, camera):
 		if this.tile.lighting > 0:
 			screen.blit(this.image, camera.getrect(this.rect))
+
+
+class Chest(Object):
+	image = None
+	def __init__(this,level, world = None):
+		super(Chest,this).__init__(world)
+		this.level = level
+		this.name = "chest"
+	
+	def pickup(this):
+		this.world.objects.remove(this)
+		this.tile.contains.remove(this)
+	
+class Stair(Object):
+	image = None
+	def __init__(this, level, world = None):
+		super(Stair, this).__init__(level,world)
+		this.level = level
+		this.name = "stair"
+	
