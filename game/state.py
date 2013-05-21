@@ -144,7 +144,7 @@ class GameState(State):
 		this.keys = Keys()
 		
 		# Allows player to pan camera across the map
-		this.scrollamt = 6
+		this.scrollamt = 16
 		this.mapmode = False
 		
 		# TODO: Add checking for continues
@@ -208,23 +208,6 @@ class GameState(State):
 					this.keys.right = False
 		
 		
-		#~ if this.keys.up:
-			#~ this.camera.rect.y -= this.scrollamt
-			#~ if this.camera.rect.top < 0:
-				#~ this.camera.rect.top = 0;
-		#~ if this.keys.down:
-			#~ this.camera.rect.y += this.scrollamt
-			#~ if this.camera.rect.bottom > this.world.mapsize[1]:
-				#~ this.camera.rect.bottom = this.world.mapsize[1]
-		#~ if this.keys.left:
-			#~ this.camera.rect.x -= this.scrollamt
-			#~ if this.camera.rect.left < 0:
-				#~ this.camera.rect.left = 0
-		#~ if this.keys.right:
-			#~ this.camera.rect.x += this.scrollamt
-			#~ if this.camera.rect.right > this.world.mapsize[0]:
-				#~ this.camera.rect.right = this.world.mapsize[0]
-				
 		if this.keys.up:
 			if not this.mapmode:
 				this.world.player.move("up")
@@ -255,7 +238,7 @@ class GameState(State):
 					this.camera.rect.left = 0
 		
 		turn = False
-		if this.world.player.actions == 0:
+		if this.world.player.actions == 0 and not this.world.player.animating:
 			this.world.player.turn()
 			turn = True
 		

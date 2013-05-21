@@ -143,7 +143,7 @@ class World:
 			locx = int(line[1])
 			locy = int(line[2])
 			
-			this.placeObject(line[0], locx, locy)
+			this.placeObject(line[0], locx, locy, int(line[3]))
 		
 		fr.close()
 		
@@ -154,7 +154,7 @@ class World:
 		
 		return True
 	
-	def placeObject(this, type, locx, locy):
+	def placeObject(this, type, locx, locy, hp = 100):
 		"""
 		Places objects such as players, monsters and chests at the 
 		specified grid location.
@@ -163,12 +163,14 @@ class World:
 			this.player = sprite.Sprite(this)
 			this.player.rect.topleft = (locx*48, locy*48)
 			this.player.tile = this.map[locy][locx]
+			this.player.hp = hp
 		if type == "monster":
 			m = sprite.Monster(this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
+			m.hp = hp
 			this.monsters.append(m)
-		
+			
 	
 	def loadInventory(this):
 		try:
@@ -220,11 +222,13 @@ class World:
 		fw = open(this.name + "_objects.txt", "w")
 		
 		# Write player data
-		fw.write("player " + str(this.player.tile.gridloc[0]) + " " + str(this.player.tile.gridloc[1])+"\n")
+		loc = str(this.player.tile.gridloc[0]) + " " + str(this.player.tile.gridloc[1])
+		fw.write("player " +loc+" " +str(this.player.hp) +"\n")
 		
 		# Write monster data
 		for m in this.monsters:
-			fw.write("monster " + str(m.tile.gridloc[0]) + " " + str(m.tile.gridloc[1]) + '\n')
+			loc = str(m.tile.gridloc[0]) + " " + str(m.tile.gridloc[1])
+			fw.write(m.type+" " + loc + " "+ str(m.hp) + '\n')
 		
 		#TODO: Write chest data
 		

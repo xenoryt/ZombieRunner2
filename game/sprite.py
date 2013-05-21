@@ -43,10 +43,12 @@ class Sprite(pygame.sprite.Sprite, object):
 		# The tile the sprite is standing on
 		this._tile = None 
 		
+		this.type = "player"
+		
 		# Stats
 		this.maxhp = 100
 		this.hp = this.maxhp
-		this.atk = 0
+		this.atk = 50
 		
 		# This is how many actions per turn the sprite gets to perform
 		# 0.5 means 1 action every 2 turns
@@ -69,6 +71,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		
 		# Stores the current animation frame
 		this.aniframe = 0
+		this.atkframe = 0
 		
 		# Stores how much to increment/decrement animation frame
 		this.nextframe = 0.2
@@ -96,6 +99,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		
 		if tile != None:
 			this._tile.contains.append(this)
+			this._tile.passable = False
 		
 		# Update tile distance values 
 		this.markTiles()
@@ -187,6 +191,21 @@ class Sprite(pygame.sprite.Sprite, object):
 			nimages = len(this.images[this.direction])
 			if round(this.aniframe,1) == nimages-1 or round(this.aniframe,1) == 0:
 				this.nextframe = -this.nextframe
+		if this.attacking:
+			this.atkframe += 1
+			if this.atkframe == 12:
+				this.attacking = False
+			
+			offsetx = this.tile.rect.centerx
+			offsety = this.tile.rect.centery
+			
+			if this.attacking:	
+				offsetx = this.tile.rect.centerx + directions[this.direction][0]*16
+				offsety = this.tile.rect.centery + directions[this.direction][1]*16
+				
+			this.rect.center = (offsetx, offsety)
+			
+			
 		
 	
 	def getCurrentTile(this):
@@ -263,14 +282,24 @@ class Sprite(pygame.sprite.Sprite, object):
 			this.nextTile.passable = False
 			this.tile.passable = True
 			this.actions -= 1
-			#~ this.rect.x += directions[direction][0]
-			#~ this.rect.y += directions[direction][1]
-			#~ 
-			#~ # Check if this sprite has moved off of its current tile
-			#~ if this.rect.centerx < this.tile.rect.left or this.rect.centerx > this.tile.rect.right:
-				#~ this.tile = map[loc[1] + d[1]][loc[0] + d[0]]
-			#~ elif this.rect.centery < this.tile.rect.top or this.rect.centery > this.tile.rect.bottom:
-				#~ this.tile = map[loc[1] + d[1]][loc[0] + d[0]]
+		else:
+			# check if the next tile contains an attackable object
+			if len(nextTile.contains) == 0:
+				return True
+			
+			enemytype = type(Sprite())
+			if type(this) == type(Sprite()):
+				enemytype = type(Monster())			
+			
+			for obj in nextTile.contains:
+				if type(obj) == enemytype:
+					this.direction = d
+					this.attacking = True
+					this.atkframe = 0
+					obj.hp -= this.atk
+					this.actions -= 1
+					break
+				
 		
 		return True
 		
@@ -294,7 +323,7 @@ class Monster(Sprite):
 		
 		# Call the parent constructor
 		super(Monster, this).__init__(world)
-		
+		this.type = "monster"
 		this.spd = 0.7
 		this.actions = 0
 		
@@ -314,14 +343,22 @@ class Monster(Sprite):
 	def tile(this, tile):
 		if this._tile != None:
 			this._tile.contains.remove(this)
+			this._tile.passable = True
 		this._tile = tile
-		this._tile.contains.append(this)
+		if tile != None:
+			this._tile.contains.append(this)
+			this._tile.passable = False
 	
 	def update(this):
+		# If dead, kill self
+		if this.hp <= 0:
+			this.tile = None
+			this.world.monsters.remove(this)
+			#TODO: place a chest
+			return False
+		
 		if this.actions >= 1 and not this.moving:
 			this.move(this.ai.nextStep())
-		
-		
 		
 		if this.moving:
 			# Move the monster
