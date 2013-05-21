@@ -92,10 +92,25 @@ def loadImages():
 	sprite.loadImages(sprite.Sprite, "player_right.png", "right")
 	sprite.loadImages(sprite.Sprite, "player_left.png", "left")
 	
-	sprite.loadImages(sprite.Monster, "dragon_up.png", "up")
-	sprite.loadImages(sprite.Monster, "dragon_down.png", "down")
-	sprite.loadImages(sprite.Monster, "dragon_right.png", "right")
-	sprite.loadImages(sprite.Monster, "dragon_left.png", "left")
+	sprite.loadImages(sprite.Bat, "bat_up.png", "up")
+	sprite.loadImages(sprite.Bat, "bat_down.png", "down")
+	sprite.loadImages(sprite.Bat, "bat_right.png", "right")
+	sprite.loadImages(sprite.Bat, "bat_left.png", "left")
+	
+	#~ sprite.loadImages(sprite.Skel, "skel_up.png", "up")
+	#~ sprite.loadImages(sprite.Skel, "skel_down.png", "down")
+	#~ sprite.loadImages(sprite.Skel, "skel_right.png", "right")
+	#~ sprite.loadImages(sprite.Skel, "skel_left.png", "left")
+	
+	sprite.loadImages(sprite.Reaper, "reaper_up.png", "up")
+	sprite.loadImages(sprite.Reaper, "reaper_down.png", "down")
+	sprite.loadImages(sprite.Reaper, "reaper_right.png", "right")
+	sprite.loadImages(sprite.Reaper, "reaper_left.png", "left")
+	
+	sprite.loadImages(sprite.Dragon, "dragon_up.png", "up")
+	sprite.loadImages(sprite.Dragon, "dragon_down.png", "down")
+	sprite.loadImages(sprite.Dragon, "dragon_right.png", "right")
+	sprite.loadImages(sprite.Dragon, "dragon_left.png", "left")
 	
 
 def main():

@@ -46,9 +46,6 @@ class State():
 
 ## Some game states ##
 
-def btnMsgboxClick():
-	this.game.revertState()
-	return 0
 
 class MessageboxState(State):
 	def __init__(this, game, text):
@@ -65,7 +62,7 @@ class MessageboxState(State):
 		#~ this.box.rect.organize()
 		
 		this.button = gui.Button("OK")
-		this.button.onClick = btnMsgboxClick
+		this.button.onClick = lambda: this.game.revertState()
 		this.label = gui.Label(text)
 		this.box.add(this.label,1,1)
 		this.box.add(this.button,2,1)
@@ -111,13 +108,16 @@ class PauseState(State):
 		this.game = game
 		
 		this.btnResume = gui.Button("Resume")
+		this.btnFullscreen = gui.Button("Toggle Fullscreen")
 		this.btnExit = gui.Button("Exit")
 		this.box = gui.Container()
 		
 		this.box.add(this.btnResume, 1,1)
-		this.box.add(this.btnExit, 2,1)
+		this.box.add(this.btnFullscreen,2,1)
+		this.box.add(this.btnExit, 3,1)
 		
 		this.btnResume.onClick = lambda: this.game.revertState()
+		this.btnFullscreen.onClick = lambda: this.game.toggle_fullscreen()
 		this.btnExit.onClick = lambda: this.game.Exit()
 		
 		this.box.center((this.game.screensize[0]/2,this.game.screensize[1]/2))
@@ -191,11 +191,7 @@ class GameState(State):
 				elif event.key == K_m:
 					this.mapmode = not this.mapmode
 				elif event.key == K_F11:
-					this.game.fullscreen = not this.game.fullscreen
-					if this.game.fullscreen:
-						pygame.display.set_mode(this.game.screensize, pygame.FULLSCREEN)
-					else:
-						pygame.display.set_mode(this.game.screensize)
+					this.game.toggle_fullscreen()
 				
 			if event.type == KEYUP:
 				if event.key == K_UP:
@@ -207,7 +203,16 @@ class GameState(State):
 				elif event.key == K_RIGHT:
 					this.keys.right = False
 		
+		# check for gameover situations
+		if this.world.player.hp <= 0:
+			msg = "Game Over\n"
+			msg+= "Died on floor: " + str(this.world.level)
+			this.world.terminate()
+			this.game.msgbox(msg)
+			this.game.Exit()
+			return 
 		
+		# Check for key events
 		if this.keys.up:
 			if not this.mapmode:
 				this.world.player.move("up")

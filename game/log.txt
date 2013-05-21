@@ -134,10 +134,17 @@ May 19 (7)
 	- Finished implementing lighting
 	- Finished implementing movement
 
-May 20 (4)
+May 20 (7)
 	- Implemented turn based movement
 	- Started implementing chests/items
+	- Added a full screen toggle (F11)
 	- Implemented walking animations
 	- Added new monster and player sprites
+	- Implemented attacks
+	- Implemented map view mode
+	- Implemented Pause basic menu
+	- Implemented monster deaths
+	- Added a few new monsters
+	
 	
 

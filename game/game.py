@@ -70,11 +70,11 @@ class Game(object):
 	
 	def Pause(this):
 		""" Pause the game """
-		this.state = MessageboxState("Paused: Press OK to unpause")
+		this.state = MessageboxState(this, "Paused: Press OK to unpause")
 	
 	def msgbox(this, text = "Message"):
 		""" Renders a messagebox and pauses the game """
-		this.state = state.MessageboxState(text)
+		this.state = state.MessageboxState(this, text)
 		
 	def Error(this, err, errtype=1):
 		""" 
@@ -82,8 +82,15 @@ class Game(object):
 		errors and exits game after displaying message
 		"""
 		print "Error %d: %s" % (errtype, err)
-		this.msgbox("Error %d: %s" % (errtype, err))
+		this.msgbox(this, "Error %d: %s" % (errtype, err))
 		# Application.Exit()
+	
+	def toggle_fullscreen(this):
+		this.fullscreen = not this.fullscreen
+		if this.fullscreen:
+			pygame.display.set_mode(this.screensize, pygame.FULLSCREEN)
+		else:
+			pygame.display.set_mode(this.screensize)
 	
 	def Exit(this):
 		this.running = False

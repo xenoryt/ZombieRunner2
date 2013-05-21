@@ -102,10 +102,22 @@ class Tile(pygame.sprite.Sprite, object):
 			# Else draw the tile
 			surface.blit(this.image, camera.getrect(this.rect))
 		
-		
-	#~ @property
-	#~ def rect(this):
-		#~ return pygame.Rect(this.maploc[0], this.maploc[1], this.size[0], this.size[1])
+	
+	def getMonster(this):
+		for obj in this.contains:
+			if obj.type == "monster":
+				return obj
+		return None
+	def getPlayer(this):
+		for obj in this.contains:
+			if obj.type == "player":
+				return obj
+		return None
+	def getChest(this):
+		for obj in this.contains:
+			if obj.type == "chest":
+				return obj
+		return None
 	
 	@property
 	def type(this):

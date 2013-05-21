@@ -18,7 +18,7 @@ class World:
 	"""
 	
 	# Constructor
-	def __init__(this, name = "map"):
+	def __init__(this, name = "map", level = 1):
 		# the size of the grid
 		# the size of the map is a property defined later on
 		this.size = (0,0)
@@ -26,6 +26,8 @@ class World:
 		this.map = []
 		this.image = None
 		this.name = name
+		
+		this.level = level
 		
 		# List of all the monsters in the world
 		this.monsters = []
@@ -154,7 +156,7 @@ class World:
 		
 		return True
 	
-	def placeObject(this, type, locx, locy, hp = 100):
+	def placeObject(this, type, locx, locy, hp = -1):
 		"""
 		Places objects such as players, monsters and chests at the 
 		specified grid location.
@@ -163,14 +165,43 @@ class World:
 			this.player = sprite.Sprite(this)
 			this.player.rect.topleft = (locx*48, locy*48)
 			this.player.tile = this.map[locy][locx]
-			this.player.hp = hp
+			if hp != -1:
+				this.player.hp = hp
 		if type == "monster":
-			m = sprite.Monster(this)
+			m = sprite.Monster(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
-			m.hp = hp
+			if hp != -1:
+				m.hp = hp
 			this.monsters.append(m)
-			
+		if type == "bat":
+			m = sprite.Bat(this.level, this)
+			m.rect.topleft = (locx*48, locy*48)
+			m.tile = this.map[locy][locx]
+			if hp != -1:
+				m.hp = hp
+			this.monsters.append(m)
+		if type == "skel":
+			m = sprite.Skel(this.level, this)
+			m.rect.topleft = (locx*48, locy*48)
+			m.tile = this.map[locy][locx]
+			if hp != -1:
+				m.hp = hp
+			this.monsters.append(m)
+		if type == "reaper":
+			m = sprite.Reaper(this.level, this)
+			m.rect.topleft = (locx*48, locy*48)
+			m.tile = this.map[locy][locx]
+			if hp != -1:
+				m.hp = hp
+			this.monsters.append(m)
+		if type == "dragon":
+			m = sprite.Dragon(this.level, this)
+			m.rect.topleft = (locx*48, locy*48)
+			m.tile = this.map[locy][locx]
+			if hp != -1:
+				m.hp = hp
+			this.monsters.append(m)
 	
 	def loadInventory(this):
 		try:
@@ -228,7 +259,7 @@ class World:
 		# Write monster data
 		for m in this.monsters:
 			loc = str(m.tile.gridloc[0]) + " " + str(m.tile.gridloc[1])
-			fw.write(m.type+" " + loc + " "+ str(m.hp) + '\n')
+			fw.write(m.name+" " + loc + " "+ str(m.hp) + '\n')
 		
 		#TODO: Write chest data
 		
@@ -243,6 +274,16 @@ class World:
 				if this.map[y][x].explored:
 					fw.write(str(x) + " " + str(y) + '\n')
 		fw.close()
+	
+	def terminate(this):
+		"""
+		Delete ALL save files related to this world
+		"""
+		os.remove(this.name+".txt")
+		os.remove(this.name+"_inventory.txt")
+		os.remove(this.name+"_objects.txt")
+		os.remove(this.name+"_explored.txt")
+		#~ os.remove(this.name+".txt")
 	
 	def tile(this, points, type):
 		for p in points:

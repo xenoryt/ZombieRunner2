@@ -68,7 +68,7 @@ class AI(object):
 				continue
 			loc = move(this.body.tile.gridloc, d)
 			tile = this.world.map[loc[1]][loc[0]]
-			if tile.type == 1:
+			if tile.type == 1 or tile.getMonster() != None:
 				continue
 			if tile.distance < lowest[0]:
 				lowest = [tile.distance, d]

@@ -421,7 +421,17 @@ class MapGenerator:
 		
 		print "cleared:",len(cleared)
 		nchests = len(cleared)/(250)
-		nmonsters = len(cleared)/( 15 if (58-level*8) < 15 else (58-level*8) )
+		
+		# Monsters
+		nbats = 45-level*8
+		nskel = 100-level*10
+		nreap = 250-level*20
+		ndrag = 200-level*20
+		
+		nbats = len(cleared)/( 15 if nbats < 15 else nbats )
+		nskel = len(cleared)/( 65 if nskel < 65 else nskel )
+		nreap = len(cleared)/( 125 if nreap < 125 else nreap )
+		ndrag = len(cleared)/( 85 if ndrag < 85 else ndrag )
 		
 		# Set player location
 		loc = random.choice(cleared)
@@ -437,9 +447,18 @@ class MapGenerator:
 			world.placeObject("chest", loc[0], loc[1])
 		
 		# Set monster locations
-		for monster in range(nmonsters):
+		for i in range(nbats):
 			loc = random.choice(cleared)
-			world.placeObject("monster", loc[0], loc[1])
+			world.placeObject("bat", loc[0], loc[1])
+		#~ for i in range(nskel):
+			#~ loc = random.choice(cleared)
+			#~ world.placeObject("skel", loc[0], loc[1])
+		for i in range(ndrag):
+			loc = random.choice(cleared)
+			world.placeObject("drag", loc[0], loc[1])
+		for i in range(nreap):
+			loc = random.choice(cleared)
+			world.placeObject("reaper", loc[0], loc[1])
 		
 		world.save()
 		

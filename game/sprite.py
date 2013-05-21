@@ -1,6 +1,7 @@
 import pygame
 from ai import AI
 import os
+import random
 
 directions = {"up":[0,-1], "down":[0,1], "left":[-1,0], "right":[1,0], "none":[0,0]}
 
@@ -43,12 +44,13 @@ class Sprite(pygame.sprite.Sprite, object):
 		# The tile the sprite is standing on
 		this._tile = None 
 		
-		this.type = "player"
+		this.name = "player"
+		this.type= "player"
 		
 		# Stats
 		this.maxhp = 100
 		this.hp = this.maxhp
-		this.atk = 50
+		this.atk = 8
 		
 		# This is how many actions per turn the sprite gets to perform
 		# 0.5 means 1 action every 2 turns
@@ -287,19 +289,21 @@ class Sprite(pygame.sprite.Sprite, object):
 			if len(nextTile.contains) == 0:
 				return True
 			
-			enemytype = type(Sprite())
-			if type(this) == type(Sprite()):
-				enemytype = type(Monster())			
+			obj = None
+			if this.type == "player":
+				obj = nextTile.getMonster()
+			if this.type == "monster":
+				obj = nextTile.getPlayer()
 			
-			for obj in nextTile.contains:
-				if type(obj) == enemytype:
-					this.direction = d
-					this.attacking = True
-					this.atkframe = 0
-					obj.hp -= this.atk
-					this.actions -= 1
-					break
-				
+			if obj != None:
+				print "attacking"
+				this.direction = d
+				this.attacking = True
+				this.atkframe = 0
+				atklo = round(this.atk*0.8)
+				atkhi = round(this.atk*1.2)
+				obj.hp -= random.randint(atklo, atkhi)
+				this.actions -= 1
 		
 		return True
 		
@@ -314,15 +318,17 @@ class Monster(Sprite):
 	"""
 	Very similar to the Sprite class with less stats and an AI.
 	Monsters are also automagically recorded in a list in the current
-	world.
+	world. This is just to be used as a base class for a variety of 
+	different monsters though.
 	"""
 	images = {}
 	
-	def __init__(this, world = None):
+	def __init__(this, level=1, world = None):
 		#~ pygame.sprite.Sprite.__init__(this, this.groups)
 		
 		# Call the parent constructor
 		super(Monster, this).__init__(world)
+		this.name = "monster"
 		this.type = "monster"
 		this.spd = 0.7
 		this.actions = 0
@@ -375,8 +381,83 @@ class Monster(Sprite):
 			nimages = len(this.images[this.direction])
 			if round(this.aniframe, 1) == nimages-1 or round(this.aniframe, 1) == 0:
 				this.nextframe = -this.nextframe
+		if this.attacking:
+			this.atkframe += 1
+			if this.atkframe == 12:
+				this.attacking = False
+			
+			offsetx = this.tile.rect.centerx
+			offsety = this.tile.rect.centery
+			
+			if this.attacking:	
+				offsetx = this.tile.rect.centerx + directions[this.direction][0]*16
+				offsety = this.tile.rect.centery + directions[this.direction][1]*16
+				
+			this.rect.center = (offsetx, offsety)
 		
 		
+class Bat(Monster):
+	"""
+	Fast, weak monsters. Very common and very annoying.
+	"""
+	def __init__(this, level, world = None):
+		super(Bat, this).__init__(level, world)
+		this.name = "bat"
+		this.maxhp = 11+4*level
+		this.hp = this.maxhp
+		this.atk = 3+2*level
+		this.spd = 1.5
+		this.sight = 6
+
+class Skel(Monster):
+	"""
+	Medium speed, low-medium damage, high hp. Don't underestimate them.
+	"""
+	images = {}
+	
+	def __init__(this, level, world = None):
+		super(Skel, this).__init__(level, world)
+		this.name ="skel"
+		this.maxhp = 17+5*level
+		this.hp = this.maxhp
+		this.atk = 10+4*level
+		this.spd = 1
+		this.sight = 4
+
+class Dragon(Monster):
+	"""
+	Slow but very high hp. Attacks are very strong
+	"""
+	images = {}
+	
+	def __init__(this, level, world = None):
+		super(Dragon, this).__init__(level, world)
+		this.name="dragon"
+		this.maxhp = 10+15*level
+		this.hp = this.maxhp
+		this.atk = 4+10*level
+		this.spd = 0.5+0.15*level
+		this.sight = 6
+
+class Reaper(Monster):
+	"""
+	Very slow and Very deadly. The Reaper's sight also becomes 
+	increasingly dangerous later on.
+	"""
+	images = {}
+	
+	def __init__(this, level, world = None):
+		super(Reaper, this).__init__(level, world)
+		this.name="reaper"
+		this.maxhp = 5+10*level
+		this.hp = this.maxhp
+		this.atk = 7+17*level
+		this.spd = 0.3 + 0.1*level
+		this.sight = int(round(0+level/2.))
+		if this.sight > 10:
+			this.sight = 10
+	
+
 
 class Chest(Sprite):
 	image = None
