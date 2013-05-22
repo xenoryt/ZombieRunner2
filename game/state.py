@@ -290,11 +290,12 @@ class GameState(State):
 			if this.world.player.doneTurn:
 				m.curTurn = 2
 			m.update()
-			if not m.doneturn:
+			if not m._doneturn:
 				newturn = False
 		
 		if newturn:
-			
+			for m in this.world.monsters:
+				m.curTurn = 1
 		
 		if not this.mapmode:
 			# Center the camera on the player

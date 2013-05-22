@@ -386,6 +386,16 @@ class Monster(Sprite):
 			this._tile.contains.append(this)
 			this._tile.passable = False
 	
+	@property
+	def curturn(this):
+		return this._curturn
+	
+	@curturn.setter
+	def curturn(this, turn):
+		if turn != this._curturn and turn == this.turn:
+			this.actions += this.spd
+		this._curturn = turn
+	
 	def doneturn(this):
 		if this.actions < 1:
 			this._doneturn = True
