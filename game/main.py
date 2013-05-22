@@ -114,6 +114,8 @@ def loadImages():
 	
 	sprite.Chest.image = pygame.image.load(os.path.join("data","chest.png"))
 	sprite.Stair.image = pygame.image.load(os.path.join("data","stairs2.png"))
+	
+	state.InventoryState.btnImages = [pygame.image.load(os.path.join("data","inventory_grid.png"))]
 
 def main():
 	

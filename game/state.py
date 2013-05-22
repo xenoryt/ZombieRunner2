@@ -3,7 +3,7 @@ import pygame
 from pygame.locals import *
 import world
 import mapgenerator
-
+import math
 from camera import Camera
 from keys import Keys
 
@@ -134,14 +134,50 @@ class PauseState(State):
 	def draw(this, screen):
 		this.box.draw(screen)
 
+class InventoryState(State):
+	btnImages = []
+	def __init__(this, game):
+		this.game = game
+		
+		# Create a reference to the actual inventory
+		this.inv = this.game.world.inventory
+		size = len(this.inv)
+		
+		this.box = gui.Container()
+		this.box.rect.center = (this.game.screensize[0]/2,this.game.screensize[1]/2)
+		
+		#TODO: add resume/exit buttons at y:640+
+		
+		for row in range(int(math.ceil(size/8))):
+			for col in range(size%8):
+				btn = gui.Button("")
+				btn.static = True
+				btn.images = btnImages
+				btn.w = 48
+				btn.h = 48
+				this.box.add(btn, row+1, col+1)
+	
+	def update(this,):
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				this.game.running = False
+			if event.type == KEYDOWN:
+				if event.key == K_ESCAPE:
+					this.game.revertState()
+		this.box.update()
+		
+	def draw(this,screen):
+		this.box.draw(screen)
+
 class GameState(State):
-	def __init__(this, game, level = 1):
+	def __init__(this, game):
 		this.game = game
 		
 		this.world = None
-		this.level = level
 		this.camera = Camera(this.game.screensize)
 		this.keys = Keys()
+		
+		this.turn = 1
 		
 		# Allows player to pan camera across the map
 		this.scrollamt = 16
@@ -151,16 +187,13 @@ class GameState(State):
 		
 		this.loadWorld("map")
 		
-	def newWorld(this):
-		if this.world != None:
-			this.world.savemap()
-		this.loadWorld(mapgenerator.generate("map"+str(level)+".txt"))
 	
 	def loadWorld(this, mapname):
 		if this.world != None:
-			this.world.savemap()
+			this.world.save()
 		this.world = world.World()
 		this.world.load(mapname)
+		this.game.world = this.world
 		this.camera.rect.center = this.world.player.rect.center
 		#TODO: LOAD WORLD ENTITIES HERE
 	
@@ -174,7 +207,7 @@ class GameState(State):
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
 					this.world.save()
-					this.game.assignState(PauseState(this.game))
+					this.game.assignState(InventoryState(this.game))
 				elif event.key == K_UP:
 					this.keys.up = True
 				elif event.key == K_DOWN:
@@ -209,7 +242,7 @@ class GameState(State):
 			msg+= "Died on floor: " + str(this.world.level)
 			this.world.terminate()
 			this.game.msgbox(msg)
-			#this.game.Exit()
+			this.game.Exit()
 			return 
 		
 		# Check for key events
@@ -242,22 +275,26 @@ class GameState(State):
 				if this.camera.rect.left < 0:
 					this.camera.rect.left = 0
 		
-		turn = False
+		
 		if this.world.player.actions == 0 and not this.world.player.animating:
 			# Check if player is standing on chest or staircase
 			obj = this.world.player.tile.getObject()
 			if obj != None and obj.name == "stair":
 				generator = mapgenerator.MapGenerator()
 				this.world = generator.create("map", this.world.level+1)
-			this.world.player.turn()
-			turn = True
+			
 		
 		this.world.player.update()
-		
+		newturn = True
 		for m in this.world.monsters:
-			if turn:
-				m.turn()
+			if this.world.player.doneTurn:
+				m.curTurn = 2
 			m.update()
+			if not m.doneturn:
+				newturn = False
+		
+		if newturn:
+			
 		
 		if not this.mapmode:
 			# Center the camera on the player

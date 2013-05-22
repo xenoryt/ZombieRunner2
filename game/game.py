@@ -13,6 +13,8 @@ class Game(object):
 		this.screensize = screensize
 		this.fullscreen = False
 		
+		this.world = None
+		
 		# initialize pygame stuff
 		pygame.init()
 		this.screen = pygame.display.set_mode(screensize)
@@ -83,7 +85,7 @@ class Game(object):
 		"""
 		print "Error %d: %s" % (errtype, err)
 		this.msgbox(this, "Error %d: %s" % (errtype, err))
-		# Application.Exit()
+		this.Exit()
 	
 	def toggle_fullscreen(this):
 		this.fullscreen = not this.fullscreen

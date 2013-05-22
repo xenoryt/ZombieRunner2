@@ -46,8 +46,14 @@ class Sprite(pygame.sprite.Sprite, object):
 		# The tile the sprite is standing on
 		this._tile = None 
 		
+		# Ways to identify the sprite
 		this.name = "player"
 		this.type= "player"
+		
+		# The turn the sprite acts on
+		this.turn = 1
+		this.curTurn = 1
+		this.doneturn = False
 		
 		# Stats
 		this.maxhp = 100
@@ -133,6 +139,12 @@ class Sprite(pygame.sprite.Sprite, object):
 			this.animating = True
 		this._attacking = isAtk
 	
+	def doneturn(this):
+		"""
+		Finalizes a turn
+		"""
+		this.curTurn = 2
+		Monster.curTurn = 2
 	
 	def markTiles(this):
 		"""
@@ -169,12 +181,13 @@ class Sprite(pygame.sprite.Sprite, object):
 		
 		this.world.markedtiles = marked
 	
-	def turn(this):
-		if this.actions < 1:
-			this.actions += this.spd
+	def currentTurn(this,turn):
+		if this.turn != turn:
+			return
+		#~ if this.actions < 1:
+		this.actions += this.spd
 	
 	def update(this):
-		#TODO: updating animation frames
 		
 		# Check for animations
 		if this.moving:
@@ -185,6 +198,7 @@ class Sprite(pygame.sprite.Sprite, object):
 				this.moving = False
 				this.tile = this.nextTile
 				this.nextTile = None
+				this.doneturn = True
 				
 			# Update animation
 			this.aniframe += this.nextframe
@@ -195,6 +209,7 @@ class Sprite(pygame.sprite.Sprite, object):
 			this.atkframe += 1
 			if this.atkframe == 12:
 				this.attacking = False
+				this.doneturn = True
 			
 			offsetx = this.tile.rect.centerx
 			offsety = this.tile.rect.centery
@@ -253,6 +268,9 @@ class Sprite(pygame.sprite.Sprite, object):
 		Note: Direction is a string such as "up" 
 		"""
 		
+		if this.turn != this.curTurn:
+			return
+		
 		# If there isn't enough action points to perform a move
 		if this.actions < 1:
 			return False
@@ -277,6 +295,7 @@ class Sprite(pygame.sprite.Sprite, object):
 			# Set this sprite to move
 			this.direction = d
 			this.moving = True
+			this.doneturn = True
 			
 			this.nextTile = nextTile
 			this.nextTile.passable = False
@@ -301,7 +320,6 @@ class Sprite(pygame.sprite.Sprite, object):
 				obj = nextTile.getPlayer()
 			
 			if obj != None:
-				print "attacking"
 				this.direction = d
 				this.attacking = True
 				this.atkframe = 0
@@ -309,6 +327,7 @@ class Sprite(pygame.sprite.Sprite, object):
 				atkhi = round(this.atk*1.2)
 				obj.hp -= random.randint(atklo, atkhi)
 				this.actions -= 1
+				this.doneturn = True
 		
 		return True
 		
@@ -333,8 +352,13 @@ class Monster(Sprite):
 		
 		# Call the parent constructor
 		super(Monster, this).__init__(world)
+		
 		this.name = "monster"
 		this.type = "monster"
+		
+		# The turn the sprite acts on
+		this.turn = 2
+		
 		this.spd = 0.7
 		this.actions = 0
 		
@@ -342,6 +366,8 @@ class Monster(Sprite):
 		
 		this.ai = AI(this)
 		this.sight = 4
+		
+		this._doneturn = False
 		
 		# Add this monster to list of monsters
 		#~ world.monsters.append(this)
@@ -359,6 +385,10 @@ class Monster(Sprite):
 		if tile != None:
 			this._tile.contains.append(this)
 			this._tile.passable = False
+	
+	def doneturn(this):
+		if this.actions < 1:
+			this._doneturn = True
 	
 	def update(this):
 		# If dead, kill self
@@ -380,13 +410,14 @@ class Monster(Sprite):
 				this.moving = False
 				this.tile = this.nextTile
 				this.nextTile = None
+				this.doneturn()
 				
 			# Update animation
 			this.aniframe += this.nextframe
 			nimages = len(this.images[this.direction])
 			if round(this.aniframe, 1) == nimages-1 or round(this.aniframe, 1) == 0:
 				this.nextframe = -this.nextframe
-		if this.attacking:
+		elif this.attacking:
 			this.atkframe += 1
 			if this.atkframe == 12:
 				this.attacking = False
@@ -394,7 +425,7 @@ class Monster(Sprite):
 			offsetx = this.tile.rect.centerx
 			offsety = this.tile.rect.centery
 			
-			if this.attacking:	
+			if this.attacking and this.atkframe < 10:	
 				offsetx = this.tile.rect.centerx + directions[this.direction][0]*16
 				offsety = this.tile.rect.centery + directions[this.direction][1]*16
 				
@@ -505,7 +536,7 @@ class Object(pygame.sprite.Sprite, object):
 class Chest(Object):
 	image = None
 	def __init__(this,level, world = None):
-		super(Chest,this).__init__(world)
+		super(Chest,this).__init__(level, world)
 		this.level = level
 		this.name = "chest"
 	

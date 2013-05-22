@@ -124,7 +124,10 @@ class World:
 			for x in range(this.size[0]):
 				this.map[y].append(Tile(map[y][x], (x,y)))
 				# this.map # What was i gonna do again...
-		this.level = int(map[this.size[1]][this.size[0]])
+				
+		# Set the dungeon level
+		this.level = int(map[this.size[1]][0:])
+		
 		fr.close()
 		
 		try:
@@ -253,6 +256,7 @@ class World:
 			for x in range(len(this.map[y])):
 				fw.write(str(this.map[y][x]))
 			fw.write("\n")
+		fw.write(str(this.level)+"\n")
 		fw.close()
 	
 	def save(this):
@@ -294,6 +298,7 @@ class World:
 		"""
 		Delete ALL save files related to this world
 		"""
+		
 		os.remove(this.name+".txt")
 		os.remove(this.name+"_inventory.txt")
 		os.remove(this.name+"_objects.txt")

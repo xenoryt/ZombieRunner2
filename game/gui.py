@@ -19,7 +19,7 @@ class Container(Control):
 		pygame.sprite.Sprite.__init__(this)
 		
 		this.bgColor = Color("#646464")
-		
+		this.static = False
 		#initialize the background image
 		this.image = pygame.Surface((5,5))
 		this.image.fill(this.bgColor)
@@ -169,6 +169,7 @@ class _Label(Control):
 		this._font = pygame.font.Font(os.path.join("data/font","pix.ttf"), 15)
 		this._text = text
 		
+		this.static = False
 		
 		# initialize the background image
 		# set the size to the required size of the text
@@ -232,6 +233,8 @@ class Label(Control):
 		
 		this.layer = 6
 		
+		this.static = False
+		
 	@property
 	def text(this):
 		return this._text
@@ -265,8 +268,10 @@ class Label(Control):
 class Button(Control):
 	mouseup = False
 	images = []
-	def __init__(this, text="", locx = 0, locy = 0):
+	def __init__(this, text="", locx = 0, locy = 0, width=0,height=0):
 		pygame.sprite.Sprite.__init__(this)
+		
+		this.static = False
 		
 		#set default colors
 		this.bgColor = Color('red')
@@ -286,6 +291,10 @@ class Button(Control):
 		
 		this.requireUpdate = True # False means text is up to date
 		this.layer = 6
+		
+		# which state the button is in
+		# e.g. normal, hover, click
+		this.state = 0
 	
 	def font(this, f, size):
 		this._font = pygame.font.Font(f, size)
@@ -293,10 +302,14 @@ class Button(Control):
 	
 	def resize(this, w = -1,h = -1):
 		# Set width and height if none given
-		w,h = this._font.size(this.text)
+		if not this.static:
+			w,h = this._font.size(this.text)
+		elif w == -1 or h == -1:
+			w = this.rect.w
+			h = this.rect.h
 		
 		# Create background image
-		this.image = pygame.transform.scale(this.images[0], this._font.size(this.text))
+		this.image = pygame.transform.scale(this.images[this.state], (w,h))
 		this.rect = this.image.get_rect(topleft=this.rect.topleft)
 	
 	def setMouseover(this, text = ""):
