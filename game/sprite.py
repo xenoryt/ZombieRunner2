@@ -35,6 +35,7 @@ class Sprite(pygame.sprite.Sprite, object):
 	however the Monster class is derived from this class.
 	"""
 	images = {}
+	
 	def __init__(this, world = None):
 		pygame.sprite.Sprite.__init__(this)
 		
@@ -50,11 +51,6 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.name = "player"
 		this.type= "player"
 		
-		# The turn the sprite acts on
-		this.turn = 1
-		this.curTurn = 1
-		this.doneturn = False
-		
 		# Stats
 		this.maxhp = 100
 		this.hp = this.maxhp
@@ -66,6 +62,12 @@ class Sprite(pygame.sprite.Sprite, object):
 		
 		# This var stores how many actions are left to perform
 		this.actions = 1
+		
+		# The turn the sprite acts on
+		this.turn = 1
+		this._curturn = 1
+		this.curturn = 1 
+		
 		
 		# how far the sprite can see 
 		# 5 is slightly less than half the screen height
@@ -111,6 +113,18 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.markTiles()
 	
 	@property
+	def curturn(this):
+		return this._curturn
+	
+	@curturn.setter
+	def curturn(this, turn):
+		#~ print "setting",turn
+		if this.actions < 1 and turn != this._curturn and turn == this.turn:
+			this.actions += this.spd
+		this._curturn = turn
+		#~ print this._curturn
+	
+	@property
 	def moving(this):
 		return this._moving
 	
@@ -139,12 +153,17 @@ class Sprite(pygame.sprite.Sprite, object):
 			this.animating = True
 		this._attacking = isAtk
 	
-	def doneturn(this):
+	def doneturn(this, force = False):
 		"""
 		Finalizes a turn
 		"""
-		this.curTurn = 2
-		Monster.curTurn = 2
+		#~ this.__class__._curturn = 2
+		if this.actions >= 1 and not force:
+			return
+		this.curturn = 2
+		for m in this.world.monsters:
+			m.curturn = 2
+		print "turn finished"
 	
 	def markTiles(this):
 		"""
@@ -181,12 +200,6 @@ class Sprite(pygame.sprite.Sprite, object):
 		
 		this.world.markedtiles = marked
 	
-	def currentTurn(this,turn):
-		if this.turn != turn:
-			return
-		#~ if this.actions < 1:
-		this.actions += this.spd
-	
 	def update(this):
 		
 		# Check for animations
@@ -198,7 +211,7 @@ class Sprite(pygame.sprite.Sprite, object):
 				this.moving = False
 				this.tile = this.nextTile
 				this.nextTile = None
-				this.doneturn = True
+				this.doneturn()
 				
 			# Update animation
 			this.aniframe += this.nextframe
@@ -209,7 +222,7 @@ class Sprite(pygame.sprite.Sprite, object):
 			this.atkframe += 1
 			if this.atkframe == 12:
 				this.attacking = False
-				this.doneturn = True
+				this.doneturn()
 			
 			offsetx = this.tile.rect.centerx
 			offsety = this.tile.rect.centery
@@ -268,7 +281,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		Note: Direction is a string such as "up" 
 		"""
 		
-		if this.turn != this.curTurn:
+		if this.turn != this.curturn:
 			return
 		
 		# If there isn't enough action points to perform a move
@@ -282,6 +295,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		d = direction
 		# If its not moving in any direction, do nothing
 		if directions[d][0] == 0 and directions[d][1] == 0:
+			this.doneturn(True)
 			return False
 		
 		
@@ -295,7 +309,6 @@ class Sprite(pygame.sprite.Sprite, object):
 			# Set this sprite to move
 			this.direction = d
 			this.moving = True
-			this.doneturn = True
 			
 			this.nextTile = nextTile
 			this.nextTile.passable = False
@@ -303,10 +316,11 @@ class Sprite(pygame.sprite.Sprite, object):
 			this.actions -= 1
 			
 			# If there is a chest or staircase on the tile
-			obj = nextTile.getObject()
-			if obj != None:
-				if obj.name == "chest":
-					obj.pickup()
+			if this.type == "player":
+				obj = nextTile.getObject()
+				if obj != None:
+					if obj.name == "chest":
+						obj.pickup()
 			
 		else:
 			# check if the next tile contains an attackable object
@@ -327,14 +341,20 @@ class Sprite(pygame.sprite.Sprite, object):
 				atkhi = round(this.atk*1.2)
 				obj.hp -= random.randint(atklo, atkhi)
 				this.actions -= 1
-				this.doneturn = True
 		
 		return True
 		
 	
-	def draw(this, screen, camera):
-		if this.tile.lighting > 0 or (this.nextTile != None and this.nextTile.lighting > 0):
+	def draw(this, screen, camera, fog = True):
+		if fog and this.tile.lighting > 0 or (this.nextTile != None and this.nextTile.lighting > 0):
 			screen.blit(this.images[this.direction][int(round(this.aniframe))], camera.getrect(this.rect))
+		elif not fog:
+			if this.rect.left > camera.rect.right or this.rect.right < camera.rect.left:
+				return
+			if this.rect.top > camera.rect.bottom or this.rect.bottom < camera.rect.top:
+				return
+			screen.blit(this.images[this.direction][int(round(this.aniframe))], camera.getrect(this.rect))
+			
 		
 
 
@@ -366,8 +386,8 @@ class Monster(Sprite):
 		
 		this.ai = AI(this)
 		this.sight = 4
-		
-		this._doneturn = False
+		#~ 
+		this._curturn = 1
 		
 		# Add this monster to list of monsters
 		#~ world.monsters.append(this)
@@ -386,19 +406,11 @@ class Monster(Sprite):
 			this._tile.contains.append(this)
 			this._tile.passable = False
 	
-	@property
-	def curturn(this):
-		return this._curturn
 	
-	@curturn.setter
-	def curturn(this, turn):
-		if turn != this._curturn and turn == this.turn:
-			this.actions += this.spd
-		this._curturn = turn
 	
-	def doneturn(this):
-		if this.actions < 1:
-			this._doneturn = True
+	def doneturn(this, force=False):
+		if this.actions < 1 or force:
+			this.curturn = 1
 	
 	def update(this):
 		# If dead, kill self
@@ -408,8 +420,14 @@ class Monster(Sprite):
 			#TODO: place a chest
 			return False
 		
-		if this.actions >= 1 and not this.moving:
+		
+		
+		if this.actions < 1 and this.curturn == this.turn:
+			this.doneturn()
+		
+		if this.curturn == this.turn and this.actions >= 1 and not this.moving:
 			this.move(this.ai.nextStep())
+		
 		
 		if this.moving:
 			# Move the monster
@@ -431,6 +449,7 @@ class Monster(Sprite):
 			this.atkframe += 1
 			if this.atkframe == 12:
 				this.attacking = False
+				this.doneturn()
 			
 			offsetx = this.tile.rect.centerx
 			offsety = this.tile.rect.centery
@@ -446,10 +465,12 @@ class Bat(Monster):
 	"""
 	Fast, weak monsters. Very common and very annoying.
 	"""
+	images = {}
+	
 	def __init__(this, level, world = None):
 		super(Bat, this).__init__(level, world)
 		this.name = "bat"
-		this.maxhp = 11+4*level
+		this.maxhp = 11+2*level
 		this.hp = this.maxhp
 		this.atk = 3+2*level
 		this.spd = 1.5
@@ -481,7 +502,7 @@ class Dragon(Monster):
 		this.name="dragon"
 		this.maxhp = 10+15*level
 		this.hp = this.maxhp
-		this.atk = 4+10*level
+		this.atk = 4+6*level
 		this.spd = 0.5+0.15*level
 		this.sight = 6
 
@@ -495,13 +516,13 @@ class Reaper(Monster):
 	def __init__(this, level, world = None):
 		super(Reaper, this).__init__(level, world)
 		this.name="reaper"
-		this.maxhp = 5+10*level
+		this.maxhp = 15+5*level
 		this.hp = this.maxhp
-		this.atk = 7+17*level
-		this.spd = 0.3 + 0.1*level
+		this.atk = 12+int(round(8.2*level))
+		this.spd = 0.2 + round(0.12*(level/2.),1)
 		this.sight = int(round(0+level/2.))
-		if this.sight > 10:
-			this.sight = 10
+		if this.sight > 12:
+			this.sight = 12
 	
 
 
@@ -538,8 +559,14 @@ class Object(pygame.sprite.Sprite, object):
 	def update(this):
 		pass
 	
-	def draw(this, screen, camera):
+	def draw(this, screen, camera, fog = True):
 		if this.tile.lighting > 0:
+			screen.blit(this.image, camera.getrect(this.rect))
+		elif not fog:
+			if this.rect.left > camera.rect.right or this.rect.right < camera.rect.left:
+				return
+			if this.rect.top > camera.rect.bottom or this.rect.bottom < camera.rect.top:
+				return
 			screen.blit(this.image, camera.getrect(this.rect))
 
 

@@ -6,6 +6,8 @@ import mapgenerator
 import math
 from camera import Camera
 from keys import Keys
+import sprite
+import random
 
 class State():
 	"""
@@ -91,17 +93,81 @@ class MessageboxState(State):
 		
 
 class MainMenuState(State):
-	def __init__(this, world = None):
-		this.btnStart = gui.Button("Start")
+	def __init__(this, game):
+		this.game = game
+		this.game.world = world.World()
+		this.hasSaves = this.game.world.load("map")
+		
+		this.btnStart = gui.Button("New Game")
+		this.btnCont = gui.Button("Continue")
 		this.btnExit = gui.Button("Exit")
 		
-		this.btnStart.onClick = lambda: this.game.assignState(GameState())
+		this.btnStart.onClick = lambda: this.game.assignState(GameState(this.game))
+		this.btnCont.onClick = lambda: this.game.assignState(GameState(this.game))
 		this.btnExit.onClick = lambda: this.game.revertState()
-	
+		
+		centerx = this.game.screensize[0]/2
+		centery = this.game.screensize[1]/2
+		#~ this.btnStart.rect.center = (centerx, centery-30)
+		#~ this.btnCont.rect.center = (centerx,centery)
+		#~ this.btnExit.rect.center = (centerx, centery+30)
+		
+		this.btnStart.rect.bottomright =(770,30)
+		this.btnCont.rect.bottomright = (770,60)
+		this.btnExit.rect.bottomright = (770,90)
+		
+		generator = mapgenerator.MapGenerator()
+		this.world = generator.create("map_menu",1,(80,80),8)
+		
+		# Create a camera and set it to a random position on map
+		this.camera = Camera(this.game.screensize)
+		x = random.randint(0,this.world.mapsize[0]-this.camera.rect.size[0])
+		y = random.randint(0,this.world.mapsize[1]-this.camera.rect.size[1])
+		this.camera.rect.x = x
+		this.camera.rect.y = y
+		
+		
 	def update(this):
+		
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				this.world.terminate()
+				this.game.Exit()
+			elif event.type == KEYDOWN:
+				if event.key == K_ESCAPE:
+					this.world.terminate()
+					this.game.Exit()
+			elif event.type == MOUSEMOTION:
+				if event.buttons[0] == 1:
+					x,y = event.rel
+					this.camera.rect.x -= x
+					this.camera.rect.y -= y
+					if this.camera.rect.top < 0:
+						this.camera.rect.top = 0;
+					elif this.camera.rect.bottom > this.world.mapsize[1]:
+						this.camera.rect.bottom = this.world.mapsize[1];
+					if this.camera.rect.right > this.world.mapsize[0]:
+						this.camera.rect.right = this.world.mapsize[0]
+					elif this.camera.rect.left < 0:
+						this.camera.rect.left = 0
+		
+		
 		this.btnStart.update()
 		this.btnExit.update()
-
+		if this.game.world.loaded:
+			this.btnCont.update()
+		
+	def draw(this, screen):
+		this.world.draw(screen, this.camera, False)
+		for m in this.world.monsters:
+			m.draw(screen, this.camera, False)
+		for obj in this.world.objects:
+			obj.draw(screen, this.camera, False)
+		
+		this.btnStart.draw(screen)
+		this.btnExit.draw(screen)
+		if this.game.world.loaded:
+			this.btnCont.draw(screen)
 
 class PauseState(State):
 	def __init__(this, game, world = None):
@@ -143,19 +209,29 @@ class InventoryState(State):
 		this.inv = this.game.world.inventory
 		size = len(this.inv)
 		
+		
+		this.label = gui._Label("Inventory")
+		this.label.bgColor = None
+		this.label.fgColor = Color("#731E7A")
+		this.label.rect.topleft = (50,50)
+		
+		
 		this.box = gui.Container()
-		this.box.rect.center = (this.game.screensize[0]/2,this.game.screensize[1]/2)
+		
+		
+		this.drawbg = True
 		
 		#TODO: add resume/exit buttons at y:640+
 		
-		for row in range(int(math.ceil(size/8))):
-			for col in range(size%8):
+		for col in range(8):
+			for row in range(4):
 				btn = gui.Button("")
 				btn.static = True
-				btn.images = btnImages
-				btn.w = 48
-				btn.h = 48
-				this.box.add(btn, row+1, col+1)
+				btn.images = this.btnImages
+				btn.rect.w = 48
+				btn.rect.h = 48
+				this.box.add(btn, row+1,col+1)
+		this.box.rect.topleft = (50,120)
 	
 	def update(this,):
 		for event in pygame.event.get():
@@ -163,11 +239,22 @@ class InventoryState(State):
 				this.game.running = False
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
+					this.drawbg = True
 					this.game.revertState()
 		this.box.update()
+		this.label.update()
 		
 	def draw(this,screen):
+		if this.drawbg:
+			background = pygame.Surface(screen.get_size())
+			background = background.convert()
+			background.fill(Color('black'))
+			background.set_alpha(100)
+			screen.blit(background, (0, 0))
+			this.drawbg = False
+		
 		this.box.draw(screen)
+		this.label.draw(screen)
 
 class GameState(State):
 	def __init__(this, game):
@@ -287,15 +374,14 @@ class GameState(State):
 		this.world.player.update()
 		newturn = True
 		for m in this.world.monsters:
-			if this.world.player.doneTurn:
-				m.curTurn = 2
 			m.update()
-			if not m._doneturn:
+			if m.curturn == 2:
 				newturn = False
+				#~ print m, m.curturn
 		
 		if newturn:
-			for m in this.world.monsters:
-				m.curTurn = 1
+			this.world.player.curturn = 1
+			#~ sprite.Monster.curturn = 1
 		
 		if not this.mapmode:
 			# Center the camera on the player

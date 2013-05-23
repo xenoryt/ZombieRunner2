@@ -77,7 +77,7 @@ class Tile(pygame.sprite.Sprite, object):
 			this.passable = True if len(this.contains) == 0 else False
 		
 	
-	def draw(this, surface, camera):
+	def draw(this, surface, camera, fog = True):
 		""" Draws the tile onto a surface """
 		# Check if the tile is NOT visible
 		#  - world.draw now handles this. This check is now obsolete
@@ -87,7 +87,7 @@ class Tile(pygame.sprite.Sprite, object):
 			#~ return None
 		
 		# If lighting is 0, draw just black image
-		if this.lighting <= 0:
+		if fog and this.lighting <= 0:
 			fog = pygame.Surface(this.size)
 			fog = fog.convert()			
 			if this.explored:

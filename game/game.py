@@ -12,6 +12,7 @@ class Game(object):
 		this._prevState = None
 		this.screensize = screensize
 		this.fullscreen = False
+		this.stateChange = False
 		
 		this.world = None
 		
@@ -50,7 +51,11 @@ class Game(object):
 					gui.Button.mouseup = True
 			
 			if this.state != None:
-				this.state.update()				
+				this.state.update()
+				if this.stateChange:
+					this.stateChange = False
+					continue
+					
 				this.state.draw(this.screen)
 				pygame.display.flip()
 			else:
@@ -64,19 +69,23 @@ class Game(object):
 	
 	def assignState(this, state):
 		this.state = state
+		this.stateChange = True
 	
 	def revertState(this):
 		print "- Reverting state -"
 		this._state = this.state.prevState
+		this.stateChange = True
 	
 	
 	def Pause(this):
 		""" Pause the game """
 		this.state = MessageboxState(this, "Paused: Press OK to unpause")
+		this.stateChange = True
 	
 	def msgbox(this, text = "Message"):
 		""" Renders a messagebox and pauses the game """
 		this.state = state.MessageboxState(this, text)
+		this.stateChange = True
 		
 	def Error(this, err, errtype=1):
 		""" 
@@ -85,6 +94,7 @@ class Game(object):
 		"""
 		print "Error %d: %s" % (errtype, err)
 		this.msgbox(this, "Error %d: %s" % (errtype, err))
+		this.stateChange = True
 		this.Exit()
 	
 	def toggle_fullscreen(this):

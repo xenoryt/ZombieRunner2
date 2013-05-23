@@ -425,8 +425,8 @@ class MapGenerator:
 		# Monsters
 		nbats = 45-level*8
 		nskel = 100-level*10
-		nreap = 250-level*20
-		ndrag = 200-level*20
+		nreap = 500-level*25
+		ndrag = 350-level*20
 		
 		nbats = len(cleared)/( 15 if nbats < 15 else nbats )
 		nskel = len(cleared)/( 65 if nskel < 65 else nskel )

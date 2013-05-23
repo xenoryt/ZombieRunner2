@@ -10,20 +10,45 @@ class Control(pygame.sprite.Sprite, object):
 		this.rect = pygame.Rect(0,0,0,0)
 		this.image = None
 		
-		this.bgColor = Color((255,255,0))
-		this.fgColor = Color('white')
+		this.static = False
+		
+		this._bgColor = Color('black')
+		this._fgColor = Color('white')
+	
+	@property
+	def bgColor(this):
+		return this._bgColor
+	
+	@bgColor.setter
+	def bgColor(this, color):
+		this._bgColor = color
+		this.image = pygame.Surface(this.rect.size)
+		if color != None:
+			this.image.fill(this.bgColor)
+		else:
+			this.image.fill(Color(0,0,0,0))
+			this.image = this.image.convert_alpha()
+	
+	@property
+	def fgColor(this):
+		return this._fgColor
+	
+	@fgColor.setter
+	def fgColor(this, color):
+		this._fgColor = color
 	
 
 class Container(Control):
 	def __init__(this, locx = 0, locy = 0):
-		pygame.sprite.Sprite.__init__(this)
-		
-		this.bgColor = Color("#646464")
-		this.static = False
-		#initialize the background image
-		this.image = pygame.Surface((5,5))
-		this.image.fill(this.bgColor)
-		this.rect = this.image.get_rect(topleft=(locx,locy))
+		#~ pygame.sprite.Sprite.__init__(this)
+		#~ 
+		#~ this.bgColor = Color("#646464")
+		#~ this.static = False
+		#~ #initialize the background image
+		#~ this.image = pygame.Surface((5,5))
+		#~ this.image.fill(this.bgColor)
+		#~ this.rect = this.image.get_rect(topleft=(locx,locy))
+		super(Container, this).__init__()
 		
 		# Number of rows and columns
 		this.rows = 1
@@ -120,7 +145,6 @@ class Container(Control):
 		#TODO: Possibly do some checking to remove unused rows and columns
 		
 		
-		
 		# Position the controls
 		for ctrl in this.ctrls:
 			locx = this.rect.left + (ctrl.col * this.colw[ctrl.col-1]) - this.colw[ctrl.col-1]/2
@@ -160,16 +184,17 @@ class _Label(Control):
 	multiline labels
 	"""
 	def __init__(this, text="", locx = 0, locy = 0):
-		pygame.sprite.Sprite.__init__(this)
-		
-		#set default colors
-		this.bgColor = Color('#646464')
-		this.fgColor = Color('black')
+		#~ pygame.sprite.Sprite.__init__(this)
+		#~ 
+		#~ #set default colors
+		#~ this.bgColor = Color('#646464')
+		#~ this.fgColor = Color('black')
+		super(_Label, this).__init__()
 		
 		this._font = pygame.font.Font(os.path.join("data/font","pix.ttf"), 15)
 		this._text = text
 		
-		this.static = False
+		#~ this.static = False
 		
 		# initialize the background image
 		# set the size to the required size of the text
@@ -192,9 +217,26 @@ class _Label(Control):
 		
 		# Create background image
 		this.image = pygame.Surface((w, h))
-		this.image = this.image.convert()
-		this.image.fill(this.bgColor)
+		#~ this.image = this.image.convert_alpha()
+		if this.bgColor != None:
+			this.image.fill(this.bgColor)
+		#~ else:
+			#~ this.image = this.image.convert_alpha()
+			#~ this.image.fill(Color(255,255,255,120))
+			
+
+			
 		this.rect = this.image.get_rect(topleft=this.rect.topleft)
+	
+	#~ @property
+	#~ def bgColor(this):
+		#~ return this.bgColor
+	#~ 
+	#~ @bgColor.setter
+	#~ def bgColor(this, color):
+		#~ this._bgColor = color
+		#~ this.image = pygame.Surface(this.rect.size)
+		#~ this.image.fill(this.bgColor)
 	
 	@property
 	def text(this):
@@ -213,7 +255,13 @@ class _Label(Control):
 			textpos = text.get_rect()
 			textpos.centerx = this.rect.centerx - this.rect.left
 			textpos.centery = this.rect.centery - this.rect.top
-			this.image.blit(text, textpos)
+			#~ this.image = pygame.Surface(textpos.size)
+			#~ this.image.set_alpha(255)
+			
+			if this.bgColor == None:
+				this.image = text
+			else:
+				this.image.blit(text, textpos)
 			this.requireUpdate = False
 			print "label",this.text,this.rect.size,this.rect.center
 	
@@ -269,13 +317,14 @@ class Button(Control):
 	mouseup = False
 	images = []
 	def __init__(this, text="", locx = 0, locy = 0, width=0,height=0):
-		pygame.sprite.Sprite.__init__(this)
-		
-		this.static = False
-		
-		#set default colors
-		this.bgColor = Color('red')
-		this.fgColor = Color('black')
+		#~ pygame.sprite.Sprite.__init__(this)
+		#~ 
+		#~ this.static = False
+		#~ 
+		#~ #set default colors
+		#~ this.bgColor = Color('red')
+		#~ this.fgColor = Color('black')
+		super(Button, this).__init__()
 		
 		this._font = pygame.font.Font(os.path.join("data/font","pix.ttf"), 15)
 		this._text = text
@@ -304,6 +353,7 @@ class Button(Control):
 		# Set width and height if none given
 		if not this.static:
 			w,h = this._font.size(this.text)
+			print w,h
 		elif w == -1 or h == -1:
 			w = this.rect.w
 			h = this.rect.h

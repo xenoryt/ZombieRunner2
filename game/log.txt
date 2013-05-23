@@ -146,5 +146,7 @@ May 20 (7)
 	- Implemented monster deaths
 	- Added a few new monsters
 	
-	
+May 21 (1)
+	- Attempted to implement new GUI features
+	- Attempted to create new turn system
 

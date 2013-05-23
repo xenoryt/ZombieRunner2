@@ -128,7 +128,7 @@ def main():
 		world = worldgenerator.create("map", 1, (100,100), 2)
 	
 	
-	game.run(state.GameState)
+	game.run(state.MainMenuState)
 	
 	return 0
 

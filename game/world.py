@@ -27,6 +27,9 @@ class World:
 		this.image = None
 		this.name = name
 		
+		# if the map has been successfully loaded this is set to True
+		this.loaded = False
+		
 		this.level = level
 		
 		# List of all the objects in the game
@@ -158,6 +161,7 @@ class World:
 		if not this.loadExplored():
 			return False
 		
+		this.loaded = True
 		return True
 	
 	def placeObject(this, name, locx, locy, hp = -1):
@@ -323,7 +327,7 @@ class World:
 	
 	
 	
-	def draw(this, surface, camera):
+	def draw(this, surface, camera, fog = True):
 		"""
 		Draws this map onto the surface
 		"""
@@ -341,7 +345,7 @@ class World:
 				
 		for y in range(starty, endy+1):
 			for x in range(startx, endx+1):
-				this.map[y][x].draw(surface, camera)
+				this.map[y][x].draw(surface, camera, fog)
 		
 		
 		
