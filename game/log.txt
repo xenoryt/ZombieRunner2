@@ -150,3 +150,9 @@ May 21 (1)
 	- Attempted to implement new GUI features
 	- Attempted to create new turn system
 
+May 22 (4)
+	- Created new main menu screen
+	- Created new inventory screen
+	- Finished creating new turn system
+	- Added new GUI features
+
