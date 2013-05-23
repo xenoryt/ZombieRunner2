@@ -254,6 +254,7 @@ class World:
 		return True
 	
 	def savemap(this):
+		print this.name + ".txt"
 		fw = open(this.name + ".txt", "w")
 		
 		for y in range(len(this.map)):
@@ -303,6 +304,7 @@ class World:
 		Delete ALL save files related to this world
 		"""
 		
+		print "terminating",this.name+".txt"
 		os.remove(this.name+".txt")
 		os.remove(this.name+"_inventory.txt")
 		os.remove(this.name+"_objects.txt")
@@ -312,6 +314,7 @@ class World:
 	def tile(this, points, type):
 		for p in points:
 			this.map[p[1]][p[0]].type = type
+			this.map[p[1]][p[0]].passable = True
 	
 	def place(this, points, objs):
 		"""

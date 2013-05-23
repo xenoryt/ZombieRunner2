@@ -121,11 +121,11 @@ def main():
 	
 	loadImages()
 	
-	world = World()
-	
-	if not world.load("map"):
-		worldgenerator = MapGenerator()
-		world = worldgenerator.create("map", 1, (100,100), 2)
+	#~ world = World()
+	#~ 
+	#~ if not world.load("map"):
+		#~ worldgenerator = MapGenerator()
+		#~ world = worldgenerator.create("map", 1, (100,100), 2)
 	
 	
 	game.run(state.MainMenuState)

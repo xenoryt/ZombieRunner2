@@ -133,7 +133,6 @@ class Tile(pygame.sprite.Sprite, object):
 		elif type(t) == int: 
 			this._type = t
 		
-		
 		this.image = this.images[this._type]
 		this.rect = this.image.get_rect(topleft = this.maploc)
 	

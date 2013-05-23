@@ -93,6 +93,17 @@ class MessageboxState(State):
 		
 
 class MainMenuState(State):
+	def startmenu(this):
+		this.world.terminate()
+		#~ this.game.world.terminate()
+		this.game.assignState(GameState(this.game))
+	def contmenu(this):
+		this.game.assignState(GameState(this.game))
+		this.world.terminate()
+	def exitmenu(this):
+		this.world.terminate()
+		this.game.Exit()
+	
 	def __init__(this, game):
 		this.game = game
 		this.game.world = world.World()
@@ -102,9 +113,9 @@ class MainMenuState(State):
 		this.btnCont = gui.Button("Continue")
 		this.btnExit = gui.Button("Exit")
 		
-		this.btnStart.onClick = lambda: this.game.assignState(GameState(this.game))
-		this.btnCont.onClick = lambda: this.game.assignState(GameState(this.game))
-		this.btnExit.onClick = lambda: this.game.revertState()
+		this.btnStart.onClick = this.startmenu
+		this.btnCont.onClick = this.contmenu
+		this.btnExit.onClick = this.exitmenu
 		
 		centerx = this.game.screensize[0]/2
 		centery = this.game.screensize[1]/2
@@ -215,9 +226,16 @@ class InventoryState(State):
 		this.label.fgColor = Color("#731E7A")
 		this.label.rect.topleft = (50,50)
 		
+		this.btnResume = gui.Button("Resume")
+		this.btnResume.onClick = lambda: this.game.revertState()
 		
-		this.box = gui.Container()
+		this.btnExit = gui.Button("Exit")
+		this.btnExit.onClick = lambda: this.game.Exit()
 		
+		this.btnResume.rect.bottomleft = (50,540)
+		this.btnExit.rect.bottomleft = (50,570)
+		
+		this.inv = gui.Container()
 		
 		this.drawbg = True
 		
@@ -230,8 +248,8 @@ class InventoryState(State):
 				btn.images = this.btnImages
 				btn.rect.w = 48
 				btn.rect.h = 48
-				this.box.add(btn, row+1,col+1)
-		this.box.rect.topleft = (50,120)
+				this.inv.add(btn, row+1,col+1)
+		this.inv.rect.topleft = (50,120)
 	
 	def update(this,):
 		for event in pygame.event.get():
@@ -241,20 +259,24 @@ class InventoryState(State):
 				if event.key == K_ESCAPE:
 					this.drawbg = True
 					this.game.revertState()
-		this.box.update()
+		this.inv.update()
 		this.label.update()
+		this.btnResume.update()
+		this.btnExit.update()
 		
 	def draw(this,screen):
 		if this.drawbg:
 			background = pygame.Surface(screen.get_size())
 			background = background.convert()
 			background.fill(Color('black'))
-			background.set_alpha(100)
+			background.set_alpha(150)
 			screen.blit(background, (0, 0))
 			this.drawbg = False
 		
-		this.box.draw(screen)
+		this.inv.draw(screen)
 		this.label.draw(screen)
+		this.btnResume.draw(screen)
+		this.btnExit.draw(screen)
 
 class GameState(State):
 	def __init__(this, game):
@@ -270,19 +292,21 @@ class GameState(State):
 		this.scrollamt = 16
 		this.mapmode = False
 		
-		# TODO: Add checking for continues
+		if not this.game.world.loaded:
+			generator = mapgenerator.MapGenerator()
+			this.game.world = generator.create("map",1)
 		
-		this.loadWorld("map")
+		this.world = this.game.world
 		
 	
-	def loadWorld(this, mapname):
-		if this.world != None:
-			this.world.save()
-		this.world = world.World()
-		this.world.load(mapname)
-		this.game.world = this.world
-		this.camera.rect.center = this.world.player.rect.center
-		#TODO: LOAD WORLD ENTITIES HERE
+	#~ def loadWorld(this, mapname):
+		#~ if this.world != None:
+			#~ this.world.save()
+		#~ this.world = world.World()
+		#~ this.world.load(mapname)
+		#~ this.game.world = this.world
+		#~ this.camera.rect.center = this.world.player.rect.center
+		#~ #TODO: LOAD WORLD ENTITIES HERE
 	
 	def update(this):
 		

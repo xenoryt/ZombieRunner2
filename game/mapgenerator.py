@@ -385,7 +385,7 @@ class MapGenerator:
 					
 				elif len(connected) > len(rooms):
 					print "Something is wrong here..."
-					raise ValueError
+					#~ raise ValueError
 				break
 			
 			
