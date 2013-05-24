@@ -280,7 +280,6 @@ class Sprite(pygame.sprite.Sprite, object):
 		This function moves the sprite in place
 		Note: Direction is a string such as "up" 
 		"""
-		print "moving"
 		if this.turn != this.curturn:
 			return
 		
@@ -291,23 +290,20 @@ class Sprite(pygame.sprite.Sprite, object):
 		# If the sprite is currently in the process of moving
 		if this.moving:
 			return False
-		print "moving 2"
 		d = direction
 		# If its not moving in any direction, do nothing
 		if directions[d][0] == 0 and directions[d][1] == 0:
 			this.doneturn(True)
 			return False
 		
-		print "moving 3"
 		if this.tile == None:
 			this.getCurrentTile()
 		
 		# Check if the tile the sprite is moving to is passable
 		loc = this.tile.gridloc
 		nextTile = this.world.map[loc[1] + directions[d][1]][loc[0] + directions[d][0]]
-		print nextTile,nextTile.passable
+		
 		if nextTile.passable:
-			print "moving 4"
 			# Set this sprite to move
 			this.direction = d
 			this.moving = True

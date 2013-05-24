@@ -87,6 +87,8 @@ def loadImages():
 	gui.Button.images.append(pygame.image.load(os.path.join("data","button_normal.png")))
 	gui.Button.images.append(pygame.image.load(os.path.join("data","button_hover.png")))
 	
+	gui.Bar.images = pygame.image.load(os.path.join("data","bar.png"))
+	
 	sprite.loadImages(sprite.Sprite, "player_up.png", "up")
 	sprite.loadImages(sprite.Sprite, "player_down.png", "down")
 	sprite.loadImages(sprite.Sprite, "player_right.png", "right")
@@ -116,6 +118,7 @@ def loadImages():
 	sprite.Stair.image = pygame.image.load(os.path.join("data","stairs2.png"))
 	
 	state.InventoryState.btnImages = [pygame.image.load(os.path.join("data","inventory_grid.png"))]
+	
 
 def main():
 	
@@ -128,7 +131,7 @@ def main():
 		#~ world = worldgenerator.create("map", 1, (100,100), 2)
 	
 	
-	game.run(state.MainMenuState)
+	game.run(state.MainMenuState(game))
 	
 	return 0
 

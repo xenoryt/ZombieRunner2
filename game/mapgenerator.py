@@ -72,7 +72,7 @@ class Corridor:
 				this.endrooms.append(area)
 				
 				# If this room does not have any other corridors connected
-				if len(area.corridors) <= maxCors:
+				if len(area.corridors) < maxCors:
 					return True # end corridor generation
 		
 		
@@ -300,7 +300,7 @@ class MapGenerator:
 						
 						# Remove the second room (room[n]) since that one
 						# is now a part of the current room (room[i])
-						rooms.pop(n)
+						del rooms[n]
 						
 						# Recheck the current room with the rest again
 						n = i+1
@@ -340,8 +340,10 @@ class MapGenerator:
 			# Check if all the rooms are connected
 			while True:
 				tries += 1
+				
 				connected = rooms[0].getConnectedRooms()
 				connected[:] = list(set(connected))
+				#~ print len(rooms),len(halls)
 				print len(connected),"is connected"
 				print len(rooms),"were generated"
 				if len(connected) < len(rooms):
@@ -376,7 +378,7 @@ class MapGenerator:
 											
 					hall.endrooms[:] = list(set(hall.endrooms))
 					#halls.append(hall)
-					# Appened corridors to cleared areas
+					# Appended corridors to cleared areas
 					cleared += hall.points
 					cleared[:] = list(set(cleared))
 					del connected[:]
@@ -384,7 +386,8 @@ class MapGenerator:
 					continue
 					
 				elif len(connected) > len(rooms):
-					print "Something is wrong here..."
+					print "Something went TERRIBLY wrong here..."
+					return None
 					#~ raise ValueError
 				break
 			

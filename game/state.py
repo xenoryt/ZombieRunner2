@@ -75,12 +75,11 @@ class MessageboxState(State):
 		# Get input
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				this.game.running = False
+				this.game.Exit()
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
-					this.game.running = False
-				elif event.key == K_2:
-					this.game.revertState()
+					this.game.Exit()
+		
 		this.box.update()
 	
 	def draw(this, screen):
@@ -95,7 +94,7 @@ class MessageboxState(State):
 class MainMenuState(State):
 	def startmenu(this):
 		this.world.terminate()
-		#~ this.game.world.terminate()
+		this.game.world.terminate()
 		this.game.assignState(GameState(this.game))
 	def contmenu(this):
 		this.game.assignState(GameState(this.game))
@@ -108,6 +107,11 @@ class MainMenuState(State):
 		this.game = game
 		this.game.world = world.World()
 		this.hasSaves = this.game.world.load("map")
+		this.err = ""
+		
+		this.testLabel = gui.Label("label\nlabel2")
+		this.testLabel.bgColor = None
+		this.testLabel.rect.center = (400,300)
 		
 		this.btnStart = gui.Button("New Game")
 		this.btnCont = gui.Button("Continue")
@@ -129,6 +133,9 @@ class MainMenuState(State):
 		
 		generator = mapgenerator.MapGenerator()
 		this.world = generator.create("map_menu",1,(80,80),8)
+		if this.world == None:
+			this.err = "Something went wrong with map generation...\nPlease try running the game again"
+			
 		
 		# Create a camera and set it to a random position on map
 		this.camera = Camera(this.game.screensize)
@@ -139,6 +146,9 @@ class MainMenuState(State):
 		
 		
 	def update(this):
+		if this.err != "":
+			this.game.Error(this.err)
+			return
 		
 		for event in pygame.event.get():
 			if event.type == QUIT:
@@ -162,11 +172,13 @@ class MainMenuState(State):
 					elif this.camera.rect.left < 0:
 						this.camera.rect.left = 0
 		
+		if this.game.world.loaded:
+			this.btnCont.update()
 		
 		this.btnStart.update()
 		this.btnExit.update()
-		if this.game.world.loaded:
-			this.btnCont.update()
+		this.testLabel.update()
+		
 		
 	def draw(this, screen):
 		this.world.draw(screen, this.camera, False)
@@ -179,6 +191,8 @@ class MainMenuState(State):
 		this.btnExit.draw(screen)
 		if this.game.world.loaded:
 			this.btnCont.draw(screen)
+		
+		this.testLabel.draw(screen)
 
 class PauseState(State):
 	def __init__(this, game, world = None):
@@ -202,7 +216,7 @@ class PauseState(State):
 	def update(this):
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				this.game.running = False
+				this.game.Exit()
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
 					this.game.revertState()
@@ -223,8 +237,8 @@ class InventoryState(State):
 		
 		this.label = gui._Label("Inventory")
 		this.label.bgColor = None
-		this.label.fgColor = Color("#731E7A")
-		this.label.rect.topleft = (50,50)
+		this.label.fgColor = Color("#2CF3DB")
+		this.label.rect.topleft = (50,100)
 		
 		this.btnResume = gui.Button("Resume")
 		this.btnResume.onClick = lambda: this.game.revertState()
@@ -249,12 +263,12 @@ class InventoryState(State):
 				btn.rect.w = 48
 				btn.rect.h = 48
 				this.inv.add(btn, row+1,col+1)
-		this.inv.rect.topleft = (50,120)
+		this.inv.rect.topleft = (50,160)
 	
 	def update(this,):
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				this.game.running = False
+				this.game.Exit()
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
 					this.drawbg = True
@@ -280,6 +294,7 @@ class InventoryState(State):
 
 class GameState(State):
 	def __init__(this, game):
+		print "in gamestate"
 		this.game = game
 		
 		this.world = None
@@ -287,16 +302,35 @@ class GameState(State):
 		this.keys = Keys()
 		
 		this.turn = 1
+		this.err = ""
 		
 		# Allows player to pan camera across the map
 		this.scrollamt = 16
 		this.mapmode = False
 		
+		# The hp bar
+		this.hpbar = gui.Bar()
+		this.hpbar.rect.topleft = (15,50)
+		this.hpbar.fgColor = Color("red")
+		
 		if not this.game.world.loaded:
 			generator = mapgenerator.MapGenerator()
 			this.game.world = generator.create("map",1)
+			if this.game.world == None:
+				this.err = "Something went wrong with map generation...\nPlease try running the game again"
+				print 'err'
+				this.game.Error(this.err)
 		
 		this.world = this.game.world
+		
+		lvl = 0
+		if this.world != None:
+			lvl = this.world.level
+		# The label
+		this.lblDungeon = gui.Label("Dungeon: "+str(lvl))
+		this.lblDungeon.bgColor = None
+		this.lblDungeon.fgColor = Color("#565656")
+		this.lblDungeon.rect.topleft = (15,15)
 		
 	
 	#~ def loadWorld(this, mapname):
@@ -309,12 +343,16 @@ class GameState(State):
 		#~ #TODO: LOAD WORLD ENTITIES HERE
 	
 	def update(this):
+		#~ if this.err != "":
+			#~ this.game.Error(this.err)
+			#~ return 
 		
 		# Get input 
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				this.game.Exit()
 				this.world.save()
+				this.game.Exit()
+				
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
 					this.world.save()
@@ -353,7 +391,7 @@ class GameState(State):
 			msg+= "Died on floor: " + str(this.world.level)
 			this.world.terminate()
 			this.game.msgbox(msg)
-			this.game.Exit()
+			this.game.Exit(False)
 			return 
 		
 		# Check for key events
@@ -411,8 +449,10 @@ class GameState(State):
 			# Center the camera on the player
 			this.camera.rect.center = this.world.player.rect.center
 		
-		#print this.camera.rect.left, this.camera.rect.top
-		#TODO: Update world entities here
+		hp = this.world.player.hp
+		this.hpbar.value = hp if hp > 0 else 0
+		this.lblDungeon.update()
+		#~ this.hpbar.update()
 	
 	def draw(this, screen):
 		this.world.draw(screen, this.camera)
@@ -421,4 +461,8 @@ class GameState(State):
 		this.world.player.draw(screen, this.camera)
 		for m in this.world.monsters:
 			m.draw(screen, this.camera)
+		
+		this.lblDungeon.draw(screen)
+		this.hpbar.draw(screen)
+		
 		

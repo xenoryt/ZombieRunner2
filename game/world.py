@@ -305,10 +305,15 @@ class World:
 		"""
 		
 		print "terminating",this.name+".txt"
-		os.remove(this.name+".txt")
-		os.remove(this.name+"_inventory.txt")
-		os.remove(this.name+"_objects.txt")
-		os.remove(this.name+"_explored.txt")
+		if os.path.exists(this.name+".txt"):
+			os.remove(this.name+".txt")
+		if os.path.exists(this.name+"_inventory.txt"):
+			os.remove(this.name+"_inventory.txt")
+		if os.path.exists(this.name+"_objects.txt"):
+			os.remove(this.name+"_objects.txt")
+		if os.path.exists(this.name+"_explored.txt"):
+			os.remove(this.name+"_explored.txt")
+		this.loaded = False
 		#~ os.remove(this.name+".txt")
 	
 	def tile(this, points, type):

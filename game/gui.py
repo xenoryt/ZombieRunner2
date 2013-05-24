@@ -14,6 +14,8 @@ class Control(pygame.sprite.Sprite, object):
 		
 		this._bgColor = Color('black')
 		this._fgColor = Color('white')
+		
+		this.requireUpdate = True
 	
 	@property
 	def bgColor(this):
@@ -21,13 +23,15 @@ class Control(pygame.sprite.Sprite, object):
 	
 	@bgColor.setter
 	def bgColor(this, color):
-		this._bgColor = color
-		this.image = pygame.Surface(this.rect.size)
-		if color != None:
-			this.image.fill(this.bgColor)
-		else:
-			this.image.fill(Color(0,0,0,0))
-			this.image = this.image.convert_alpha()
+		this._bgColor = color if color != None else Color(120,120,120,0)
+		
+		#~ this.image = pygame.Surface(this.rect.size)
+		#~ if color != None:
+			#~ this.image.fill(this.bgColor)
+		#~ else:
+			#~ this.image.fill(Color(0,0,0,0))
+			#~ this.image = this.image.convert_alpha()
+		this.requireUpdate = True
 	
 	@property
 	def fgColor(this):
@@ -36,6 +40,7 @@ class Control(pygame.sprite.Sprite, object):
 	@fgColor.setter
 	def fgColor(this, color):
 		this._fgColor = color
+		this.requireUpdate = True
 	
 
 class Container(Control):
@@ -94,7 +99,10 @@ class Container(Control):
 	def resize(this, w,h):
 		#initialize the background image
 		this.image = pygame.Surface((w, h))
-		this.image.fill(this.bgColor)
+		if this.bgColor == None:
+			this.image.set_alpha = 0
+		else:
+			this.image.fill(this.bgColor)
 		this.rect = this.image.get_rect(center=this.rect.center)
 	
 	# Functions that manage controls and their positions
@@ -120,17 +128,20 @@ class Container(Control):
 		
 		# Calculate the height of each row and overall height
 		height = 0
+		starth = [0 for i in range(this.rows)]
 		for i in range(this.rows):
 			for ctrl in this.ctrls:
 				# If the control is in the this row
 				if ctrl.row-1 == i:
 					if ctrl.rect.h > this.rowh[i]:
 						this.rowh[i] = ctrl.rect.h
-		
+			
 			height += this.rowh[i]
+			starth[i] = height - this.rowh[i]/2
 		
 		# Calculate the width of each column and overall width
 		width = 0
+		startw = [0 for i in range(this.cols)]
 		for i in range(this.cols):
 			for ctrl in this.ctrls:
 				if ctrl.col-1 == i:
@@ -138,6 +149,7 @@ class Container(Control):
 						this.colw[i] = ctrl.rect.w
 			
 			width += this.colw[i]
+			startw[i] = width - this.colw[i]/2
 		
 		# Resize according to overall width and height
 		this.resize(width, height)
@@ -147,11 +159,12 @@ class Container(Control):
 		
 		# Position the controls
 		for ctrl in this.ctrls:
-			locx = this.rect.left + (ctrl.col * this.colw[ctrl.col-1]) - this.colw[ctrl.col-1]/2
-			locy = this.rect.top + (ctrl.row * this.rowh[ctrl.row-1]) - this.rowh[ctrl.row-1]/2
+			#~ locx = this.rect.left + (startw[ctrl.col-1]) + ctrl.rect.w/2
+			#~ locy = this.rect.top + (starth[ctrl.row-1]) + ctrl.rect.h/2
+			locx = this.rect.left + (startw[ctrl.col-1])
+			locy = this.rect.top + (starth[ctrl.row-1]) 
+
 			ctrl.rect.center = (locx, locy)
-	
-	
 	
 	# Properties
 	@property
@@ -269,20 +282,27 @@ class _Label(Control):
 		#~ print "drawing button"
 		surface.blit(this.image, this.rect)
 
-class Label(Control):
+class Label(Container):
 	"""
 	The real Label class.
 	Can create multiple lines of text by combining the 
 	Container class and the _Label class.
 	"""
 	def __init__(this, text, locx=0, locy=0):
-		this.box = Container(locx, locy)
+		super(Label, this).__init__(locx, locy)
 		this.text = text
 		
-		this.layer = 6
-		
-		this.static = False
-		
+	
+	@property
+	def bgColor(this):
+		return this._bgColor
+	
+	@bgColor.setter
+	def bgColor(this, color):
+		this._bgColor = color if color != None else Color(120,120,120,0)
+		for lbl in this.ctrls:
+			lbl.bgColor = color
+	
 	@property
 	def text(this):
 		return this._text
@@ -296,20 +316,7 @@ class Label(Control):
 		# them into the container class
 		for i in range(len(this.lines)):
 			lbl = _Label(this.lines[i])
-			this.box.add(lbl, i+1, 1)
-	
-	@property
-	def rect(this):
-		return this.box.rect
-	
-	def update(this):
-		#~ print this.rect.topleft
-		#~ for lbl in this.box.ctrls:
-			#~ print "label",lbl.text,lbl.rect.topleft
-		this.box.update()
-	
-	def draw(this, screen):
-		this.box.draw(screen)
+			this.add(lbl, i+1, 1)
 		
 
 
@@ -413,7 +420,54 @@ class Button(Control):
 	def onClick(this):
 		return 0
 
-
+class Bar(Control):
+	images = None
+	
+	def __init__(this, size = (100,20), value = 0):
+		super (Bar, this).__init__()
+		this.resize(size)
+		this._value = value
+		
+		this.requireUpdate = True
+	
+	@property
+	def value(this):
+		return this._value
+	
+	@value.setter
+	def value(this, val):
+		if val == this._value:
+			return
+		if val < this._value:
+			this.image = this.images.copy()
+		
+		# Padding used in the background image
+		pad = 2
+		barw = int(round((this.rect.size[0]-pad*2)* float(val)/100))
+		print barw
+		print this.fgColor
+		bar = pygame.Rect(pad,pad, barw, this.rect.h-pad*2)
+		
+		this.image.fill(this.fgColor,bar)
+		
+		this._value = val
+		#~ this.requireUpdate = True
+	
+	def resize(this, size):
+		if this.rect.size != size:
+			this.image = pygame.transform.scale(this.images, size)
+			this.rect = this.image.get_rect(topleft = this.rect.topleft)
+	
+	def update(this):
+		#~ if this.requireUpdate:
+			#~ this.resize(this.rect.size)
+			#~ this.requireUpdate = False
+			#~ print this.rect
+		pass
+		
+	
+	def draw(this, screen):
+		screen.blit(this.image, this.rect)
 	
 class gui(pygame.sprite.Sprite):
 	def __init__(this):

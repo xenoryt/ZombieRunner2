@@ -156,3 +156,10 @@ May 22 (4)
 	- Finished creating new turn system
 	- Added new GUI features
 
+May 23 (3)
+	- Fixed some game state changing bugs
+	- Fixed control organizing issue in the Container class (GUI)
+	- Started working on a Bar class for progress bar/hp bar
+	
+May 24 (1)
+	- 

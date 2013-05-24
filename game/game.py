@@ -33,14 +33,17 @@ class Game(object):
 			#~ #start game
 			#~ raise NotImplementedError
 		
+		print this.state, state
+		if not this.stateChange:
+			this.state = state
+		print this.state, state
 		
-		this.state = state(this)
 		this.running = True
 		
 		# create clock for timing
 		clock = pygame.time.Clock()
 		
-		while this.running:
+		while this.running or this.state != None :
 			# call state.update()
 			# manage fps
 			
@@ -60,6 +63,7 @@ class Game(object):
 				pygame.display.flip()
 			else:
 				this.Error("No state selected")
+				
 			
 			#cap fps to 60
 			clock.tick(30)
@@ -68,8 +72,8 @@ class Game(object):
 		#############################
 	
 	def assignState(this, state):
-		this.state = state
-		this.stateChange = True
+		if not this.stateChange:
+			this.state = state
 	
 	def revertState(this):
 		print "- Reverting state -"
@@ -80,12 +84,10 @@ class Game(object):
 	def Pause(this):
 		""" Pause the game """
 		this.state = MessageboxState(this, "Paused: Press OK to unpause")
-		this.stateChange = True
 	
 	def msgbox(this, text = "Message"):
 		""" Renders a messagebox and pauses the game """
 		this.state = state.MessageboxState(this, text)
-		this.stateChange = True
 		
 	def Error(this, err, errtype=1):
 		""" 
@@ -93,9 +95,9 @@ class Game(object):
 		errors and exits game after displaying message
 		"""
 		print "Error %d: %s" % (errtype, err)
-		this.msgbox(this, "Error %d: %s" % (errtype, err))
-		this.stateChange = True
-		this.Exit()
+		this.msgbox( ("Error %d: %s" % (errtype, err)))
+		this.Exit(False)
+		
 	
 	def toggle_fullscreen(this):
 		this.fullscreen = not this.fullscreen
@@ -104,8 +106,12 @@ class Game(object):
 		else:
 			pygame.display.set_mode(this.screensize)
 	
-	def Exit(this):
+	def Exit(this, now = True):
 		this.running = False
+		this._state.prevState = None
+		this.stateChange = True
+		if now:
+			this._state = None
 	
 	### Properties ###
 	@property
@@ -119,6 +125,7 @@ class Game(object):
 		state.prevState = this._state
 		this._state = state
 		this._state.isCurrent = True
+		this.stateChange = True
 	
 	##################
 	
