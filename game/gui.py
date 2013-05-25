@@ -23,11 +23,11 @@ class Control(pygame.sprite.Sprite, object):
 	
 	@bgColor.setter
 	def bgColor(this, color):
-		this._bgColor = color if color != None else Color(120,120,120,0)
+		this._bgColor = color
 		
-		#~ this.image = pygame.Surface(this.rect.size)
+		#~ this.image = pygame.Surface(this.rect.size, pygame.SRCALPHA)
 		#~ if color != None:
-			#~ this.image.fill(this.bgColor)
+		#~ this.image.fill(this.bgColor)
 		#~ else:
 			#~ this.image.fill(Color(0,0,0,0))
 			#~ this.image = this.image.convert_alpha()
@@ -98,9 +98,11 @@ class Container(Control):
 	
 	def resize(this, w,h):
 		#initialize the background image
-		this.image = pygame.Surface((w, h))
+		#~ if this.rect.size == (w,h):
+			#~ return
+		this.image = pygame.Surface((w, h), pygame.SRCALPHA)
 		if this.bgColor == None:
-			this.image.set_alpha = 0
+			this.image.set_alpha(0)
 		else:
 			this.image.fill(this.bgColor)
 		this.rect = this.image.get_rect(center=this.rect.center)
@@ -268,13 +270,13 @@ class _Label(Control):
 			textpos = text.get_rect()
 			textpos.centerx = this.rect.centerx - this.rect.left
 			textpos.centery = this.rect.centery - this.rect.top
-			#~ this.image = pygame.Surface(textpos.size)
-			#~ this.image.set_alpha(255)
-			
+			this.image = pygame.Surface(textpos.size,pygame.SRCALPHA)
 			if this.bgColor == None:
-				this.image = text
+				this.image.set_alpha(0)
 			else:
-				this.image.blit(text, textpos)
+				this.image.fill(this.bgColor)
+			this.image.blit(text,(0,0))
+			this.image.blit(text, textpos)
 			this.requireUpdate = False
 			print "label",this.text,this.rect.size,this.rect.center
 	
@@ -299,7 +301,7 @@ class Label(Container):
 	
 	@bgColor.setter
 	def bgColor(this, color):
-		this._bgColor = color if color != None else Color(120,120,120,0)
+		this._bgColor = color
 		for lbl in this.ctrls:
 			lbl.bgColor = color
 	

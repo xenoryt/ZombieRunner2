@@ -179,6 +179,7 @@ class World:
 			stair.rect.topleft = (locx*48, locy*48)
 			stair.tile = this.map[locy][locx]
 			this.objects.append(stair)
+			print stair.tile, this.map[locy][locx].contains
 		if name == "player":
 			this.player = sprite.Sprite(this)
 			this.player.rect.topleft = (locx*48, locy*48)
@@ -274,7 +275,7 @@ class World:
 		
 		# Write player data
 		loc = str(this.player.tile.gridloc[0]) + " " + str(this.player.tile.gridloc[1])
-		fw.write("player " +loc+" " +str(this.player.hp) +"\n")
+		fw.write("player " +loc+" " +str(int(this.player.hp)) +"\n")
 		
 		# Write monster data
 		for m in this.monsters:

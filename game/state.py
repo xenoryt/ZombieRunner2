@@ -109,10 +109,6 @@ class MainMenuState(State):
 		this.hasSaves = this.game.world.load("map")
 		this.err = ""
 		
-		this.testLabel = gui.Label("label\nlabel2")
-		this.testLabel.bgColor = None
-		this.testLabel.rect.center = (400,300)
-		
 		this.btnStart = gui.Button("New Game")
 		this.btnCont = gui.Button("Continue")
 		this.btnExit = gui.Button("Exit")
@@ -177,7 +173,6 @@ class MainMenuState(State):
 		
 		this.btnStart.update()
 		this.btnExit.update()
-		this.testLabel.update()
 		
 		
 	def draw(this, screen):
@@ -191,8 +186,6 @@ class MainMenuState(State):
 		this.btnExit.draw(screen)
 		if this.game.world.loaded:
 			this.btnCont.draw(screen)
-		
-		this.testLabel.draw(screen)
 
 class PauseState(State):
 	def __init__(this, game, world = None):
@@ -366,6 +359,9 @@ class GameState(State):
 				elif event.key == K_RIGHT:
 					this.keys.right = True
 				
+				elif event.key == K_s:
+					this.world.player.move("none")
+				
 				elif event.key == K_EQUALS:
 					this.scrollamt += 2
 				elif event.key == K_MINUS:
@@ -425,15 +421,22 @@ class GameState(State):
 					this.camera.rect.left = 0
 		
 		
-		if this.world.player.actions == 0 and not this.world.player.animating:
-			# Check if player is standing on chest or staircase
+		this.world.player.update()
+		
+		if this.world.player.actions < 1 and not this.world.player.animating:
+			# Check if player is standing on staircase
 			obj = this.world.player.tile.getObject()
+			print this.world.objects[0],this.world.objects[0].tile.contains
 			if obj != None and obj.name == "stair":
+				playerhp = this.world.player.hp
 				generator = mapgenerator.MapGenerator()
 				this.world = generator.create("map", this.world.level+1)
+				print "generating"
+				this.lblDungeon.text = "Dungeon: " + str(this.world.level)
+				this.world.player.hp = playerhp
 			
 		
-		this.world.player.update()
+		
 		newturn = True
 		for m in this.world.monsters:
 			m.update()

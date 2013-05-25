@@ -54,7 +54,8 @@ class Sprite(pygame.sprite.Sprite, object):
 		# Stats
 		this.maxhp = 100
 		this.hp = this.maxhp
-		this.atk = 8
+		this.atk = 5
+		this.hpregen = 0.15
 		
 		# This is how many actions per turn the sprite gets to perform
 		# 0.5 means 1 action every 2 turns
@@ -113,6 +114,18 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.markTiles()
 	
 	@property
+	def hp(this):
+		return this._hp
+	
+	@hp.setter
+	def hp(this, val):
+		if val > this.maxhp:
+			val = this.maxhp
+		elif val < 0:
+			val = 0
+		this._hp = val
+	
+	@property
 	def curturn(this):
 		return this._curturn
 	
@@ -121,6 +134,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		#~ print "setting",turn
 		if this.actions < 1 and turn != this._curturn and turn == this.turn:
 			this.actions += this.spd
+			this.hp += this.hpregen
 		this._curturn = turn
 		#~ print this._curturn
 	
@@ -379,6 +393,7 @@ class Monster(Sprite):
 		
 		this.spd = 0.7
 		this.actions = 0
+		this.hpregen = 0
 		
 		this.atk = 5
 		
@@ -468,11 +483,18 @@ class Bat(Monster):
 	def __init__(this, level, world = None):
 		super(Bat, this).__init__(level, world)
 		this.name = "bat"
-		this.maxhp = 11+2*level
+		this.maxhp = 7+1*level
+		
+		this.atk = 1*level
+		this.spd = 1.2+0.1*level
+		this.sight = 7
+		
+		if this.maxhp>15:
+			this.maxhp = 15
+		if this.spd > 1.5:
+			this.spd = 1.5
+		
 		this.hp = this.maxhp
-		this.atk = 3+2*level
-		this.spd = 1.5
-		this.sight = 6
 
 class Skel(Monster):
 	"""
@@ -483,11 +505,13 @@ class Skel(Monster):
 	def __init__(this, level, world = None):
 		super(Skel, this).__init__(level, world)
 		this.name ="skel"
-		this.maxhp = 17+5*level
-		this.hp = this.maxhp
+		this.maxhp = int(round(8+3.2*level))
+		
 		this.atk = 10+4*level
 		this.spd = 1
 		this.sight = 4
+		
+		this.hp = this.maxhp
 
 class Dragon(Monster):
 	"""
@@ -498,12 +522,20 @@ class Dragon(Monster):
 	def __init__(this, level, world = None):
 		super(Dragon, this).__init__(level, world)
 		this.name="dragon"
-		this.maxhp = 10+15*level
-		this.hp = this.maxhp
-		this.atk = 4+6*level
+		this.maxhp = 10+8*level
+		
+		this.atk = 2+4*level
 		this.spd = 0.5+0.15*level
 		this.sight = 6
-
+		if this.maxhp > 75:
+			this.maxhp = 75
+		if this.atk > 26:
+			this.atk = 26
+		if this.spd > 1:
+			this.spd = 1
+		
+		this.hp = this.maxhp
+		
 class Reaper(Monster):
 	"""
 	Very slow and Very deadly. The Reaper's sight also becomes 
@@ -514,13 +546,19 @@ class Reaper(Monster):
 	def __init__(this, level, world = None):
 		super(Reaper, this).__init__(level, world)
 		this.name="reaper"
-		this.maxhp = 15+5*level
+		this.maxhp = 8+4*level
+		
+		this.atk = 65
+		this.spd = 0.4 + round(0.1*(level/2.),1)
+		this.sight = int(round(2+level))
+		if this.maxhp > 22:
+			this.maxhp = 35
+		if this.sight > 15:
+			this.sight = 15
+		if this.spd > 0.9:
+			this.spd = 0.9
+		
 		this.hp = this.maxhp
-		this.atk = 12+int(round(8.2*level))
-		this.spd = 0.2 + round(0.12*(level/2.),1)
-		this.sight = int(round(0+level/2.))
-		if this.sight > 12:
-			this.sight = 12
 	
 
 

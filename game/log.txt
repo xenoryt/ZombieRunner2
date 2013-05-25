@@ -161,5 +161,10 @@ May 23 (3)
 	- Fixed control organizing issue in the Container class (GUI)
 	- Started working on a Bar class for progress bar/hp bar
 	
-May 24 (1)
-	- 
+May 24 (5)
+	- Fixed a bug in map generation
+	- Finished and implemented health bar
+	- Fixed no transparancy issue for GUI controls
+	- Balanced monster stats
+	- Made map sizes increase as dungeon level increases
+	- Tested game
