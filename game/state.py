@@ -9,6 +9,7 @@ from keys import Keys
 import sprite
 import random
 
+
 class State():
 	"""
 	This class is a base class.
@@ -109,7 +110,7 @@ class MainMenuState(State):
 		this.hasSaves = this.game.world.load("map")
 		this.err = ""
 		
-		this.btnStart = gui.Button("New Game")
+		this.btnStart = gui.Button("New")
 		this.btnCont = gui.Button("Continue")
 		this.btnExit = gui.Button("Exit")
 		
@@ -297,6 +298,9 @@ class GameState(State):
 		this.turn = 1
 		this.err = ""
 		
+		# if character died
+		this.died = False
+		
 		# Allows player to pan camera across the map
 		this.scrollamt = 16
 		this.mapmode = False
@@ -305,6 +309,8 @@ class GameState(State):
 		this.hpbar = gui.Bar()
 		this.hpbar.rect.topleft = (15,50)
 		this.hpbar.fgColor = Color("red")
+		this.hpbar.bgColor = Color("grey")
+		this.hpbar.text = "hp"
 		
 		if not this.game.world.loaded:
 			generator = mapgenerator.MapGenerator()
@@ -339,6 +345,11 @@ class GameState(State):
 		#~ if this.err != "":
 			#~ this.game.Error(this.err)
 			#~ return 
+		
+		if this.died:
+			this.game.revertState()
+			this.died = False
+			return
 		
 		# Get input 
 		for event in pygame.event.get():
@@ -382,12 +393,12 @@ class GameState(State):
 					this.keys.right = False
 		
 		# check for gameover situations
-		if this.world.player.hp <= 0:
+		if this.world.player.hp < 1:
 			msg = "Game Over\n"
 			msg+= "Died on floor: " + str(this.world.level)
 			this.world.terminate()
 			this.game.msgbox(msg)
-			this.game.Exit(False)
+			this.died = True
 			return 
 		
 		# Check for key events
@@ -426,7 +437,6 @@ class GameState(State):
 		if this.world.player.actions < 1 and not this.world.player.animating:
 			# Check if player is standing on staircase
 			obj = this.world.player.tile.getObject()
-			print this.world.objects[0],this.world.objects[0].tile.contains
 			if obj != None and obj.name == "stair":
 				playerhp = this.world.player.hp
 				generator = mapgenerator.MapGenerator()
@@ -453,7 +463,7 @@ class GameState(State):
 			this.camera.rect.center = this.world.player.rect.center
 		
 		hp = this.world.player.hp
-		this.hpbar.value = hp if hp > 0 else 0
+		this.hpbar.value = int(hp)
 		this.lblDungeon.update()
 		#~ this.hpbar.update()
 	

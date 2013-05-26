@@ -326,17 +326,12 @@ class Button(Control):
 	mouseup = False
 	images = []
 	def __init__(this, text="", locx = 0, locy = 0, width=0,height=0):
-		#~ pygame.sprite.Sprite.__init__(this)
-		#~ 
-		#~ this.static = False
-		#~ 
-		#~ #set default colors
-		#~ this.bgColor = Color('red')
-		#~ this.fgColor = Color('black')
+
 		super(Button, this).__init__()
 		
 		this._font = pygame.font.Font(os.path.join("data/font","pix.ttf"), 15)
 		this._text = text
+		print this._font.size(text)
 		
 		# This is for mouse over text (if set)
 		this.label = None
@@ -344,31 +339,34 @@ class Button(Control):
 		# initialize the background image
 		# set the size to the required size of the text
 		
-		this.image = pygame.transform.scale(this.images[0], this._font.size(text))
-		this.rect = this.image.get_rect(topleft=(locx,locy))
-		
-		this.requireUpdate = True # False means text is up to date
-		this.layer = 6
+		this.static = True
 		
 		# which state the button is in
 		# e.g. normal, hover, click
 		this.state = 0
+		
+		this.image = this.images[this.state]
+		this.resize(this.image.get_size())
+		
+		this.requireUpdate = True # False means text is up to date
+		this.layer = 6
+		
 	
 	def font(this, f, size):
 		this._font = pygame.font.Font(f, size)
 		this.requireUpdate = True
 	
-	def resize(this, w = -1,h = -1):
+	def resize(this, size = (-1,-1)):
 		# Set width and height if none given
 		if not this.static:
-			w,h = this._font.size(this.text)
-			print w,h
-		elif w == -1 or h == -1:
-			w = this.rect.w
-			h = this.rect.h
+			size = this._font.size(this.text)
+			size[0]+=4
+			size[1]+=4
+		elif size[0] == -1 or size[1] == -1:
+			size = this.rect.size
 		
 		# Create background image
-		this.image = pygame.transform.scale(this.images[this.state], (w,h))
+		this.image = pygame.transform.scale(this.images[this.state], size)
 		this.rect = this.image.get_rect(topleft=this.rect.topleft)
 	
 	def setMouseover(this, text = ""):
@@ -395,8 +393,9 @@ class Button(Control):
 			this.resize()
 			text = this._font.render(this.text, True, this.fgColor)
 			textpos = text.get_rect()
-			textpos.centerx = this.rect.centerx - this.rect.left
-			textpos.centery = this.rect.centery - this.rect.top
+			textpos.centerx = this.rect.size[0]/2
+			textpos.centery = this.rect.size[1]/2
+			
 			this.image.blit(text, textpos)
 			this.requireUpdate = False
 			print "button",this.text,this.rect.size,this.rect.center
@@ -430,7 +429,26 @@ class Bar(Control):
 		this.resize(size)
 		this._value = value
 		
+		this._font = pygame.font.Font(os.path.join("data/font","pix.ttf"), 12)
+		this._text = ""
+		
 		this.requireUpdate = True
+	
+	@property
+	def text(this):
+		return this._text
+	
+	@text.setter
+	def text(this, txt):
+		if txt == this._text:
+			return
+		this._text = txt
+		text = this._font.render(this._text+": "+str(this.value), True, this.bgColor)
+		textpos = text.get_rect()
+		textpos.centerx = this.rect.size[0]/2
+		textpos.centery = this.rect.size[1]/2
+		
+		this.image.blit(text, textpos)
 	
 	@property
 	def value(this):
@@ -440,19 +458,27 @@ class Bar(Control):
 	def value(this, val):
 		if val == this._value:
 			return
-		if val < this._value:
-			this.image = this.images.copy()
+		
+		this.image = this.images.copy()
 		
 		# Padding used in the background image
 		pad = 2
 		barw = int(round((this.rect.size[0]-pad*2)* float(val)/100))
-		print barw
-		print this.fgColor
+		#~ print barw
+		#~ print this.fgColor
 		bar = pygame.Rect(pad,pad, barw, this.rect.h-pad*2)
 		
 		this.image.fill(this.fgColor,bar)
 		
 		this._value = val
+		
+		text = this._font.render(this.text+": "+str(this.value), True, this.bgColor)
+		textpos = text.get_rect()
+		textpos.centerx = this.rect.size[0]/2
+		textpos.centery = this.rect.size[1]/2
+		
+		this.image.blit(text, textpos)
+		
 		#~ this.requireUpdate = True
 	
 	def resize(this, size):

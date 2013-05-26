@@ -2,6 +2,7 @@ import pygame
 import state
 from state import State
 import gui
+import copy
 
 ## This is a singleton class ##
 class Game(object):
@@ -77,8 +78,11 @@ class Game(object):
 	
 	def revertState(this):
 		print "- Reverting state -"
-		this._state = this.state.prevState
+		prevstate = copy.copy(this.state.prevState)
+		del this._state
+		this._state = prevstate
 		this.stateChange = True
+		
 	
 	
 	def Pause(this):

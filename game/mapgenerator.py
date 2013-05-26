@@ -237,7 +237,7 @@ class MapGenerator:
 		# 8) Write again and save
 		#############################################################
 		
-		i = 50+5*level
+		i = 40+5*level
 		if i > 100:
 			i = 100
 		size = (i,i)
@@ -462,9 +462,9 @@ class MapGenerator:
 		for i in range(nbats):
 			loc = random.choice(cleared)
 			world.placeObject("bat", loc[0], loc[1])
-		#~ for i in range(nskel):
-			#~ loc = random.choice(cleared)
-			#~ world.placeObject("skel", loc[0], loc[1])
+		for i in range(nskel):
+			loc = random.choice(cleared)
+			world.placeObject("skel", loc[0], loc[1])
 		for i in range(ndrag):
 			loc = random.choice(cleared)
 			world.placeObject("dragon", loc[0], loc[1])

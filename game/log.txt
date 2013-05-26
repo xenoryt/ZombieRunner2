@@ -168,3 +168,12 @@ May 24 (5)
 	- Balanced monster stats
 	- Made map sizes increase as dungeon level increases
 	- Tested game
+
+May 25 (3.5)
+	- Added new monster (skeleton)
+	- Added a few new items (but didnt implement)
+	- Balanced the game more
+	- Further decreased map sizes
+	- Compiled .exe version of game
+	- Goes back to main menu after death
+	- Added text for the bar
