@@ -9,6 +9,7 @@ from keys import Keys
 import sprite
 import random
 
+
 class State():
 	"""
 	This class is a base class.
@@ -75,12 +76,11 @@ class MessageboxState(State):
 		# Get input
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				this.game.running = False
+				this.game.Exit()
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
-					this.game.running = False
-				elif event.key == K_2:
-					this.game.revertState()
+					this.game.Exit()
+		
 		this.box.update()
 	
 	def draw(this, screen):
@@ -93,18 +93,30 @@ class MessageboxState(State):
 		
 
 class MainMenuState(State):
+	def startmenu(this):
+		this.world.terminate()
+		this.game.world.terminate()
+		this.game.assignState(GameState(this.game))
+	def contmenu(this):
+		this.game.assignState(GameState(this.game))
+		this.world.terminate()
+	def exitmenu(this):
+		this.world.terminate()
+		this.game.Exit()
+	
 	def __init__(this, game):
 		this.game = game
 		this.game.world = world.World()
 		this.hasSaves = this.game.world.load("map")
+		this.err = ""
 		
-		this.btnStart = gui.Button("New Game")
+		this.btnStart = gui.Button("New")
 		this.btnCont = gui.Button("Continue")
 		this.btnExit = gui.Button("Exit")
 		
-		this.btnStart.onClick = lambda: this.game.assignState(GameState(this.game))
-		this.btnCont.onClick = lambda: this.game.assignState(GameState(this.game))
-		this.btnExit.onClick = lambda: this.game.revertState()
+		this.btnStart.onClick = this.startmenu
+		this.btnCont.onClick = this.contmenu
+		this.btnExit.onClick = this.exitmenu
 		
 		centerx = this.game.screensize[0]/2
 		centery = this.game.screensize[1]/2
@@ -118,6 +130,9 @@ class MainMenuState(State):
 		
 		generator = mapgenerator.MapGenerator()
 		this.world = generator.create("map_menu",1,(80,80),8)
+		if this.world == None:
+			this.err = "Something went wrong with map generation...\nPlease try running the game again"
+			
 		
 		# Create a camera and set it to a random position on map
 		this.camera = Camera(this.game.screensize)
@@ -128,6 +143,9 @@ class MainMenuState(State):
 		
 		
 	def update(this):
+		if this.err != "":
+			this.game.Error(this.err)
+			return
 		
 		for event in pygame.event.get():
 			if event.type == QUIT:
@@ -151,11 +169,12 @@ class MainMenuState(State):
 					elif this.camera.rect.left < 0:
 						this.camera.rect.left = 0
 		
+		if this.game.world.loaded:
+			this.btnCont.update()
 		
 		this.btnStart.update()
 		this.btnExit.update()
-		if this.game.world.loaded:
-			this.btnCont.update()
+		
 		
 	def draw(this, screen):
 		this.world.draw(screen, this.camera, False)
@@ -191,7 +210,7 @@ class PauseState(State):
 	def update(this):
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				this.game.running = False
+				this.game.Exit()
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
 					this.game.revertState()
@@ -212,12 +231,19 @@ class InventoryState(State):
 		
 		this.label = gui._Label("Inventory")
 		this.label.bgColor = None
-		this.label.fgColor = Color("#731E7A")
-		this.label.rect.topleft = (50,50)
+		this.label.fgColor = Color("#2CF3DB")
+		this.label.rect.topleft = (50,100)
 		
+		this.btnResume = gui.Button("Resume")
+		this.btnResume.onClick = lambda: this.game.revertState()
 		
-		this.box = gui.Container()
+		this.btnExit = gui.Button("Exit")
+		this.btnExit.onClick = lambda: this.game.Exit()
 		
+		this.btnResume.rect.bottomleft = (50,540)
+		this.btnExit.rect.bottomleft = (50,570)
+		
+		this.inv = gui.Container()
 		
 		this.drawbg = True
 		
@@ -230,34 +256,39 @@ class InventoryState(State):
 				btn.images = this.btnImages
 				btn.rect.w = 48
 				btn.rect.h = 48
-				this.box.add(btn, row+1,col+1)
-		this.box.rect.topleft = (50,120)
+				this.inv.add(btn, row+1,col+1)
+		this.inv.rect.topleft = (50,160)
 	
 	def update(this,):
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				this.game.running = False
+				this.game.Exit()
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
 					this.drawbg = True
 					this.game.revertState()
-		this.box.update()
+		this.inv.update()
 		this.label.update()
+		this.btnResume.update()
+		this.btnExit.update()
 		
 	def draw(this,screen):
 		if this.drawbg:
 			background = pygame.Surface(screen.get_size())
 			background = background.convert()
 			background.fill(Color('black'))
-			background.set_alpha(100)
+			background.set_alpha(150)
 			screen.blit(background, (0, 0))
 			this.drawbg = False
 		
-		this.box.draw(screen)
+		this.inv.draw(screen)
 		this.label.draw(screen)
+		this.btnResume.draw(screen)
+		this.btnExit.draw(screen)
 
 class GameState(State):
 	def __init__(this, game):
+		print "in gamestate"
 		this.game = game
 		
 		this.world = None
@@ -265,32 +296,67 @@ class GameState(State):
 		this.keys = Keys()
 		
 		this.turn = 1
+		this.err = ""
+		
+		# if character died
+		this.died = False
 		
 		# Allows player to pan camera across the map
 		this.scrollamt = 16
 		this.mapmode = False
 		
-		# TODO: Add checking for continues
+		# The hp bar
+		this.hpbar = gui.Bar()
+		this.hpbar.rect.topleft = (15,50)
+		this.hpbar.fgColor = Color("red")
+		this.hpbar.bgColor = Color("grey")
+		this.hpbar.text = "hp"
 		
-		this.loadWorld("map")
+		if not this.game.world.loaded:
+			generator = mapgenerator.MapGenerator()
+			this.game.world = generator.create("map",1)
+			if this.game.world == None:
+				this.err = "Something went wrong with map generation...\nPlease try running the game again"
+				print 'err'
+				this.game.Error(this.err)
+		
+		this.world = this.game.world
+		
+		lvl = 0
+		if this.world != None:
+			lvl = this.world.level
+		# The label
+		this.lblDungeon = gui.Label("Dungeon: "+str(lvl))
+		this.lblDungeon.bgColor = None
+		this.lblDungeon.fgColor = Color("#565656")
+		this.lblDungeon.rect.topleft = (15,15)
 		
 	
-	def loadWorld(this, mapname):
-		if this.world != None:
-			this.world.save()
-		this.world = world.World()
-		this.world.load(mapname)
-		this.game.world = this.world
-		this.camera.rect.center = this.world.player.rect.center
-		#TODO: LOAD WORLD ENTITIES HERE
+	#~ def loadWorld(this, mapname):
+		#~ if this.world != None:
+			#~ this.world.save()
+		#~ this.world = world.World()
+		#~ this.world.load(mapname)
+		#~ this.game.world = this.world
+		#~ this.camera.rect.center = this.world.player.rect.center
+		#~ #TODO: LOAD WORLD ENTITIES HERE
 	
 	def update(this):
+		#~ if this.err != "":
+			#~ this.game.Error(this.err)
+			#~ return 
+		
+		if this.died:
+			this.game.revertState()
+			this.died = False
+			return
 		
 		# Get input 
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				this.game.Exit()
 				this.world.save()
+				this.game.Exit()
+				
 			if event.type == KEYDOWN:
 				if event.key == K_ESCAPE:
 					this.world.save()
@@ -303,6 +369,9 @@ class GameState(State):
 					this.keys.left = True
 				elif event.key == K_RIGHT:
 					this.keys.right = True
+				
+				elif event.key == K_s:
+					this.world.player.move("none")
 				
 				elif event.key == K_EQUALS:
 					this.scrollamt += 2
@@ -324,12 +393,12 @@ class GameState(State):
 					this.keys.right = False
 		
 		# check for gameover situations
-		if this.world.player.hp <= 0:
+		if this.world.player.hp < 1:
 			msg = "Game Over\n"
 			msg+= "Died on floor: " + str(this.world.level)
 			this.world.terminate()
 			this.game.msgbox(msg)
-			this.game.Exit()
+			this.died = True
 			return 
 		
 		# Check for key events
@@ -363,15 +432,21 @@ class GameState(State):
 					this.camera.rect.left = 0
 		
 		
-		if this.world.player.actions == 0 and not this.world.player.animating:
-			# Check if player is standing on chest or staircase
+		this.world.player.update()
+		
+		if this.world.player.actions < 1 and not this.world.player.animating:
+			# Check if player is standing on staircase
 			obj = this.world.player.tile.getObject()
 			if obj != None and obj.name == "stair":
+				playerhp = this.world.player.hp
 				generator = mapgenerator.MapGenerator()
 				this.world = generator.create("map", this.world.level+1)
+				print "generating"
+				this.lblDungeon.text = "Dungeon: " + str(this.world.level)
+				this.world.player.hp = playerhp
 			
 		
-		this.world.player.update()
+		
 		newturn = True
 		for m in this.world.monsters:
 			m.update()
@@ -387,8 +462,10 @@ class GameState(State):
 			# Center the camera on the player
 			this.camera.rect.center = this.world.player.rect.center
 		
-		#print this.camera.rect.left, this.camera.rect.top
-		#TODO: Update world entities here
+		hp = this.world.player.hp
+		this.hpbar.value = int(hp)
+		this.lblDungeon.update()
+		#~ this.hpbar.update()
 	
 	def draw(this, screen):
 		this.world.draw(screen, this.camera)
@@ -397,4 +474,8 @@ class GameState(State):
 		this.world.player.draw(screen, this.camera)
 		for m in this.world.monsters:
 			m.draw(screen, this.camera)
+		
+		this.lblDungeon.draw(screen)
+		this.hpbar.draw(screen)
+		
 		

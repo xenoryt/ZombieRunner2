@@ -14,16 +14,16 @@ def move(loc, dir):
 
 def loadImages(sprite, imagefile, d):
 	sheet = pygame.image.load(os.path.join("data",imagefile))
-	sheet = sheet.convert()
+	sheet = sheet.convert_alpha()
 	sheetrect = sheet.get_rect()
 	images = []
 	#~ print imagefile, d, range(sheetrect.width/48)
 	for x in range(sheetrect.width/48):
 		rect = pygame.Rect(x*48,0, 48,48)
-		image = pygame.Surface((48,48))
+		image = pygame.Surface((48,48),pygame.SRCALPHA)
 		image.blit(sheet, (0,0),rect)
 		#~ image = image.convert()
-		image.set_colorkey((255,0,255))
+		#~ image.set_colorkey((255,0,255))
 		images.append(image)
 	sprite.images[d] = images
 
@@ -54,7 +54,8 @@ class Sprite(pygame.sprite.Sprite, object):
 		# Stats
 		this.maxhp = 100
 		this.hp = this.maxhp
-		this.atk = 8
+		this.atk = 5
+		this.hpregen = 0.2
 		
 		# This is how many actions per turn the sprite gets to perform
 		# 0.5 means 1 action every 2 turns
@@ -113,6 +114,18 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.markTiles()
 	
 	@property
+	def hp(this):
+		return this._hp
+	
+	@hp.setter
+	def hp(this, val):
+		if val > this.maxhp:
+			val = this.maxhp
+		elif val < 0:
+			val = 0
+		this._hp = val
+	
+	@property
 	def curturn(this):
 		return this._curturn
 	
@@ -121,6 +134,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		#~ print "setting",turn
 		if this.actions < 1 and turn != this._curturn and turn == this.turn:
 			this.actions += this.spd
+			this.hp += this.hpregen
 		this._curturn = turn
 		#~ print this._curturn
 	
@@ -163,7 +177,6 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.curturn = 2
 		for m in this.world.monsters:
 			m.curturn = 2
-		print "turn finished"
 	
 	def markTiles(this):
 		"""
@@ -280,7 +293,6 @@ class Sprite(pygame.sprite.Sprite, object):
 		This function moves the sprite in place
 		Note: Direction is a string such as "up" 
 		"""
-		
 		if this.turn != this.curturn:
 			return
 		
@@ -291,13 +303,11 @@ class Sprite(pygame.sprite.Sprite, object):
 		# If the sprite is currently in the process of moving
 		if this.moving:
 			return False
-		
 		d = direction
 		# If its not moving in any direction, do nothing
 		if directions[d][0] == 0 and directions[d][1] == 0:
 			this.doneturn(True)
 			return False
-		
 		
 		if this.tile == None:
 			this.getCurrentTile()
@@ -305,6 +315,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		# Check if the tile the sprite is moving to is passable
 		loc = this.tile.gridloc
 		nextTile = this.world.map[loc[1] + directions[d][1]][loc[0] + directions[d][0]]
+		
 		if nextTile.passable:
 			# Set this sprite to move
 			this.direction = d
@@ -381,6 +392,7 @@ class Monster(Sprite):
 		
 		this.spd = 0.7
 		this.actions = 0
+		this.hpregen = 0
 		
 		this.atk = 5
 		
@@ -470,11 +482,18 @@ class Bat(Monster):
 	def __init__(this, level, world = None):
 		super(Bat, this).__init__(level, world)
 		this.name = "bat"
-		this.maxhp = 11+2*level
+		this.maxhp = 7+1*level
+		
+		this.atk = 1*level
+		this.spd = 1.2+0.1*level
+		this.sight = 7
+		
+		if this.maxhp>15:
+			this.maxhp = 15
+		if this.spd > 1.5:
+			this.spd = 1.5
+		
 		this.hp = this.maxhp
-		this.atk = 3+2*level
-		this.spd = 1.5
-		this.sight = 6
 
 class Skel(Monster):
 	"""
@@ -485,11 +504,13 @@ class Skel(Monster):
 	def __init__(this, level, world = None):
 		super(Skel, this).__init__(level, world)
 		this.name ="skel"
-		this.maxhp = 17+5*level
-		this.hp = this.maxhp
-		this.atk = 10+4*level
+		this.maxhp = int(round(2+2*level))
+		
+		this.atk = 5+4*level
 		this.spd = 1
 		this.sight = 4
+		
+		this.hp = this.maxhp
 
 class Dragon(Monster):
 	"""
@@ -500,12 +521,20 @@ class Dragon(Monster):
 	def __init__(this, level, world = None):
 		super(Dragon, this).__init__(level, world)
 		this.name="dragon"
-		this.maxhp = 10+15*level
-		this.hp = this.maxhp
-		this.atk = 4+6*level
+		this.maxhp = 3+3*level
+		
+		this.atk = 2+4*level
 		this.spd = 0.5+0.15*level
 		this.sight = 6
-
+		if this.maxhp > 85:
+			this.maxhp = 85
+		if this.atk > 23:
+			this.atk = 23
+		if this.spd > 1:
+			this.spd = 1
+		
+		this.hp = this.maxhp
+		
 class Reaper(Monster):
 	"""
 	Very slow and Very deadly. The Reaper's sight also becomes 
@@ -516,13 +545,19 @@ class Reaper(Monster):
 	def __init__(this, level, world = None):
 		super(Reaper, this).__init__(level, world)
 		this.name="reaper"
-		this.maxhp = 15+5*level
+		this.maxhp = 6+3*level
+		
+		this.atk = 65
+		this.spd = 0.4 + round(0.1*(level/2.),1)
+		this.sight = int(round(2+level))
+		if this.maxhp > 25:
+			this.maxhp = 25
+		if this.sight > 15:
+			this.sight = 15
+		if this.spd > 0.9:
+			this.spd = 0.9
+		
 		this.hp = this.maxhp
-		this.atk = 12+int(round(8.2*level))
-		this.spd = 0.2 + round(0.12*(level/2.),1)
-		this.sight = int(round(0+level/2.))
-		if this.sight > 12:
-			this.sight = 12
 	
 
 
@@ -560,14 +595,14 @@ class Object(pygame.sprite.Sprite, object):
 		pass
 	
 	def draw(this, screen, camera, fog = True):
-		if this.tile.lighting > 0:
+		if this.rect.left > camera.rect.right or this.rect.right < camera.rect.left:
+			return
+		if this.rect.top > camera.rect.bottom or this.rect.bottom < camera.rect.top:
+			return
+			
+		if this.tile.explored or not fog:
 			screen.blit(this.image, camera.getrect(this.rect))
-		elif not fog:
-			if this.rect.left > camera.rect.right or this.rect.right < camera.rect.left:
-				return
-			if this.rect.top > camera.rect.bottom or this.rect.bottom < camera.rect.top:
-				return
-			screen.blit(this.image, camera.getrect(this.rect))
+		
 
 
 class Chest(Object):

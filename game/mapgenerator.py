@@ -48,6 +48,7 @@ class Corridor:
 		fails).
 		""" 
 		
+		
 		if world.onBound(loc): 
 			# This may happen if it starts directly on boundary
 			return False
@@ -70,9 +71,12 @@ class Corridor:
 				#area.corridors.append(this)
 				this.endpoints.append(loc)
 				this.endrooms.append(area)
+				#~ fw = open("locs.txt",'a')
+				#~ fw.write(str(loc)+'\n')
+				#~ fw.close()
 				
 				# If this room does not have any other corridors connected
-				if len(area.corridors) <= maxCors:
+				if len(area.corridors) < maxCors:
 					return True # end corridor generation
 		
 		
@@ -233,9 +237,13 @@ class MapGenerator:
 		# 8) Write again and save
 		#############################################################
 		
+		i = 40+5*level
+		if i > 100:
+			i = 100
+		size = (i,i)
 		
 		# Generate a new world filled with only walls
-		world = World(mapname)
+		world = World(mapname, level)
 		world.new(size, '#')
 		
 		# Create lists of rooms, corridors and points of the map
@@ -286,8 +294,6 @@ class MapGenerator:
 			# be accessed a lot. Clearing duplicates now will save cpu
 			cleared[:] = list(set(cleared))
 			
-			
-			
 			# After generating rooms, merge rooms that are connected to each other
 			i = 0
 			while i < len(rooms):
@@ -300,7 +306,7 @@ class MapGenerator:
 						
 						# Remove the second room (room[n]) since that one
 						# is now a part of the current room (room[i])
-						rooms.pop(n)
+						del rooms[n]
 						
 						# Recheck the current room with the rest again
 						n = i+1
@@ -340,13 +346,15 @@ class MapGenerator:
 			# Check if all the rooms are connected
 			while True:
 				tries += 1
-				connected = rooms[0].getConnectedRooms()
+				
+				connected = rooms[0].getConnectedRooms([])
 				connected[:] = list(set(connected))
+				#~ print len(rooms),len(halls)
 				print len(connected),"is connected"
 				print len(rooms),"were generated"
 				if len(connected) < len(rooms):
-					print "Invalid map detected"
-					print "connecting unconnected rooms..."
+					print "Detected: not all rooms are connected"
+					print "Connecting unconnected rooms..."
 					
 					
 					# Get list of all the rooms that are not connected
@@ -376,7 +384,7 @@ class MapGenerator:
 											
 					hall.endrooms[:] = list(set(hall.endrooms))
 					#halls.append(hall)
-					# Appened corridors to cleared areas
+					# Appended corridors to cleared areas
 					cleared += hall.points
 					cleared[:] = list(set(cleared))
 					del connected[:]
@@ -384,8 +392,12 @@ class MapGenerator:
 					continue
 					
 				elif len(connected) > len(rooms):
-					print "Something is wrong here..."
-					raise ValueError
+					print "Something went TERRIBLY wrong here..."
+					fw = open("debug.txt","w")
+					for room in connected:
+						fw.write(str(room.points)+"\n")
+					return None
+					#~ raise ValueError
 				break
 			
 			
@@ -420,18 +432,18 @@ class MapGenerator:
 		# TODO: create a way to calculate how many of each object to place
 		
 		print "cleared:",len(cleared)
-		nchests = len(cleared)/(250)
+		nchests = len(cleared)/(350)
 		
 		# Monsters
-		nbats = 45-level*8
-		nskel = 100-level*10
-		nreap = 500-level*25
-		ndrag = 350-level*20
+		nbats = 80-level*5
+		nskel = 300-level*15
+		nreap = 800-level*20
+		ndrag = 550-level*20
 		
-		nbats = len(cleared)/( 15 if nbats < 15 else nbats )
-		nskel = len(cleared)/( 65 if nskel < 65 else nskel )
-		nreap = len(cleared)/( 125 if nreap < 125 else nreap )
-		ndrag = len(cleared)/( 85 if ndrag < 85 else ndrag )
+		nbats = len(cleared)/( 55 if nbats < 55 else nbats )
+		nskel = len(cleared)/( 75 if nskel < 75 else nskel )
+		nreap = len(cleared)/( 220 if nreap < 220 else nreap )
+		ndrag = len(cleared)/( 120 if ndrag < 120 else ndrag )
 		
 		# Set player location
 		loc = random.choice(cleared)
@@ -450,9 +462,9 @@ class MapGenerator:
 		for i in range(nbats):
 			loc = random.choice(cleared)
 			world.placeObject("bat", loc[0], loc[1])
-		#~ for i in range(nskel):
-			#~ loc = random.choice(cleared)
-			#~ world.placeObject("skel", loc[0], loc[1])
+		for i in range(nskel):
+			loc = random.choice(cleared)
+			world.placeObject("skel", loc[0], loc[1])
 		for i in range(ndrag):
 			loc = random.choice(cleared)
 			world.placeObject("dragon", loc[0], loc[1])

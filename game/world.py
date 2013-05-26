@@ -179,6 +179,7 @@ class World:
 			stair.rect.topleft = (locx*48, locy*48)
 			stair.tile = this.map[locy][locx]
 			this.objects.append(stair)
+			print stair.tile, this.map[locy][locx].contains
 		if name == "player":
 			this.player = sprite.Sprite(this)
 			this.player.rect.topleft = (locx*48, locy*48)
@@ -254,6 +255,7 @@ class World:
 		return True
 	
 	def savemap(this):
+		print this.name + ".txt"
 		fw = open(this.name + ".txt", "w")
 		
 		for y in range(len(this.map)):
@@ -273,7 +275,7 @@ class World:
 		
 		# Write player data
 		loc = str(this.player.tile.gridloc[0]) + " " + str(this.player.tile.gridloc[1])
-		fw.write("player " +loc+" " +str(this.player.hp) +"\n")
+		fw.write("player " +loc+" " +str(int(this.player.hp)) +"\n")
 		
 		# Write monster data
 		for m in this.monsters:
@@ -303,15 +305,22 @@ class World:
 		Delete ALL save files related to this world
 		"""
 		
-		os.remove(this.name+".txt")
-		os.remove(this.name+"_inventory.txt")
-		os.remove(this.name+"_objects.txt")
-		os.remove(this.name+"_explored.txt")
+		print "terminating",this.name+".txt"
+		if os.path.exists(this.name+".txt"):
+			os.remove(this.name+".txt")
+		if os.path.exists(this.name+"_inventory.txt"):
+			os.remove(this.name+"_inventory.txt")
+		if os.path.exists(this.name+"_objects.txt"):
+			os.remove(this.name+"_objects.txt")
+		if os.path.exists(this.name+"_explored.txt"):
+			os.remove(this.name+"_explored.txt")
+		this.loaded = False
 		#~ os.remove(this.name+".txt")
 	
 	def tile(this, points, type):
 		for p in points:
 			this.map[p[1]][p[0]].type = type
+			this.map[p[1]][p[0]].passable = True
 	
 	def place(this, points, objs):
 		"""

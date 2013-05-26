@@ -156,3 +156,24 @@ May 22 (4)
 	- Finished creating new turn system
 	- Added new GUI features
 
+May 23 (3)
+	- Fixed some game state changing bugs
+	- Fixed control organizing issue in the Container class (GUI)
+	- Started working on a Bar class for progress bar/hp bar
+	
+May 24 (5)
+	- Fixed a bug in map generation
+	- Finished and implemented health bar
+	- Fixed no transparancy issue for GUI controls
+	- Balanced monster stats
+	- Made map sizes increase as dungeon level increases
+	- Tested game
+
+May 25 (3.5)
+	- Added new monster (skeleton)
+	- Added a few new items (but didnt implement)
+	- Balanced the game more
+	- Further decreased map sizes
+	- Compiled .exe version of game
+	- Goes back to main menu after death
+	- Added text for the bar

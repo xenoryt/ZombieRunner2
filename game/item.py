@@ -66,22 +66,35 @@ def CreateItemList():
 	rock.attributes = {"atk":2,"rng":6}
 	
 	stick = Item(itemType.wpn, "Cypress Stick")
-	stick.attributes = {"atk":2}	
+	stick.attributes = {"atk":1}	
 		
 	csword = Item(itemType.wpn, "Cracked Sword", 
 								"It looks like it may break anytime now")
-	csword.attributes = {"atk":5}
+	csword.attributes = {"atk":3}
 	
 	sword = Item(itemType.wpn, "Sword", "An ordinary sword")
-	sword.attributes = {"atk":12, "str":1}
+	sword.attributes = {"atk":5}
 	
 	gsword = Item(itemType.wpn, "Great Sword", "A sword that has been through many battles")
-	gsword.attributes = {"atk":20, "hp":25, "agi":-2}
+	gsword.attributes = {"atk":5, "hp":10}
+	
+	knife = Item(itemType.wpn, "Kitchen Knife", "Great for cooking and killing!")
+	knife.attributes = {"atk":3, "hp":, "spd":0.1}
+	
+	sspd = Item(itemType.wpn, "Sword of Speeed", "A magical sword that enhances your speed"}
+	sspd.attributes = {"atk":5, "spd":0.1}
 	
 	requiem = Item(itemType.wpn, "Requiem", "A light sword with a glowing aura around it")
-	requiem.attributes = {"atk":35, "str":3, "agi":6}
+	requiem.attributes = {"atk":10, "hp":-25, "spd":0.4}
+	
+	muramasa=Item(itemType.wpn, "Muramasa", "The cursed Japenese katana")
+	muramasa.attributes = {"atk":27, "hp":-20}
+	
+	
+	hammer = Item(itemType.wpn, "Hammer", "Seems like a carpenter got lost..."|
+	hammer.attributes = {"atk":7, "hp":20, "spd":-0.15}
 	
 	thammer = Item(itemType.wpn, "Thor's Hammer", "A hammer used by Thor. How did it end up here?")
-	thammer.attributes = {"atk":50, "hp":40, "str":6, "agi":-10}
+	thammer.attributes = {"atk":17, "hp":45, "spd":-0.2}
 	
 	return items

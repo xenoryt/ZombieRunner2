@@ -36,48 +36,6 @@ import os
 import sprite
 
 import gui
-
-def button_Click():
-	game.msgbox("asd")
-
-class testState(State):
-	def __init__(this):
-		print "Initializing test state"
-		this.isCurrent = False
-		this.button = gui.Button("Click Me!")
-		this.button.onClick = button_Click
-		
-	def update(this):
-		# you can never be too safe
-		#~ if not this.isCurrent:
-			#~ game.Error("Updating an inactive state")
-			#~ raise ValueError
-		
-		# Get input
-		for event in pygame.event.get():
-			if event.type == QUIT:
-				game.running = False
-			if event.type == KEYDOWN:
-				if event.key == K_ESCAPE:
-					game.running = False
-				elif event.key == K_1:
-					game.msgbox("Generating map!")
-					
-	def draw(this,screen):
-		# Fill background
-		background = pygame.Surface(screen.get_size())
-		background = background.convert()
-		background.fill((250, 250, 250))
-		
-		# Display some text
-		font = pygame.font.Font(None, 36)
-		text = font.render("Hello There", 1, (10, 10, 10))
-		textpos = text.get_rect()
-		textpos.centerx = background.get_rect().centerx
-		background.blit(text, textpos)
-
-		# Blit everything to the screen
-		screen.blit(background, (0, 0))
 		
 def loadImages():
 	files = ["floor.png", "wall.png"]
@@ -86,6 +44,8 @@ def loadImages():
 	
 	gui.Button.images.append(pygame.image.load(os.path.join("data","button_normal.png")))
 	gui.Button.images.append(pygame.image.load(os.path.join("data","button_hover.png")))
+	
+	gui.Bar.images = pygame.image.load(os.path.join("data","bar.png"))
 	
 	sprite.loadImages(sprite.Sprite, "player_up.png", "up")
 	sprite.loadImages(sprite.Sprite, "player_down.png", "down")
@@ -97,10 +57,10 @@ def loadImages():
 	sprite.loadImages(sprite.Bat, "bat_right.png", "right")
 	sprite.loadImages(sprite.Bat, "bat_left.png", "left")
 	
-	#~ sprite.loadImages(sprite.Skel, "skel_up.png", "up")
-	#~ sprite.loadImages(sprite.Skel, "skel_down.png", "down")
-	#~ sprite.loadImages(sprite.Skel, "skel_right.png", "right")
-	#~ sprite.loadImages(sprite.Skel, "skel_left.png", "left")
+	sprite.loadImages(sprite.Skel, "skel_up.png", "up")
+	sprite.loadImages(sprite.Skel, "skel_down.png", "down")
+	sprite.loadImages(sprite.Skel, "skel_right.png", "right")
+	sprite.loadImages(sprite.Skel, "skel_left.png", "left")
 	
 	sprite.loadImages(sprite.Reaper, "reaper_up.png", "up")
 	sprite.loadImages(sprite.Reaper, "reaper_down.png", "down")
@@ -116,19 +76,20 @@ def loadImages():
 	sprite.Stair.image = pygame.image.load(os.path.join("data","stairs2.png"))
 	
 	state.InventoryState.btnImages = [pygame.image.load(os.path.join("data","inventory_grid.png"))]
+	
 
 def main():
 	
 	loadImages()
 	
-	world = World()
+	#~ world = World()
+	#~ 
+	#~ if not world.load("map"):
+		#~ worldgenerator = MapGenerator()
+		#~ world = worldgenerator.create("map", 1, (100,100), 2)
 	
-	if not world.load("map"):
-		worldgenerator = MapGenerator()
-		world = worldgenerator.create("map", 1, (100,100), 2)
 	
-	
-	game.run(state.MainMenuState)
+	game.run(state.MainMenuState(game))
 	
 	return 0
 
