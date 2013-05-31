@@ -160,14 +160,7 @@ class MainMenuState(State):
 					x,y = event.rel
 					this.camera.rect.x -= x
 					this.camera.rect.y -= y
-					if this.camera.rect.top < 0:
-						this.camera.rect.top = 0;
-					elif this.camera.rect.bottom > this.world.mapsize[1]:
-						this.camera.rect.bottom = this.world.mapsize[1];
-					if this.camera.rect.right > this.world.mapsize[0]:
-						this.camera.rect.right = this.world.mapsize[0]
-					elif this.camera.rect.left < 0:
-						this.camera.rect.left = 0
+					this.camera.clip(this.world)
 		
 		if this.game.world.loaded:
 			this.btnCont.update()
@@ -221,6 +214,7 @@ class PauseState(State):
 
 class InventoryState(State):
 	btnImages = []
+	invImages = []
 	def __init__(this, game):
 		this.game = game
 		
@@ -228,12 +222,14 @@ class InventoryState(State):
 		this.inv = this.game.world.inventory
 		size = len(this.inv)
 		
-		
+		# Label for state title
 		this.label = gui._Label("Inventory")
 		this.label.bgColor = None
 		this.label.fgColor = Color("#2CF3DB")
 		this.label.rect.topleft = (50,100)
 		
+		
+		# Buttons for switching states
 		this.btnResume = gui.Button("Resume")
 		this.btnResume.onClick = lambda: this.game.revertState()
 		
@@ -243,6 +239,22 @@ class InventoryState(State):
 		this.btnResume.rect.bottomleft = (50,540)
 		this.btnExit.rect.bottomleft = (50,570)
 		
+		
+		# Controls to display item info on sides
+		this.btnImage = gui.Button("")
+		this.btnImage.rect.size = (100,100)
+		this.btnImage.static = True
+		this.btnImage.rect.midtop = (675,150)
+		
+		this.lblDesc = gui.Label("")
+		this.lblDesc.static = False
+		this.lblDesc.rect.midtop = (675,225)
+		
+		# The function that is called when an item is selected
+		def select(btn):
+			this.btnImage.image = this.invImages[btn.item.ID]
+		
+		# The inventory 
 		this.inv = gui.Container()
 		
 		this.drawbg = True
@@ -257,6 +269,13 @@ class InventoryState(State):
 				btn.rect.w = 48
 				btn.rect.h = 48
 				this.inv.add(btn, row+1,col+1)
+				print "row",row
+				print "col",col
+				# TODO: load items
+				btn.item = this.game.world.inventory[col + row*8]
+				btn.image = this.invImages[btn.item.ID]
+				
+				
 		this.inv.rect.topleft = (50,160)
 	
 	def update(this,):
@@ -272,6 +291,9 @@ class InventoryState(State):
 		this.btnResume.update()
 		this.btnExit.update()
 		
+		this.btnImage.update()
+		this.lblDesc.update()
+		
 	def draw(this,screen):
 		if this.drawbg:
 			background = pygame.Surface(screen.get_size())
@@ -285,6 +307,9 @@ class InventoryState(State):
 		this.label.draw(screen)
 		this.btnResume.draw(screen)
 		this.btnExit.draw(screen)
+		
+		this.btnImage.draw(screen)
+		this.lblDesc.draw(screen)
 
 class GameState(State):
 	def __init__(this, game):
@@ -397,6 +422,8 @@ class GameState(State):
 			msg = "Game Over\n"
 			msg+= "Died on floor: " + str(this.world.level)
 			this.world.terminate()
+			del this.world
+			this.game.world.loaded = False
 			this.game.msgbox(msg)
 			this.died = True
 			return 
@@ -407,29 +434,21 @@ class GameState(State):
 				this.world.player.move("up")
 			else:
 				this.camera.rect.y -= this.scrollamt
-				if this.camera.rect.top < 0:
-					this.camera.rect.top = 0;
 		if this.keys.down:
 			if not this.mapmode:
 				this.world.player.move("down")
 			else:
 				this.camera.rect.y += this.scrollamt
-				if this.camera.rect.bottom > this.world.mapsize[1]:
-					this.camera.rect.bottom = this.world.mapsize[1];
 		if this.keys.right:
 			if not this.mapmode:
 				this.world.player.move("right")
 			else:
 				this.camera.rect.x += this.scrollamt
-				if this.camera.rect.right > this.world.mapsize[0]:
-					this.camera.rect.right = this.world.mapsize[0]
 		if this.keys.left:
 			if not this.mapmode:
 				this.world.player.move("left")
 			else:
 				this.camera.rect.x -= this.scrollamt
-				if this.camera.rect.left < 0:
-					this.camera.rect.left = 0
 		
 		
 		this.world.player.update()
@@ -461,6 +480,9 @@ class GameState(State):
 		if not this.mapmode:
 			# Center the camera on the player
 			this.camera.rect.center = this.world.player.rect.center
+		
+		# Make sure the camera's view stays on the map
+		this.camera.clip(this.world)
 		
 		hp = this.world.player.hp
 		this.hpbar.value = int(hp)

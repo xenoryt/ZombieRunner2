@@ -57,6 +57,9 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.atk = 5
 		this.hpregen = 0.2
 		
+		# Equipment and stuff ("stuff" to be later added)
+		this._weapon = None
+		
 		# This is how many actions per turn the sprite gets to perform
 		# 0.5 means 1 action every 2 turns
 		this.spd = 1
@@ -126,6 +129,18 @@ class Sprite(pygame.sprite.Sprite, object):
 		this._hp = val
 	
 	@property
+	def weapon(this):
+		return this._weapon
+	
+	@weapon.setter
+	def weapon(this,weapon):
+		if this._weapon != None:
+			this._weapon.equiped = False
+			this.setAtt(this._weapon.attributes, True)
+		this._weapon = weapon
+		this.setAtt(this._weapon.attributes)
+	
+	@property
 	def curturn(this):
 		return this._curturn
 	
@@ -178,6 +193,24 @@ class Sprite(pygame.sprite.Sprite, object):
 		for m in this.world.monsters:
 			m.curturn = 2
 	
+	def setAtt(this, att, rm = False):
+		"""
+		Sets the attributes of a weapon and if rm is set to True,
+		it removes the attributes.
+		"""
+		for k in att.keys():
+			val = att[k]
+			if rm:
+				val = -val
+			
+			if k == "hp":
+				this.maxhp += val
+				this.hp += val
+			elif k == "atk":
+				this.atk += val
+			elif k == "spd":
+				this.spd += val
+	
 	def markTiles(this):
 		"""
 		Use breadth first search to mark all tiles around the 
@@ -190,6 +223,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.tile.lighting = this.sight
 		marked = [] # Stores tiles that have already been marked
 		queue = [this.tile] # Stores tiles that have not yet been marked
+		walls = []
 		
 		for dist in range(15):
 			newqueue = []
@@ -205,13 +239,15 @@ class Sprite(pygame.sprite.Sprite, object):
 						if nexttile.lighting < this.sight-dist-1:
 							nexttile.lighting = this.sight-dist-1
 							nexttile.explored = True
+							if nexttile.type == 1:
+								walls.append(nexttile)
 					if nexttile.type == 0 and (nexttile not in marked):
 						newqueue.append(nexttile)
 				
 			marked += queue
 			queue = list(set(newqueue))
 		
-		this.world.markedtiles = marked
+		this.world.markedtiles = marked + walls
 	
 	def update(this):
 		
@@ -482,14 +518,12 @@ class Bat(Monster):
 	def __init__(this, level, world = None):
 		super(Bat, this).__init__(level, world)
 		this.name = "bat"
-		this.maxhp = 7+1*level
+		this.maxhp = 2+2*level
 		
 		this.atk = 1*level
 		this.spd = 1.2+0.1*level
 		this.sight = 7
 		
-		if this.maxhp>15:
-			this.maxhp = 15
 		if this.spd > 1.5:
 			this.spd = 1.5
 		
@@ -497,16 +531,16 @@ class Bat(Monster):
 
 class Skel(Monster):
 	"""
-	Medium speed, low-medium damage, high hp. Don't underestimate them.
+	Medium speed, low-medium damage, low-medium hp. Can deal quite a bit of damage.
 	"""
 	images = {}
 	
 	def __init__(this, level, world = None):
 		super(Skel, this).__init__(level, world)
 		this.name ="skel"
-		this.maxhp = int(round(2+2*level))
+		this.maxhp = int(round(4+2.5*level))
 		
-		this.atk = 5+4*level
+		this.atk = int(round(3+3*level))
 		this.spd = 1
 		this.sight = 4
 		
@@ -514,24 +548,24 @@ class Skel(Monster):
 
 class Dragon(Monster):
 	"""
-	Slow but very high hp. Attacks are very strong
+	Slow but very high hp. Attacks are decent
 	"""
 	images = {}
 	
 	def __init__(this, level, world = None):
 		super(Dragon, this).__init__(level, world)
 		this.name="dragon"
-		this.maxhp = 3+3*level
+		this.maxhp = int(round(2+6.3*level))
 		
-		this.atk = 2+4*level
-		this.spd = 0.5+0.15*level
+		this.atk = int(round(3+2*level))
+		this.spd = 0.5+0.04*level
 		this.sight = 6
 		if this.maxhp > 85:
 			this.maxhp = 85
 		if this.atk > 23:
 			this.atk = 23
-		if this.spd > 1:
-			this.spd = 1
+		if this.spd > 0.9:
+			this.spd = 0.9
 		
 		this.hp = this.maxhp
 		
@@ -545,17 +579,17 @@ class Reaper(Monster):
 	def __init__(this, level, world = None):
 		super(Reaper, this).__init__(level, world)
 		this.name="reaper"
-		this.maxhp = 6+3*level
+		this.maxhp = 5+3*level
 		
 		this.atk = 65
-		this.spd = 0.4 + round(0.1*(level/2.),1)
+		this.spd = 0.4 + 0.04*level
 		this.sight = int(round(2+level))
 		if this.maxhp > 25:
 			this.maxhp = 25
 		if this.sight > 15:
 			this.sight = 15
-		if this.spd > 0.9:
-			this.spd = 0.9
+		if this.spd > 0.8:
+			this.spd = 0.8
 		
 		this.hp = this.maxhp
 	
@@ -613,6 +647,10 @@ class Chest(Object):
 		this.name = "chest"
 	
 	def pickup(this):
+		# Give the player a random item, randomly
+		this.world.inventory.append(random.choice(this.world.itemlist))
+		
+		# Remove the chest
 		this.world.objects.remove(this)
 		this.tile.contains.remove(this)
 	

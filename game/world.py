@@ -5,6 +5,7 @@ from pygame.locals import *
 
 import tile
 from tile import *
+import item
 
 import sprite
 
@@ -45,7 +46,7 @@ class World:
 		this.staircase = None
 		
 		# A dictionary of item id's and the amount the player is carrying
-		this.inventory = {}
+		this.inventory = [item.nullitem for i in range(32)]
 		
 		# this array stores a list of tiles that have been "marked"
 		# marked tiles are used by monsters to pathfind the shortest 
@@ -130,6 +131,11 @@ class World:
 				
 		# Set the dungeon level
 		this.level = int(map[this.size[1]][0:])
+		if this.level > 10:
+			this.level = 10
+		
+		# Set list of items available for this dungeon level
+		this.itemlist = item.items[this.level-1]
 		
 		fr.close()
 		
@@ -229,13 +235,16 @@ class World:
 			print 'Error: file %s not found' % (this.name + "_inventory.txt")
 			return False
 		
+		# Load all the items in the inventory
 		lines = fr.readlines()
 		for i in range(len(lines)):
-			line = lines[i].split(' ')
-			
 			# The inventory file should follow the following format
-			# <ItemID> <Amount>
-			this.inventory[int(line[0])] = int(line[1])
+			# <ItemID>
+			this.inventory.append(item.getItem(int(lines[i])))
+		
+		# Set rest of inventory to null; 32 is max inventory size
+		for i in range(len(this.inventory), 32):
+			this.inventory.append(item.nullitem)
 		
 		return True
 	
@@ -268,8 +277,9 @@ class World:
 	def save(this):
 		fw = open(this.name + "_inventory.txt", "w")
 		
-		for item in this.inventory.keys():
-			fw.write(str(item) + " " + str(this.inventory[item]) +"\n")
+		# Save inventory
+		for item in this.inventory:
+			fw.write(str(item.ID) +"\n")
 		fw.close()
 		fw = open(this.name + "_objects.txt", "w")
 		
