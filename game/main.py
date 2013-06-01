@@ -34,6 +34,7 @@ from world import World
 import tile
 import os
 import sprite
+import item
 
 import gui
 		
@@ -77,10 +78,12 @@ def loadImages():
 	
 	state.InventoryState.btnImages = [pygame.image.load(os.path.join("data","inventory_grid.png"))]
 	
+	state.InventoryState.invImages = {0:pygame.image.load(os.path.join("data","inventory_grid.png"))}
 
 def main():
 	
 	loadImages()
+	item.CreateItemList()
 	
 	#~ world = World()
 	#~ 

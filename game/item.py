@@ -1,19 +1,18 @@
-items = []
+items = [[] for i in range(10)]
+nullitem = None
 
 class Item(object):
 	# This variable is static (same across all class instances
 	_curID = 0 
 	
-	def __init__(this, type = 0, name = "", desc = ""): #initializer
+	def __init__(this, lvlrange, type = 0, name = "", desc = ""): #initializer
 		# Item descriptions
 		this.Type = type
 		this.Name = name
 		this.Description = desc
 		
 		# Item settings
-		this.canTarget = False
-		this.canExplode = False
-		
+		this.lvl = {}
 		
 		# automatically set the ID
 		this.ID = this.__class__._curID
@@ -22,9 +21,10 @@ class Item(object):
 		# A dictionary for status buffs/debuffs
 		# e.g. "hp":20 to increase hp by 20 or 
 		# "atk":-10 to decrease attack by 10
-		this.attributes = {"hp":0}
+		this.attributes = {}
 		
-		items.append(this)
+		for lvl in lvlrange:
+			items[lvl-1].append(this)
 	
 	def __str__(this):
 		atts = ""
@@ -34,15 +34,18 @@ class Item(object):
 		
 		# atts[:len(atts)-1] is to remove the last \n
 		return this.Name + "\n" + this.Description+"\n"+atts[:len(atts)-1]
-	
-	
-	
-	
-	
 
+def getItem(itemid):
+	for n in range(10):
+		for item in items[n]:
+			if itemid == item.ID:
+				return item
+	return nullitem
+	
+	
 # "Enumerator" of item types
 class itemType():
-	item, edible, throw, wpn, armor = range(5)
+	item, consumable, weapon = range(3)
 
 def CreateItemList():
 	""" 
@@ -53,48 +56,53 @@ def CreateItemList():
 	
 	# Items will automatically be placed into the global
 	# items list upon initializing
+	global nullitem
+	nullitem = Item([], itemType.item)
 	
-	shp = Item(itemType.edible, "Small HP Potion", "Heals a bit of your HP")
+	shp = Item([1,2,3], itemType.consumable, "Small HP Potion", "Heals a bit of your HP")
 	shp.attributes = {"heal": 10}
-	mhp = Item(itemType.edible, "Medium HP Potion", "Heals a decent amount of HP")
-	mhp.attributes = {"heal":30}
-	lhp = Item(itemType.edible, "Large HP Potion", "Heals a Large amount of HP")
-	lhp.attributes = {"heal":100}
+	mhp = Item([3,4,5], itemType.consumable, "Medium HP Potion", "Heals a decent amount of HP")
+	mhp.attributes = {"heal":20}
+	lhp = Item([5,6,7,8,9,10],itemType.consumable, "Large HP Potion", "Heals a Large amount of HP")
+	lhp.attributes = {"heal":40}
+	lhp = Item([10], itemType.consumable, "Extra Large HP Potion", "Heals very large amount of HP")
+	lhp.attributes = {"heal":65}
 	
-	rock = Item(itemType.throw, "Pebble", "How rare...")
+	rock = Item([1,2,3,4,5,6], itemType.item, "Pebble", "How rare...")
 	rock.canTarget = True
-	rock.attributes = {"atk":2,"rng":6}
 	
-	stick = Item(itemType.wpn, "Cypress Stick")
-	stick.attributes = {"atk":1}	
+	stick = Item([1], itemType.weapon, "Cypress Stick", "Used to get out of sticky situations")
+	stick.attributes = {"atk":1}
 		
-	csword = Item(itemType.wpn, "Cracked Sword", 
+	csword = Item([2,3], itemType.weapon, "Cracked Sword", 
 								"It looks like it may break anytime now")
 	csword.attributes = {"atk":3}
 	
-	sword = Item(itemType.wpn, "Sword", "An ordinary sword")
+	sword = Item([3,4], itemType.weapon, "Sword", "An ordinary sword")
 	sword.attributes = {"atk":5}
 	
-	gsword = Item(itemType.wpn, "Great Sword", "A sword that has been through many battles")
-	gsword.attributes = {"atk":5, "hp":10}
+	rsword = Item([4,5], itemType.weapon, "Refined Sword", "Ooooh! Shiny!")
+	rsword.attributes = {"atk":7}
 	
-	knife = Item(itemType.wpn, "Kitchen Knife", "Great for cooking and killing!")
-	knife.attributes = {"atk":3, "hp":, "spd":0.1}
+	gsword = Item([5,6], itemType.weapon, "Great Sword", "A sword that has been through many battles")
+	gsword.attributes = {"atk":10, "hp":15}
 	
-	sspd = Item(itemType.wpn, "Sword of Speeed", "A magical sword that enhances your speed"}
-	sspd.attributes = {"atk":5, "spd":0.1}
+	knife = Item([5,6], itemType.weapon, "Kitchen Knife", "Great for cooking and assassination!")
+	knife.attributes = {"atk":5, "spd":0.15}
 	
-	requiem = Item(itemType.wpn, "Requiem", "A light sword with a glowing aura around it")
-	requiem.attributes = {"atk":10, "hp":-25, "spd":0.4}
+	sspd = Item([6,7], itemType.weapon, "Sword of Speeed", "A magical sword that enhances your speed")
+	sspd.attributes = {"atk":10, "hp":10, "spd":0.1}
 	
-	muramasa=Item(itemType.wpn, "Muramasa", "The cursed Japenese katana")
-	muramasa.attributes = {"atk":27, "hp":-20}
+	grass = Item([8,9,10], itemType.weapon, "Blade of Grass", "They say you can ever use it to whistle!")
+	grass.attributes = {"atk":11, "hp":-25, "spd":0.4}
 	
+	muramasa=Item([1], itemType.weapon, "Muramasa", "The cursed Japenese katana")
+	muramasa.attributes = {"atk":27, "hp":-20, "spd":0.15}
 	
-	hammer = Item(itemType.wpn, "Hammer", "Seems like a carpenter got lost..."|
-	hammer.attributes = {"atk":7, "hp":20, "spd":-0.15}
+	hammer = Item([7,8,9], itemType.weapon, "Hammer", "Seems like a carpenter got lost...")
+	hammer.attributes = {"atk":10, "hp":20, "spd":-0.1}
 	
-	thammer = Item(itemType.wpn, "Thor's Hammer", "A hammer used by Thor. How did it end up here?")
-	thammer.attributes = {"atk":17, "hp":45, "spd":-0.2}
+	thammer = Item([7,8,9], itemType.weapon, "Thor's Hammer", "A hammer used by Thor...\nHow did it end up here?")
+	thammer.attributes = {"atk":28, "hp":80, "spd":-0.2}
 	
 	return items

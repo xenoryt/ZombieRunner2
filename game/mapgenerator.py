@@ -417,7 +417,28 @@ class MapGenerator:
 		
 		world.savemap()
 		return world
+	
+	def getArea(this, world, startloc, r = 15):
+		starttile = world.map[startloc[1]][startloc[0]]
 		
+		marked = [] # Stores tiles that have already been marked
+		queue = [starttile] # Stores tiles that have not yet been marked
+		
+		for dist in range(r):
+			newqueue = []
+			for tile in queue:
+				for d in directions:
+					loc = move(tile.gridloc, d)
+					if world.outBound(loc):
+						continue
+					nexttile = world.map[loc[1]][loc[0]]
+					if nexttile.type == 0 and (nexttile not in marked):
+						newqueue.append(nexttile)
+				
+			marked += queue
+			queue = list(set(newqueue))
+		
+		return map(lambda x: x.gridloc,marked)
 	
 	def place(this, world, cleared, level = 0):
 		"""
@@ -429,10 +450,11 @@ class MapGenerator:
 		
 		## TODO: Implement everything
 		
-		# TODO: create a way to calculate how many of each object to place
-		
 		print "cleared:",len(cleared)
-		nchests = len(cleared)/(350)
+		nchests = len(cleared)/(200)
+		
+		# Locations of where each object is placed
+		placed = []
 		
 		# Monsters
 		nbats = 80-level*5
@@ -447,29 +469,61 @@ class MapGenerator:
 		
 		# Set player location
 		loc = random.choice(cleared)
+		placed.append(loc)
+		placed += this.getArea(world,loc, 10)
 		world.placeObject("player", loc[0], loc[1])
 		
 		# Set staircase location
-		loc = random.choice(cleared)
+		while(True):
+			loc = random.choice(cleared)
+			if loc in placed:
+				continue
+			placed.append(loc)
+			break
 		world.placeObject("stair", loc[0], loc[1])
 		
 		# Set chest locations
 		for chest in range(nchests):
-			loc = random.choice(cleared)
+			while(True):
+				loc = random.choice(cleared)
+				if loc in placed:
+					continue
+				placed.append(loc)
+				break
 			world.placeObject("chest", loc[0], loc[1])
 		
 		# Set monster locations
 		for i in range(nbats):
-			loc = random.choice(cleared)
+			while(True):
+				loc = random.choice(cleared)
+				if loc in placed:
+					continue
+				placed.append(loc)
+				break
 			world.placeObject("bat", loc[0], loc[1])
 		for i in range(nskel):
-			loc = random.choice(cleared)
+			while(True):
+				loc = random.choice(cleared)
+				if loc in placed:
+					continue
+				placed.append(loc)
+				break
 			world.placeObject("skel", loc[0], loc[1])
 		for i in range(ndrag):
-			loc = random.choice(cleared)
+			while(True):
+				loc = random.choice(cleared)
+				if loc in placed:
+					continue
+				placed.append(loc)
+				break
 			world.placeObject("dragon", loc[0], loc[1])
 		for i in range(nreap):
-			loc = random.choice(cleared)
+			while(True):
+				loc = random.choice(cleared)
+				if loc in placed:
+					continue
+				placed.append(loc)
+				break
 			world.placeObject("reaper", loc[0], loc[1])
 		
 		world.save()

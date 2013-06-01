@@ -177,3 +177,9 @@ May 25 (3.5)
 	- Compiled .exe version of game
 	- Goes back to main menu after death
 	- Added text for the bar
+
+May 28 (1)
+	- Further balanced items/weapons in the game
+
+May 30 (1)
+	- Continued working on item/inventory code
