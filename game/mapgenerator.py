@@ -207,7 +207,7 @@ class MapGenerator:
 	def load(this, mapname):
 		raise NotImplementedError
 	
-	def create(this, mapname, level, size = (100,100), density=5):
+	def create(this, mapname, level = 1, density = 5, inventory = []):
 		"""
 		Generates a dungeon given a map size and room concentration. 
 		The concentration ranges from 0 to 9, inclusively,
@@ -237,17 +237,24 @@ class MapGenerator:
 		# 8) Write again and save
 		#############################################################
 		
+		
+		# Calculate size of map depending on level
 		i = 40+5*level
 		if i > 100:
 			i = 100
 		size = (i,i)
+				
 		
 		# Generate a new world filled with only walls
-		world = World(mapname, level)
-		world.new(size, '#')
+		world = World(mapname)
+		world.new(size, '#', level)
+		
+		if inventory != []:
+			world.inventory = inventory
+		
 		
 		# Create lists of rooms, corridors and points of the map
-		# that are no longer occupied by a wall (aka "dug out")
+		# that are no longer occupied by a wall 
 		rooms = []
 		halls = []
 		cleared = [] # locations that have been dug out
@@ -349,20 +356,18 @@ class MapGenerator:
 				
 				connected = rooms[0].getConnectedRooms([])
 				connected[:] = list(set(connected))
-				#~ print len(rooms),len(halls)
 				print len(connected),"is connected"
 				print len(rooms),"were generated"
 				if len(connected) < len(rooms):
 					print "Detected: not all rooms are connected"
-					print "Connecting unconnected rooms..."
-					
 					
 					# Get list of all the rooms that are not connected
 					unconnected = map(lambda x: x if x not in connected else None, rooms)
 					unconnected = list(set(unconnected))
 					unconnected.remove(None)
 					
-					print len(unconnected),"rooms are unconnected"
+					print len(unconnected),"rooms are not connected"
+					print "Connecting unconnected rooms..."
 					
 					# Choose a connected room and connect with an unconnected one
 					room = random.choice(connected)
@@ -375,7 +380,6 @@ class MapGenerator:
 						
 						# if this hall generated properly
 						if hall.generate(world, unconnected, halls, loc, d, 10, False):
-							print "Connected",len(hall.endrooms)-1
 							# Add this corridor to all the rooms
 							# it connected to
 							for conroom in hall.endrooms:
@@ -392,7 +396,8 @@ class MapGenerator:
 					continue
 					
 				elif len(connected) > len(rooms):
-					print "Something went TERRIBLY wrong here..."
+					print "Something went TERRIBLY wrong here... VERY wrong..."
+					print "Ignoring error. Chances of invalid map is high"
 					fw = open("debug.txt","w")
 					for room in connected:
 						fw.write(str(room.points)+"\n")
@@ -451,7 +456,7 @@ class MapGenerator:
 		## TODO: Implement everything
 		
 		print "cleared:",len(cleared)
-		nchests = len(cleared)/(200)
+		nchests = len(cleared)/(200) + random.randint(0,4)
 		
 		# Locations of where each object is placed
 		placed = []
@@ -472,6 +477,11 @@ class MapGenerator:
 		placed.append(loc)
 		placed += this.getArea(world,loc, 10)
 		world.placeObject("player", loc[0], loc[1])
+		
+		for item in world.inventory:
+			if item.equipped == True:
+				world.player.weapon = item
+				break
 		
 		# Set staircase location
 		while(True):

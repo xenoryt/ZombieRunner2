@@ -7,6 +7,7 @@ class Control(pygame.sprite.Sprite, object):
 	controls = []
 	def __init__(this):
 		pygame.sprite.Sprite.__init__(this)
+		#~ super(type(this), this).__init__()
 		this.rect = pygame.Rect(0,0,0,0)
 		this.image = None
 		
@@ -16,6 +17,8 @@ class Control(pygame.sprite.Sprite, object):
 		this._fgColor = Color('white')
 		
 		this.requireUpdate = True
+		
+		this.visible = True
 	
 	@property
 	def bgColor(this):
@@ -86,10 +89,22 @@ class Container(Control):
 		"""
 		Draws teh container and all of its children
 		"""
+		if not this.visible:
+			return 
+		if len(this.ctrls) == 0:
+			return 
+		
 		screen.blit(this.image, this.rect)
 		
 		for ctrl in this.ctrls:
 			ctrl.draw(screen)
+	
+	def font(this, size, f="pix.ttf"):
+		this._font = pygame.font.Font(os.path.join("data/font",f), size)
+		this.requireUpdate = True
+		
+		for ctrl in this.ctrls:
+			ctrl.font(size,f)
 	
 	# Functions that alter the container's geometry
 	def center(this, loc):
@@ -120,6 +135,11 @@ class Container(Control):
 		this.ctrls.append(ctrl)
 		this.organize()
 		#this.rect = #some algorithm
+	
+	def empty(this):
+		del this.ctrls[:]
+		this.cols = 0
+		this.rows = 0
 	
 	def organize(this):
 		"""
@@ -222,8 +242,8 @@ class _Label(Control):
 		this.requireUpdate = True # False means text is up to date
 		this.layer = 6
 	
-	def font(this, f, size):
-		this._font = pygame.font.Font(f, size)
+	def font(this, size, f="pix.ttf"):
+		this._font = pygame.font.Font(os.path.join("data/font",f), size)
 		this.requireUpdate = True
 	#TODO: Change resize function to button's?
 	def resize(this, w = -1,h = -1):
@@ -278,11 +298,10 @@ class _Label(Control):
 			this.image.blit(text,(0,0))
 			this.image.blit(text, textpos)
 			this.requireUpdate = False
-			print "label",this.text,this.rect.size,this.rect.center
 	
 	def draw(this,surface):
-		#~ print "drawing button"
-		surface.blit(this.image, this.rect)
+		if this.visible:
+			surface.blit(this.image, this.rect)
 
 class Label(Container):
 	"""
@@ -292,6 +311,7 @@ class Label(Container):
 	"""
 	def __init__(this, text, locx=0, locy=0):
 		super(Label, this).__init__(locx, locy)
+		this._text = ""
 		this.text = text
 		
 	
@@ -311,6 +331,10 @@ class Label(Container):
 	
 	@text.setter
 	def text(this, text):
+		if this._text == text:
+			return
+		
+		this.empty()
 		this._text = text
 		this.lines = text.split('\n')
 		
@@ -331,7 +355,6 @@ class Button(Control):
 		
 		this._font = pygame.font.Font(os.path.join("data/font","pix.ttf"), 15)
 		this._text = text
-		print this._font.size(text)
 		
 		# This is for mouse over text (if set)
 		this.label = None
@@ -352,8 +375,8 @@ class Button(Control):
 		this.layer = 6
 		
 	
-	def font(this, f, size):
-		this._font = pygame.font.Font(f, size)
+	def font(this, size, f="pix.ttf"):
+		this._font = pygame.font.Font(os.path.join("data/font",f), size)
 		this.requireUpdate = True
 	
 	def resize(this, size = (-1,-1)):
@@ -384,6 +407,9 @@ class Button(Control):
 	
 	@text.setter
 	def text(this, msg):
+		if msg == this._text:
+			return
+		
 		this._text = msg
 		this.requireUpdate = True
 	
@@ -398,27 +424,27 @@ class Button(Control):
 			
 			this.image.blit(text, textpos)
 			this.requireUpdate = False
-			print "button",this.text,this.rect.size,this.rect.center
 		
-		# Check for mouse events
-		mpos = pygame.mouse.get_pos()
-		
-		# If the mouse is NOT on the button, do nothing
-		if mpos[0] < this.rect.left or mpos[0] > this.rect.right:
-			return 0
-		if mpos[1] < this.rect.top or mpos[1] > this.rect.bottom:
-			return 0
-		
-		# Check if the left mouse button is being pressed
-		if this.mouseup:
-			print "button",this.text,"was clicked"
-			return this.onClick()
+		if this.visible:
+			# Check for mouse events
+			mpos = pygame.mouse.get_pos()
+			
+			# If the mouse is NOT on the button, do nothing
+			if mpos[0] < this.rect.left or mpos[0] > this.rect.right:
+				return 0
+			if mpos[1] < this.rect.top or mpos[1] > this.rect.bottom:
+				return 0
+			
+			# Check if the left mouse button is being pressed
+			if this.mouseup:
+				print "button",this.text,"was clicked"
+				return this.onClick(this)
 
 	def draw(this,surface):
-		#~ print "drawing button"
-		surface.blit(this.image, this.rect)
+		if this.visible:
+			surface.blit(this.image, this.rect)
 		
-	def onClick(this):
+	def onClick(this, sender):
 		return 0
 
 class Bar(Control):
@@ -464,8 +490,6 @@ class Bar(Control):
 		# Padding used in the background image
 		pad = 2
 		barw = int(round((this.rect.size[0]-pad*2)* float(val)/100))
-		#~ print barw
-		#~ print this.fgColor
 		bar = pygame.Rect(pad,pad, barw, this.rect.h-pad*2)
 		
 		this.image.fill(this.fgColor,bar)
@@ -479,7 +503,6 @@ class Bar(Control):
 		
 		this.image.blit(text, textpos)
 		
-		#~ this.requireUpdate = True
 	
 	def resize(this, size):
 		if this.rect.size != size:
@@ -495,11 +518,6 @@ class Bar(Control):
 		
 	
 	def draw(this, screen):
-		screen.blit(this.image, this.rect)
-	
-class gui(pygame.sprite.Sprite):
-	def __init__(this):
-		pygame.sprite.Sprite.__init__(this)
-		this.font = pygame.font.Font(None, 20)
-	
-	#def 
+		if this.visible:
+			screen.blit(this.image, this.rect)
+

@@ -8,7 +8,7 @@ from camera import Camera
 from keys import Keys
 import sprite
 import random
-
+import os
 
 class State():
 	"""
@@ -65,7 +65,7 @@ class MessageboxState(State):
 		#~ this.box.rect.organize()
 		
 		this.button = gui.Button("OK")
-		this.button.onClick = lambda: this.game.revertState()
+		this.button.onClick = lambda x: this.game.revertState()
 		this.label = gui.Label(text)
 		this.box.add(this.label,1,1)
 		this.box.add(this.button,2,1)
@@ -93,14 +93,14 @@ class MessageboxState(State):
 		
 
 class MainMenuState(State):
-	def startmenu(this):
+	def startmenu(this, sender):
 		this.world.terminate()
 		this.game.world.terminate()
 		this.game.assignState(GameState(this.game))
-	def contmenu(this):
+	def contmenu(this, sender):
 		this.game.assignState(GameState(this.game))
 		this.world.terminate()
-	def exitmenu(this):
+	def exitmenu(this, sender):
 		this.world.terminate()
 		this.game.Exit()
 	
@@ -129,7 +129,7 @@ class MainMenuState(State):
 		this.btnExit.rect.bottomright = (770,90)
 		
 		generator = mapgenerator.MapGenerator()
-		this.world = generator.create("map_menu",1,(80,80),8)
+		this.world = generator.create("map_menu",4, 8)
 		if this.world == None:
 			this.err = "Something went wrong with map generation...\nPlease try running the game again"
 			
@@ -194,9 +194,9 @@ class PauseState(State):
 		this.box.add(this.btnFullscreen,2,1)
 		this.box.add(this.btnExit, 3,1)
 		
-		this.btnResume.onClick = lambda: this.game.revertState()
-		this.btnFullscreen.onClick = lambda: this.game.toggle_fullscreen()
-		this.btnExit.onClick = lambda: this.game.Exit()
+		this.btnResume.onClick = lambda x: this.game.revertState()
+		this.btnFullscreen.onClick = lambda x: this.game.toggle_fullscreen()
+		this.btnExit.onClick = lambda x: this.game.Exit()
 		
 		this.box.center((this.game.screensize[0]/2,this.game.screensize[1]/2))
 		
@@ -222,37 +222,112 @@ class InventoryState(State):
 		this.inv = this.game.world.inventory
 		size = len(this.inv)
 		
+		# Create background wallpaper
+		img = pygame.image.load(os.path.join("data","wall.png"))
+		this.bg = pygame.Surface(this.game.screensize)
+		this.bg = this.bg.convert()
+		for row in range(this.game.screensize[1]/48+1):
+			for col in range(this.game.screensize[0]/48+1):
+				r = pygame.Rect(col*48, row*48, 48,48)
+				this.bg.blit(img,r)
+		
 		# Label for state title
 		this.label = gui._Label("Inventory")
 		this.label.bgColor = None
 		this.label.fgColor = Color("#2CF3DB")
 		this.label.rect.topleft = (50,100)
 		
-		
 		# Buttons for switching states
 		this.btnResume = gui.Button("Resume")
-		this.btnResume.onClick = lambda: this.game.revertState()
+		this.btnResume.onClick = lambda x: this.game.revertState()
 		
 		this.btnExit = gui.Button("Exit")
-		this.btnExit.onClick = lambda: this.game.Exit()
+		this.btnExit.onClick = lambda x: this.game.Exit()
 		
 		this.btnResume.rect.bottomleft = (50,540)
 		this.btnExit.rect.bottomleft = (50,570)
+				
 		
-		
-		# Controls to display item info on sides
-		this.btnImage = gui.Button("")
-		this.btnImage.rect.size = (100,100)
-		this.btnImage.static = True
-		this.btnImage.rect.midtop = (675,150)
-		
-		this.lblDesc = gui.Label("")
-		this.lblDesc.static = False
-		this.lblDesc.rect.midtop = (675,225)
 		
 		# The function that is called when an item is selected
 		def select(btn):
-			this.btnImage.image = this.invImages[btn.item.ID]
+			this.selected = btn
+			
+			this.btnImage.images = [this.invImages[btn.item.ID]]
+			this.btnImage.requireUpdate = True
+			this.lblDesc.text = str(btn.item)
+			
+			if btn.item.ID != 0:
+				this.lblDesc.visible = True
+				this.btnUse.visible = True
+				this.btnDrop.visible = True
+				
+				if btn.item.Type == 2:
+					if not btn.item.equipped:
+						this.btnUse.text = "Equip"
+					else:
+						this.btnUse.text = "Unequip"
+				else:
+					this.btnUse.text = "Use"
+			else:
+				this.lblDesc.visible = False
+				this.btnUse.visible = False
+				this.btnDrop.visible = False
+				
+			this.drawbg = True
+		
+		# Functions for handling items
+		def use(btn):
+			if this.selected.item.Type == 2:
+				
+				if this.selected.item.equipped:
+					# unequip weapon
+					this.game.world.player.weapon = None
+					this.selected.text = ""
+					this.btnUse.text = "Equip"
+				else:
+					# equip weapon
+					this.game.world.player.weapon = this.selected.item
+					this.selected.text = "E"
+					this.btnUse.text = "Unequip"
+			else:
+				this.game.world.player.setAtt(this.selected.item.attributes)
+				this.game.world.removeitem(this.selected)
+				#~ this.selected.item.delete()
+				this.selected.images = [this.invImages[this.selected.item.ID]]
+				this.selected.requireUpdate = True
+				select(this.selected)
+		
+		def drop(btn):
+			this.game.world.removeitem(this.selected)
+			#~ this.selected.item.delete()
+			this.selected.images = [this.invImages[this.selected.item.ID]]
+			this.selected.requireUpdate = True
+			select(this.selected)
+		
+		
+		# Controls to display item info on sides and handle items
+		this.btnImage = gui.Button("")
+		this.btnImage.rect.size = (100,100)
+		this.btnImage.static = True
+		this.btnImage.rect.midtop = (600,150)
+		
+		this.lblDesc = gui.Label("")
+		this.lblDesc.static = False
+		this.lblDesc.rect.midtop = (600,275)
+		this.lblDesc.font(12)
+		
+		this.btnUse = gui.Button("Use")
+		this.btnUse.static = True
+		this.btnUse.rect.midtop = (600,350)
+		this.btnUse.visible = False
+		this.btnUse.onClick = use
+		
+		this.btnDrop = gui.Button("Discard")
+		this.btnDrop.rect.midtop = (600,380)
+		this.btnDrop.visible = False
+		this.btnDrop.onClick = drop
+		
 		
 		# The inventory 
 		this.inv = gui.Container()
@@ -264,19 +339,23 @@ class InventoryState(State):
 		for col in range(8):
 			for row in range(4):
 				btn = gui.Button("")
+				btn.fgColor = Color("#02A900")
 				btn.static = True
-				btn.images = this.btnImages
+				#~ btn.images = this.btnImages
 				btn.rect.w = 48
 				btn.rect.h = 48
-				this.inv.add(btn, row+1,col+1)
-				print "row",row
-				print "col",col
 				# TODO: load items
 				btn.item = this.game.world.inventory[col + row*8]
-				btn.image = this.invImages[btn.item.ID]
+				btn.images = [this.invImages[btn.item.ID]]
+				btn.onClick = select
+				
+				if btn.item.equipped:
+					btn.text = "E"
+				
+				this.inv.add(btn, row+1,col+1)
 				
 				
-		this.inv.rect.topleft = (50,160)
+		this.inv.rect.topleft = (25,160)
 	
 	def update(this,):
 		for event in pygame.event.get():
@@ -293,15 +372,18 @@ class InventoryState(State):
 		
 		this.btnImage.update()
 		this.lblDesc.update()
+		this.btnUse.update()
+		this.btnDrop.update()
 		
 	def draw(this,screen):
 		if this.drawbg:
-			background = pygame.Surface(screen.get_size())
-			background = background.convert()
-			background.fill(Color('black'))
-			background.set_alpha(150)
-			screen.blit(background, (0, 0))
+			#~ background = pygame.Surface(screen.get_size())
+			#~ background = background.convert()
+			#~ background.fill(Color('#BBBBBB'))
+			#~ background.set_alpha(5)
+			screen.blit(this.bg, (0, 0))
 			this.drawbg = False
+		
 		
 		this.inv.draw(screen)
 		this.label.draw(screen)
@@ -310,10 +392,11 @@ class InventoryState(State):
 		
 		this.btnImage.draw(screen)
 		this.lblDesc.draw(screen)
+		this.btnUse.draw(screen)
+		this.btnDrop.draw(screen)
 
 class GameState(State):
 	def __init__(this, game):
-		print "in gamestate"
 		this.game = game
 		
 		this.world = None
@@ -342,7 +425,6 @@ class GameState(State):
 			this.game.world = generator.create("map",1)
 			if this.game.world == None:
 				this.err = "Something went wrong with map generation...\nPlease try running the game again"
-				print 'err'
 				this.game.Error(this.err)
 		
 		this.world = this.game.world
@@ -453,14 +535,19 @@ class GameState(State):
 		
 		this.world.player.update()
 		
-		if this.world.player.actions < 1 and not this.world.player.animating:
+		if not this.world.player.animating:
 			# Check if player is standing on staircase
 			obj = this.world.player.tile.getObject()
 			if obj != None and obj.name == "stair":
+				if this.world.player.weapon != None:
+					this.world.player.setAtt(this.world.player.weapon.attributes, True)
 				playerhp = this.world.player.hp
+				
 				generator = mapgenerator.MapGenerator()
-				this.world = generator.create("map", this.world.level+1)
-				print "generating"
+				
+				
+				this.world = generator.create("map", this.world.level+1,6,this.world.inventory)
+				this.game.world = this.world
 				this.lblDungeon.text = "Dungeon: " + str(this.world.level)
 				this.world.player.hp = playerhp
 			
@@ -471,11 +558,9 @@ class GameState(State):
 			m.update()
 			if m.curturn == 2:
 				newturn = False
-				#~ print m, m.curturn
 		
 		if newturn:
 			this.world.player.curturn = 1
-			#~ sprite.Monster.curturn = 1
 		
 		if not this.mapmode:
 			# Center the camera on the player
@@ -487,7 +572,6 @@ class GameState(State):
 		hp = this.world.player.hp
 		this.hpbar.value = int(hp)
 		this.lblDungeon.update()
-		#~ this.hpbar.update()
 	
 	def draw(this, screen):
 		this.world.draw(screen, this.camera)

@@ -28,16 +28,8 @@ class Game(object):
 		Starts the game.
 		The mainloop is located here.
 		"""
-		#~ if this.running:
-			#~ print "Game is already running"
-		#~ else:
-			#~ #start game
-			#~ raise NotImplementedError
-		
-		print this.state, state
 		if not this.stateChange:
 			this.state = state
-		print this.state, state
 		
 		this.running = True
 		
@@ -60,8 +52,11 @@ class Game(object):
 					this.stateChange = False
 					continue
 					
-				this.state.draw(this.screen)
-				pygame.display.flip()
+				dirty = this.state.draw(this.screen)
+				if type(dirty) == type([]):
+					pygame.display.update(dirty)
+				else:
+					pygame.display.flip()
 			else:
 				this.Error("No state selected")
 				
@@ -116,6 +111,9 @@ class Game(object):
 		this.stateChange = True
 		if now:
 			this._state = None
+		
+		if this.world.loaded:
+			this.world.save()
 	
 	### Properties ###
 	@property

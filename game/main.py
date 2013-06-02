@@ -78,7 +78,28 @@ def loadImages():
 	
 	state.InventoryState.btnImages = [pygame.image.load(os.path.join("data","inventory_grid.png"))]
 	
-	state.InventoryState.invImages = {0:pygame.image.load(os.path.join("data","inventory_grid.png"))}
+	state.InventoryState.invImages = {0:pygame.image.load(os.path.join("data","inventory_grid.png")),
+									  1:pygame.image.load(os.path.join("data/items","red_potion.png")),
+									  2:pygame.image.load(os.path.join("data/items","orange_potion.png")),
+									  3:pygame.image.load(os.path.join("data/items","yellow_potion.png")),
+									  4:pygame.image.load(os.path.join("data/items","white_potion.png")),
+									  5:pygame.image.load(os.path.join("data/items","item.png")),
+									  6:pygame.image.load(os.path.join("data/items","cypress_stick.png")),
+									  7:pygame.image.load(os.path.join("data/items","item.png")),
+									  8:pygame.image.load(os.path.join("data/items","item.png")),
+									  9:pygame.image.load(os.path.join("data/items","item.png")),
+									  10:pygame.image.load(os.path.join("data/items","item.png")),
+									  11:pygame.image.load(os.path.join("data/items","item.png")),
+									  12:pygame.image.load(os.path.join("data/items","item.png")),
+									  13:pygame.image.load(os.path.join("data/items","Blade_of_Grass.png")),
+									  14:pygame.image.load(os.path.join("data/items","muramasa.png")),
+									  15:pygame.image.load(os.path.join("data/items","Master_Sword.png")),
+									  16:pygame.image.load(os.path.join("data/items","item.png")),
+									  17:pygame.image.load(os.path.join("data/items","item.png")),
+									  18:pygame.image.load(os.path.join("data/items","item.png")),
+									  19:pygame.image.load(os.path.join("data/items","item.png")),
+									  20:pygame.image.load(os.path.join("data/items","item.png"))
+									  }
 
 def main():
 	
@@ -91,7 +112,7 @@ def main():
 		#~ worldgenerator = MapGenerator()
 		#~ world = worldgenerator.create("map", 1, (100,100), 2)
 	
-	
+	gui.Control()
 	game.run(state.MainMenuState(game))
 	
 	return 0

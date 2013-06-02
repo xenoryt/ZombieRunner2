@@ -13,6 +13,7 @@ class Item(object):
 		
 		# Item settings
 		this.lvl = {}
+		this.equipped = False
 		
 		# automatically set the ID
 		this.ID = this.__class__._curID
@@ -34,6 +35,12 @@ class Item(object):
 		
 		# atts[:len(atts)-1] is to remove the last \n
 		return this.Name + "\n" + this.Description+"\n"+atts[:len(atts)-1]
+	
+	def use(this):
+		pass
+	
+	def delete(this):
+		this = nullitem
 
 def getItem(itemid):
 	for n in range(10):
@@ -59,16 +66,17 @@ def CreateItemList():
 	global nullitem
 	nullitem = Item([], itemType.item)
 	
-	shp = Item([1,2,3], itemType.consumable, "Small HP Potion", "Heals a bit of your HP")
+	shp = Item([1,2,3,4,5,6], itemType.consumable, "Red Potion", "Heals a bit of your HP")
 	shp.attributes = {"heal": 10}
-	mhp = Item([3,4,5], itemType.consumable, "Medium HP Potion", "Heals a decent amount of HP")
+	mhp = Item([3,4,5,6], itemType.consumable, "Orange Potion", "Heals a decent amount of HP")
 	mhp.attributes = {"heal":20}
-	lhp = Item([5,6,7,8,9,10],itemType.consumable, "Large HP Potion", "Heals a Large amount of HP")
+	lhp = Item([6,7,8,9,10],itemType.consumable, "Yellow Potion", "Heals a Large amount of HP")
 	lhp.attributes = {"heal":40}
-	lhp = Item([10], itemType.consumable, "Extra Large HP Potion", "Heals very large amount of HP")
+	lhp = Item([10], itemType.consumable, "White Potion", "Heals very large amount of HP")
 	lhp.attributes = {"heal":65}
 	
-	rock = Item([1,2,3,4,5,6], itemType.item, "Pebble", "How rare...")
+	# item 5
+	rock = Item([1,2,3,4,5,6,7,8,9,10], itemType.item, "Rock", "How rare...")
 	rock.canTarget = True
 	
 	stick = Item([1], itemType.weapon, "Cypress Stick", "Used to get out of sticky situations")
@@ -76,7 +84,7 @@ def CreateItemList():
 		
 	csword = Item([2,3], itemType.weapon, "Cracked Sword", 
 								"It looks like it may break anytime now")
-	csword.attributes = {"atk":3}
+	csword.attributes = {"atk":2}
 	
 	sword = Item([3,4], itemType.weapon, "Sword", "An ordinary sword")
 	sword.attributes = {"atk":5}
@@ -84,6 +92,7 @@ def CreateItemList():
 	rsword = Item([4,5], itemType.weapon, "Refined Sword", "Ooooh! Shiny!")
 	rsword.attributes = {"atk":7}
 	
+	# item 10
 	gsword = Item([5,6], itemType.weapon, "Great Sword", "A sword that has been through many battles")
 	gsword.attributes = {"atk":10, "hp":15}
 	
@@ -93,16 +102,24 @@ def CreateItemList():
 	sspd = Item([6,7], itemType.weapon, "Sword of Speeed", "A magical sword that enhances your speed")
 	sspd.attributes = {"atk":10, "hp":10, "spd":0.1}
 	
-	grass = Item([8,9,10], itemType.weapon, "Blade of Grass", "They say you can ever use it to whistle!")
-	grass.attributes = {"atk":11, "hp":-25, "spd":0.4}
+	grass = Item([6,7,8], itemType.weapon, "Blade of Grass", "They say you can ever use it to whistle!")
+	grass.attributes = {"atk":6, "hp":-20, "spd":0.4}
 	
-	muramasa=Item([1], itemType.weapon, "Muramasa", "The cursed Japenese katana")
-	muramasa.attributes = {"atk":27, "hp":-20, "spd":0.15}
+	muramasa=Item([5,6,7], itemType.weapon, "Muramasa", "The cursed Japenese katana")
+	muramasa.attributes = {"atk":27, "hp":-20, "spd":0.25, "luk":-20}
 	
-	hammer = Item([7,8,9], itemType.weapon, "Hammer", "Seems like a carpenter got lost...")
+	# item 15
+	msword=Item([9,10], itemType.weapon, "Master Sword", "The Sword of Evil's Bane")
+	msword.attributes = {"atk":20, "hp":20, "spd":0.1, "luk":5}
+	
+	
+	excalibur=Item([10], itemType.weapon, "Excalibur", "This isn't heavy at all...")
+	excalibur.attributes = {"atk":25, "hp":40, "spd":0.1}
+	
+	hammer = Item([4,5,6,7], itemType.weapon, "Hammer", "Seems like a carpenter got lost")
 	hammer.attributes = {"atk":10, "hp":20, "spd":-0.1}
 	
 	thammer = Item([7,8,9], itemType.weapon, "Thor's Hammer", "A hammer used by Thor...\nHow did it end up here?")
-	thammer.attributes = {"atk":28, "hp":80, "spd":-0.2}
+	thammer.attributes = {"atk":20, "hp":100, "spd":-0.25, "luk":-15}
 	
 	return items

@@ -17,7 +17,6 @@ def loadImages(sprite, imagefile, d):
 	sheet = sheet.convert_alpha()
 	sheetrect = sheet.get_rect()
 	images = []
-	#~ print imagefile, d, range(sheetrect.width/48)
 	for x in range(sheetrect.width/48):
 		rect = pygame.Rect(x*48,0, 48,48)
 		image = pygame.Surface((48,48),pygame.SRCALPHA)
@@ -56,13 +55,15 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.hp = this.maxhp
 		this.atk = 5
 		this.hpregen = 0.2
+		this.luk = 0
 		
-		# Equipment and stuff ("stuff" to be later added)
-		this._weapon = None
 		
 		# This is how many actions per turn the sprite gets to perform
 		# 0.5 means 1 action every 2 turns
 		this.spd = 1
+		
+		# equipment boosts the sprite's stats
+		this._weapon = None
 		
 		# This var stores how many actions are left to perform
 		this.actions = 1
@@ -135,10 +136,12 @@ class Sprite(pygame.sprite.Sprite, object):
 	@weapon.setter
 	def weapon(this,weapon):
 		if this._weapon != None:
-			this._weapon.equiped = False
+			this._weapon.equipped = False
 			this.setAtt(this._weapon.attributes, True)
 		this._weapon = weapon
-		this.setAtt(this._weapon.attributes)
+		if weapon != None:
+			this.setAtt(this._weapon.attributes, False)
+			this._weapon.equipped = True
 	
 	@property
 	def curturn(this):
@@ -146,12 +149,12 @@ class Sprite(pygame.sprite.Sprite, object):
 	
 	@curturn.setter
 	def curturn(this, turn):
-		#~ print "setting",turn
 		if this.actions < 1 and turn != this._curturn and turn == this.turn:
 			this.actions += this.spd
 			this.hp += this.hpregen
 		this._curturn = turn
-		#~ print this._curturn
+		if this.actions < 1 and turn == this.turn:
+			this.doneturn(True)
 	
 	@property
 	def moving(this):
@@ -210,6 +213,10 @@ class Sprite(pygame.sprite.Sprite, object):
 				this.atk += val
 			elif k == "spd":
 				this.spd += val
+			elif k == "luk":
+				this.luk += val
+			elif k == "heal":
+				this.hp += val
 	
 	def markTiles(this):
 		"""
@@ -329,6 +336,9 @@ class Sprite(pygame.sprite.Sprite, object):
 		This function moves the sprite in place
 		Note: Direction is a string such as "up" 
 		"""
+		if this.animating:
+			return
+		
 		if this.turn != this.curturn:
 			return
 		
@@ -384,8 +394,8 @@ class Sprite(pygame.sprite.Sprite, object):
 				this.direction = d
 				this.attacking = True
 				this.atkframe = 0
-				atklo = round(this.atk*0.8)
-				atkhi = round(this.atk*1.2)
+				atklo = round(this.atk*(0.7+this.luk*0.1))
+				atkhi = round(this.atk*(1.3+this.luk*0.1))
 				obj.hp -= random.randint(atklo, atkhi)
 				this.actions -= 1
 		
@@ -463,9 +473,15 @@ class Monster(Sprite):
 	def update(this):
 		# If dead, kill self
 		if this.hp <= 0:
+			# Drop chest at a random chance
+			if random.randint(0,99) < 5+this.world.player.luk*0.25:
+				this.world.placeObject("chest",this.tile.gridloc[0],this.tile.gridloc[1])
+			
 			this.tile = None
 			this.world.monsters.remove(this)
-			#TODO: place a chest
+			
+			
+			del this
 			return False
 		
 		
@@ -518,7 +534,7 @@ class Bat(Monster):
 	def __init__(this, level, world = None):
 		super(Bat, this).__init__(level, world)
 		this.name = "bat"
-		this.maxhp = 2+2*level
+		this.maxhp = int(round(2+2.2*level))
 		
 		this.atk = 1*level
 		this.spd = 1.2+0.1*level
@@ -538,9 +554,9 @@ class Skel(Monster):
 	def __init__(this, level, world = None):
 		super(Skel, this).__init__(level, world)
 		this.name ="skel"
-		this.maxhp = int(round(4+2.5*level))
+		this.maxhp = int(round(4+3*level))
 		
-		this.atk = int(round(3+3*level))
+		this.atk = int(round(3+3.2*level))
 		this.spd = 1
 		this.sight = 4
 		
@@ -555,9 +571,9 @@ class Dragon(Monster):
 	def __init__(this, level, world = None):
 		super(Dragon, this).__init__(level, world)
 		this.name="dragon"
-		this.maxhp = int(round(2+6.3*level))
+		this.maxhp = int(round(2+7.3*level))
 		
-		this.atk = int(round(3+2*level))
+		this.atk = int(round(3+2.2*level))
 		this.spd = 0.5+0.04*level
 		this.sight = 6
 		if this.maxhp > 85:
@@ -584,8 +600,6 @@ class Reaper(Monster):
 		this.atk = 65
 		this.spd = 0.4 + 0.04*level
 		this.sight = int(round(2+level))
-		if this.maxhp > 25:
-			this.maxhp = 25
 		if this.sight > 15:
 			this.sight = 15
 		if this.spd > 0.8:
@@ -624,7 +638,6 @@ class Object(pygame.sprite.Sprite, object):
 		if tile != None:
 			this._tile.contains.append(this)
 	
-	
 	def update(this):
 		pass
 	
@@ -648,7 +661,17 @@ class Chest(Object):
 	
 	def pickup(this):
 		# Give the player a random item, randomly
-		this.world.inventory.append(random.choice(this.world.itemlist))
+		item = None
+		while True:
+			item = random.choice(this.world.itemlist)
+			if item.Type == 2 and item in this.world.inventory:
+				continue
+			break
+		
+		for i in range(len(this.world.inventory)):
+			if this.world.inventory[i].ID == 0:
+				this.world.inventory[i] = item
+				break
 		
 		# Remove the chest
 		this.world.objects.remove(this)

@@ -45,8 +45,14 @@ class World:
 		# The exit
 		this.staircase = None
 		
+		
+		# Set list of items available for this dungeon level
+		this.itemlist = item.items[this.level-1]
+		
 		# A dictionary of item id's and the amount the player is carrying
 		this.inventory = [item.nullitem for i in range(32)]
+		
+		
 		
 		# this array stores a list of tiles that have been "marked"
 		# marked tiles are used by monsters to pathfind the shortest 
@@ -57,7 +63,6 @@ class World:
 	
 	# Override the [] operation
 	def __getitem__(this, index):
-		print "getting index"
 		if type(index) != int:
 			x,y = index
 			return map[y][x]
@@ -85,17 +90,19 @@ class World:
 		""" Returns the size of the world in pixels (not the grid) """
 		return (this.size[0]*Tile.size[0],this.size[1]*Tile.size[1])
 	
-	def new(this, size, char='.'):
+	def new(this, size, char='.', level = 1):
 		"""
 		Creates a new map filled with the character [char]
 		"""
 		this.size = size
+		this.level = level
 		
 		this.map = []
 		for y in range(size[1]):
 			this.map.append([Tile(char, (x,y)) for x in range(size[0])])
-			
-		this = map
+		
+		# Set list of items available for this dungeon level
+		this.itemlist = item.items[this.level-1]
 	
 	def load(this, mapname):
 		try:
@@ -185,7 +192,6 @@ class World:
 			stair.rect.topleft = (locx*48, locy*48)
 			stair.tile = this.map[locy][locx]
 			this.objects.append(stair)
-			print stair.tile, this.map[locy][locx].contains
 		if name == "player":
 			this.player = sprite.Sprite(this)
 			this.player.rect.topleft = (locx*48, locy*48)
@@ -234,13 +240,20 @@ class World:
 		except IOError as e:
 			print 'Error: file %s not found' % (this.name + "_inventory.txt")
 			return False
-		
+		del this.inventory[:]
 		# Load all the items in the inventory
 		lines = fr.readlines()
 		for i in range(len(lines)):
 			# The inventory file should follow the following format
-			# <ItemID>
-			this.inventory.append(item.getItem(int(lines[i])))
+			# <ItemID> <equipped>
+			id,equipped = lines[i].split()
+			
+			itm = item.getItem(int(id))
+			itm.equipped = bool(int(equipped))
+			if itm.equipped:
+				this.player.weapon = itm
+			
+			this.inventory.append(itm)
 		
 		# Set rest of inventory to null; 32 is max inventory size
 		for i in range(len(this.inventory), 32):
@@ -279,7 +292,7 @@ class World:
 		
 		# Save inventory
 		for item in this.inventory:
-			fw.write(str(item.ID) +"\n")
+			fw.write(str(item.ID) + " "+ ('1' if item.equipped else '0') +"\n")
 		fw.close()
 		fw = open(this.name + "_objects.txt", "w")
 		
@@ -327,23 +340,15 @@ class World:
 		this.loaded = False
 		#~ os.remove(this.name+".txt")
 	
+	def removeitem(this, btn):
+		this.inventory.remove(btn.item)
+		btn.item = item.nullitem
+		this.inventory.append(item.nullitem)
+	
 	def tile(this, points, type):
 		for p in points:
 			this.map[p[1]][p[0]].type = type
 			this.map[p[1]][p[0]].passable = True
-	
-	def place(this, points, objs):
-		"""
-		points - an array of coordinates
-		objs - an array of the objects 
-		"""
-		for i in range(len(objs)):
-			if this.map[points[i][1]][points[i][0]] == None:
-				raise TypeError("Tile on map has not been set")
-			
-			this.map[points[i][1]][points[i][0]].contains.append(objs[i]) #ATTN: NEED TO ADD ITEM
-				
-	
 	
 	
 	def draw(this, surface, camera, fog = True):

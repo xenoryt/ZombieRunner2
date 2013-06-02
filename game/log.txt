@@ -183,3 +183,16 @@ May 28 (1)
 
 May 30 (1)
 	- Continued working on item/inventory code
+
+June 1 (1.5)
+	- Implemented items
+	- Created temporary item image
+	- 
+
+June 2 (4)
+	- Fixed bug where descending stairs lead to dungeon of same level
+	- Fixed bug where inventory is wiped upon descent
+	- Fixed bug where game does not save which weapon is equipped
+	- Added monster drops
+	- Started creating item sprites
+	- Implemented item use/equip and discard buttons
