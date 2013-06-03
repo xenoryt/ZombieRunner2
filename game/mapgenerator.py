@@ -207,7 +207,7 @@ class MapGenerator:
 	def load(this, mapname):
 		raise NotImplementedError
 	
-	def create(this, mapname, level = 1, density = 5, inventory = []):
+	def create(this, mapname, level = 1, density = 5, inventory = [], buffs={}):
 		"""
 		Generates a dungeon given a map size and room concentration. 
 		The concentration ranges from 0 to 9, inclusively,
@@ -412,6 +412,7 @@ class MapGenerator:
 			## Randomly place objects and monsters ##
 			this.place(world, cleared)
 			
+			world.player.setBuff(buffs)
 			
 			
 			# Place objects and monsters

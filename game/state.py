@@ -256,11 +256,16 @@ class InventoryState(State):
 			this.btnImage.images = [this.invImages[btn.item.ID]]
 			this.btnImage.requireUpdate = True
 			this.lblDesc.text = str(btn.item)
+			this.lblDesc.rect.midtop = (600,275)
 			
 			if btn.item.ID != 0:
 				this.lblDesc.visible = True
-				this.btnUse.visible = True
 				this.btnDrop.visible = True
+				if btn.item.ID != 5:
+					this.btnUse.visible = True
+				else:
+					this.btnUse.visible = False
+					
 				
 				if btn.item.Type == 2:
 					if not btn.item.equipped:
@@ -279,7 +284,6 @@ class InventoryState(State):
 		# Functions for handling items
 		def use(btn):
 			if this.selected.item.Type == 2:
-				
 				if this.selected.item.equipped:
 					# unequip weapon
 					this.game.world.player.weapon = None
@@ -287,11 +291,18 @@ class InventoryState(State):
 					this.btnUse.text = "Equip"
 				else:
 					# equip weapon
+					for btn in this.inv.ctrls:
+						if btn.item == this.game.world.player.weapon:
+							btn.text = ""
+							break
 					this.game.world.player.weapon = this.selected.item
 					this.selected.text = "E"
 					this.btnUse.text = "Unequip"
 			else:
-				this.game.world.player.setAtt(this.selected.item.attributes)
+				if this.selected.item.Type == 3:
+					this.game.world.player.setBuff(this.selected.item.attributes)
+				else:
+					this.game.world.player.setAtt(this.selected.item.attributes)
 				this.game.world.removeitem(this.selected)
 				#~ this.selected.item.delete()
 				this.selected.images = [this.invImages[this.selected.item.ID]]
@@ -319,12 +330,12 @@ class InventoryState(State):
 		
 		this.btnUse = gui.Button("Use")
 		this.btnUse.static = True
-		this.btnUse.rect.midtop = (600,350)
+		this.btnUse.rect.midtop = (600,425)
 		this.btnUse.visible = False
 		this.btnUse.onClick = use
 		
 		this.btnDrop = gui.Button("Discard")
-		this.btnDrop.rect.midtop = (600,380)
+		this.btnDrop.rect.midtop = (600,455)
 		this.btnDrop.visible = False
 		this.btnDrop.onClick = drop
 		
@@ -539,14 +550,12 @@ class GameState(State):
 			# Check if player is standing on staircase
 			obj = this.world.player.tile.getObject()
 			if obj != None and obj.name == "stair":
-				if this.world.player.weapon != None:
-					this.world.player.setAtt(this.world.player.weapon.attributes, True)
 				playerhp = this.world.player.hp
 				
 				generator = mapgenerator.MapGenerator()
 				
 				
-				this.world = generator.create("map", this.world.level+1,6,this.world.inventory)
+				this.world = generator.create("map", this.world.level+1,6,this.world.inventory, this.world.player.buffs)
 				this.game.world = this.world
 				this.lblDungeon.text = "Dungeon: " + str(this.world.level)
 				this.world.player.hp = playerhp

@@ -30,7 +30,9 @@ class Item(object):
 	def __str__(this):
 		atts = ""
 		for k in this.attributes.keys():
-			plus = "+" if this.attributes[k] >= 0 else ""
+			plus = ""
+			if this.Type != itemType.buff:
+				plus = "+" if this.attributes[k] >= 0 else ""
 			atts += k + ": " + plus+str(this.attributes[k]) + "\n"
 		
 		# atts[:len(atts)-1] is to remove the last \n
@@ -52,7 +54,7 @@ def getItem(itemid):
 	
 # "Enumerator" of item types
 class itemType():
-	item, consumable, weapon = range(3)
+	item, consumable, weapon, buff = range(4)
 
 def CreateItemList():
 	""" 
@@ -82,8 +84,8 @@ def CreateItemList():
 	stick = Item([1], itemType.weapon, "Cypress Stick", "Used to get out of sticky situations")
 	stick.attributes = {"atk":1}
 		
-	csword = Item([2,3], itemType.weapon, "Cracked Sword", 
-								"It looks like it may break anytime now")
+	csword = Item([2,3], itemType.weapon, "Broken Sword", 
+								"Almost as good as a short sword!")
 	csword.attributes = {"atk":2}
 	
 	sword = Item([3,4], itemType.weapon, "Sword", "An ordinary sword")
@@ -93,28 +95,28 @@ def CreateItemList():
 	rsword.attributes = {"atk":7}
 	
 	# item 10
-	gsword = Item([5,6], itemType.weapon, "Great Sword", "A sword that has been through many battles")
-	gsword.attributes = {"atk":10, "hp":15}
+	bsword = Item([5,6], itemType.weapon, "Broadsword", "Ability: Attacks 3 spaces... not")
+	bsword.attributes = {"atk":7, "hp":15}
 	
-	knife = Item([5,6], itemType.weapon, "Kitchen Knife", "Great for cooking and assassination!")
-	knife.attributes = {"atk":5, "spd":0.15}
+	torch = Item([3,4,5], itemType.buff, "Torch", "Increases sight by 1 for 20 turns")
+	torch.attributes = {"sight":[1,20]}
 	
-	sspd = Item([6,7], itemType.weapon, "Sword of Speeed", "A magical sword that enhances your speed")
-	sspd.attributes = {"atk":10, "hp":10, "spd":0.1}
+	lantern = Item([6,7,8,9,10], itemType.buff, "Lantern", "Increases sight by 3 for 35 turns")
+	lantern.attributes = {"sight":[3,35]}
 	
 	grass = Item([6,7,8], itemType.weapon, "Blade of Grass", "They say you can ever use it to whistle!")
 	grass.attributes = {"atk":6, "hp":-20, "spd":0.4}
 	
-	muramasa=Item([5,6,7], itemType.weapon, "Muramasa", "The cursed Japenese katana")
+	muramasa=Item([5,6,7,8], itemType.weapon, "Muramasa", "The cursed Japenese katana")
 	muramasa.attributes = {"atk":27, "hp":-20, "spd":0.25, "luk":-20}
 	
 	# item 15
 	msword=Item([9,10], itemType.weapon, "Master Sword", "The Sword of Evil's Bane")
-	msword.attributes = {"atk":20, "hp":20, "spd":0.1, "luk":5}
+	msword.attributes = {"atk":20, "hp":20, "spd":0.15, "luk":10}
 	
 	
 	excalibur=Item([10], itemType.weapon, "Excalibur", "This isn't heavy at all...")
-	excalibur.attributes = {"atk":25, "hp":40, "spd":0.1}
+	excalibur.attributes = {"atk":25, "hp":50, "luk":8}
 	
 	hammer = Item([4,5,6,7], itemType.weapon, "Hammer", "Seems like a carpenter got lost")
 	hammer.attributes = {"atk":10, "hp":20, "spd":-0.1}

@@ -57,6 +57,7 @@ class Sprite(pygame.sprite.Sprite, object):
 		this.hpregen = 0.2
 		this.luk = 0
 		
+		this.buffs = {}
 		
 		# This is how many actions per turn the sprite gets to perform
 		# 0.5 means 1 action every 2 turns
@@ -192,6 +193,13 @@ class Sprite(pygame.sprite.Sprite, object):
 		#~ this.__class__._curturn = 2
 		if this.actions >= 1 and not force:
 			return
+		
+		# Handle buffs
+		for k in this.buffs.keys():
+			this.buffs[k][1] -= 1
+			if this.buffs[k][1] == 0:
+				this.setAtt({k:this.buffs[k][0]}, True)
+		
 		this.curturn = 2
 		for m in this.world.monsters:
 			m.curturn = 2
@@ -209,14 +217,24 @@ class Sprite(pygame.sprite.Sprite, object):
 			if k == "hp":
 				this.maxhp += val
 				this.hp += val
+				if this.hp <= 0:
+					this.hp = 1
 			elif k == "atk":
 				this.atk += val
 			elif k == "spd":
 				this.spd += val
 			elif k == "luk":
 				this.luk += val
+			elif k == "sight":
+				this.sight += val
+				this.markTiles()
 			elif k == "heal":
 				this.hp += val
+	
+	def setBuff(this, buffs):
+		for k in buffs.keys():
+			this.buffs[k] = buffs[k][:]
+			this.setAtt({k:buffs[k][0]})
 	
 	def markTiles(this):
 		"""
