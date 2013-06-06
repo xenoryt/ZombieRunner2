@@ -196,4 +196,6 @@ June 2 (4)
 	- Added monster drops
 	- Started creating item sprites
 	- Implemented item use/equip and discard buttons
-	- Added buffs
+	- Added buffs (Torches)
+
+

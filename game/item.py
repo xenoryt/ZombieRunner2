@@ -114,7 +114,6 @@ def CreateItemList():
 	msword=Item([9,10], itemType.weapon, "Master Sword", "The Sword of Evil's Bane")
 	msword.attributes = {"atk":20, "hp":20, "spd":0.15, "luk":10}
 	
-	
 	excalibur=Item([10], itemType.weapon, "Excalibur", "This isn't heavy at all...")
 	excalibur.attributes = {"atk":25, "hp":50, "luk":8}
 	

@@ -237,6 +237,14 @@ class InventoryState(State):
 		this.label.fgColor = Color("#2CF3DB")
 		this.label.rect.topleft = (50,100)
 		
+		# HP Bar to display Player's HP
+		this.hpbar = gui.Bar()
+		this.hpbar.rect.topleft = (15,50)
+		this.hpbar.fgColor = Color("red")
+		this.hpbar.bgColor = Color("#B0DA87")
+		this.hpbar.text = "HP"
+		
+		
 		# Buttons for switching states
 		this.btnResume = gui.Button("Resume")
 		this.btnResume.onClick = lambda x: this.game.revertState()
@@ -385,6 +393,7 @@ class InventoryState(State):
 		this.lblDesc.update()
 		this.btnUse.update()
 		this.btnDrop.update()
+		this.hpbar.value = int(this.game.world.player.hp)
 		
 	def draw(this,screen):
 		if this.drawbg:
@@ -405,6 +414,7 @@ class InventoryState(State):
 		this.lblDesc.draw(screen)
 		this.btnUse.draw(screen)
 		this.btnDrop.draw(screen)
+		this.hpbar.draw(screen)
 
 class GameState(State):
 	def __init__(this, game):
@@ -428,8 +438,8 @@ class GameState(State):
 		this.hpbar = gui.Bar()
 		this.hpbar.rect.topleft = (15,50)
 		this.hpbar.fgColor = Color("red")
-		this.hpbar.bgColor = Color("grey")
-		this.hpbar.text = "hp"
+		this.hpbar.bgColor = Color("#B0DA87")
+		this.hpbar.text = "HP"
 		
 		if not this.game.world.loaded:
 			generator = mapgenerator.MapGenerator()

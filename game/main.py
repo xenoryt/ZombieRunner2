@@ -3,7 +3,7 @@
 #
 #  main.py
 #  
-#  Copyright 2013 Tyrone Xiong <xenoryt@xenobang>
+#  Copyright 2013 Tyrone Xiong <ty.cx@hotmail.com>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -106,13 +106,6 @@ def main():
 	loadImages()
 	item.CreateItemList()
 	
-	#~ world = World()
-	#~ 
-	#~ if not world.load("map"):
-		#~ worldgenerator = MapGenerator()
-		#~ world = worldgenerator.create("map", 1, (100,100), 2)
-	
-	gui.Control()
 	game.run(state.MainMenuState(game))
 	
 	return 0
