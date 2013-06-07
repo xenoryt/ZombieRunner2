@@ -3,6 +3,10 @@ from pygame.locals import *
 import os # for loading fonts
 
 class Control(pygame.sprite.Sprite, object):
+	"""
+	This is the base class for all the GUI controls.
+	"""
+	
 	layer = 5
 	controls = []
 	def __init__(this):
@@ -27,13 +31,6 @@ class Control(pygame.sprite.Sprite, object):
 	@bgColor.setter
 	def bgColor(this, color):
 		this._bgColor = color
-		
-		#~ this.image = pygame.Surface(this.rect.size, pygame.SRCALPHA)
-		#~ if color != None:
-		#~ this.image.fill(this.bgColor)
-		#~ else:
-			#~ this.image.fill(Color(0,0,0,0))
-			#~ this.image = this.image.convert_alpha()
 		this.requireUpdate = True
 	
 	@property
@@ -47,15 +44,15 @@ class Control(pygame.sprite.Sprite, object):
 	
 
 class Container(Control):
+	"""
+	The Container class is a control that stores other controls.
+	The stored controls will be updated/drawn when this
+	control is updated/drawn. This class also organises the 
+	child controls and places them depending on which 
+	row and column they are on.
+	"""
+	
 	def __init__(this, locx = 0, locy = 0):
-		#~ pygame.sprite.Sprite.__init__(this)
-		#~ 
-		#~ this.bgColor = Color("#646464")
-		#~ this.static = False
-		#~ #initialize the background image
-		#~ this.image = pygame.Surface((5,5))
-		#~ this.image.fill(this.bgColor)
-		#~ this.rect = this.image.get_rect(topleft=(locx,locy))
 		super(Container, this).__init__()
 		
 		# Number of rows and columns
@@ -69,9 +66,7 @@ class Container(Control):
 		
 		this.layer = 5
 		
-		# Add this control to the list of controls
 		
-	
 	
 	# Functions that are called by the game
 	def update(this):
@@ -113,8 +108,7 @@ class Container(Control):
 	
 	def resize(this, w,h):
 		#initialize the background image
-		#~ if this.rect.size == (w,h):
-			#~ return
+		
 		this.image = pygame.Surface((w, h), pygame.SRCALPHA)
 		if this.bgColor == None:
 			this.image.set_alpha(0)
@@ -219,17 +213,10 @@ class _Label(Control):
 	multiline labels
 	"""
 	def __init__(this, text="", locx = 0, locy = 0):
-		#~ pygame.sprite.Sprite.__init__(this)
-		#~ 
-		#~ #set default colors
-		#~ this.bgColor = Color('#646464')
-		#~ this.fgColor = Color('black')
 		super(_Label, this).__init__()
 		
 		this._font = pygame.font.Font(os.path.join("data/font","pix.ttf"), 15)
 		this._text = text
-		
-		#~ this.static = False
 		
 		# initialize the background image
 		# set the size to the required size of the text
@@ -245,7 +232,7 @@ class _Label(Control):
 	def font(this, size, f="pix.ttf"):
 		this._font = pygame.font.Font(os.path.join("data/font",f), size)
 		this.requireUpdate = True
-	#TODO: Change resize function to button's?
+	
 	def resize(this, w = -1,h = -1):
 		# Set width and height if none given
 		w,h = this._font.size(this.text)
@@ -255,23 +242,8 @@ class _Label(Control):
 		#~ this.image = this.image.convert_alpha()
 		if this.bgColor != None:
 			this.image.fill(this.bgColor)
-		#~ else:
-			#~ this.image = this.image.convert_alpha()
-			#~ this.image.fill(Color(255,255,255,120))
-			
 
-			
 		this.rect = this.image.get_rect(topleft=this.rect.topleft)
-	
-	#~ @property
-	#~ def bgColor(this):
-		#~ return this.bgColor
-	#~ 
-	#~ @bgColor.setter
-	#~ def bgColor(this, color):
-		#~ this._bgColor = color
-		#~ this.image = pygame.Surface(this.rect.size)
-		#~ this.image.fill(this.bgColor)
 	
 	@property
 	def text(this):
@@ -347,6 +319,13 @@ class Label(Container):
 
 
 class Button(Control):
+	"""
+	The Button class is the only class that handles mouse clicks.
+	What the button does when clicked can be set by assigning
+	the onClick method to another delegate. 
+	The Button class can also be used as a picturebox
+	"""
+	
 	mouseup = False
 	images = []
 	def __init__(this, text="", locx = 0, locy = 0, width=0,height=0):
@@ -448,12 +427,19 @@ class Button(Control):
 		return 0
 
 class Bar(Control):
+	"""
+	The Bar class is a progress bar and fills up 
+	according to the value and maxvalue given
+	"""
+	
 	images = None
 	
 	def __init__(this, size = (100,20), value = 0):
 		super (Bar, this).__init__()
 		this.resize(size)
+		this._maxvalue = 100
 		this._value = value
+		
 		
 		this._font = pygame.font.Font(os.path.join("data/font","pix.ttf"), 12)
 		this._text = ""
@@ -489,7 +475,7 @@ class Bar(Control):
 		
 		# Padding used in the background image
 		pad = 2
-		barw = int(round((this.rect.size[0]-pad*2)* float(val)/100))
+		barw = int(round((this.rect.size[0]-pad*2)* float(val)/this.maxvalue))
 		bar = pygame.Rect(pad,pad, barw, this.rect.h-pad*2)
 		
 		this.image.fill(this.fgColor,bar)
@@ -503,6 +489,34 @@ class Bar(Control):
 		
 		this.image.blit(text, textpos)
 		
+	@property
+	def maxvalue(this):
+		return this._maxvalue
+	
+	@maxvalue.setter
+	def maxvalue(this, val):
+		if val == this._maxvalue:
+			return
+		
+		this._maxvalue = val
+		
+		this.image = this.images.copy()
+		
+		# Padding used in the background image
+		pad = 2
+		barw = int(round((this.rect.size[0]-pad*2)* float(val)/this.maxvalue))
+		bar = pygame.Rect(pad,pad, barw, this.rect.h-pad*2)
+		
+		this.image.fill(this.fgColor,bar)
+		
+		this._value = val
+		
+		text = this._font.render(this.text+": "+str(this.value), True, this.bgColor)
+		textpos = text.get_rect()
+		textpos.centerx = this.rect.size[0]/2
+		textpos.centery = this.rect.size[1]/2
+		
+		this.image.blit(text, textpos)
 	
 	def resize(this, size):
 		if this.rect.size != size:
@@ -510,10 +524,6 @@ class Bar(Control):
 			this.rect = this.image.get_rect(topleft = this.rect.topleft)
 	
 	def update(this):
-		#~ if this.requireUpdate:
-			#~ this.resize(this.rect.size)
-			#~ this.requireUpdate = False
-			#~ print this.rect
 		pass
 		
 	

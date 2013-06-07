@@ -2,7 +2,11 @@ items = [[] for i in range(10)]
 nullitem = None
 
 class Item(object):
-	# This variable is static (same across all class instances
+	"""
+	The Item class is used to store information on items 
+	"""
+	
+	# This variable is static (same across all class instances)
 	_curID = 0 
 	
 	def __init__(this, lvlrange, type = 0, name = "", desc = ""): #initializer
@@ -108,19 +112,19 @@ def CreateItemList():
 	grass.attributes = {"atk":6, "hp":-20, "spd":0.4}
 	
 	muramasa=Item([5,6,7,8], itemType.weapon, "Muramasa", "The cursed Japenese katana")
-	muramasa.attributes = {"atk":27, "hp":-20, "spd":0.25, "luk":-20}
+	muramasa.attributes = {"atk":27, "hp":-20, "spd":0.35, "luk":-20}
 	
 	# item 15
 	msword=Item([9,10], itemType.weapon, "Master Sword", "The Sword of Evil's Bane")
-	msword.attributes = {"atk":20, "hp":20, "spd":0.15, "luk":10}
+	msword.attributes = {"atk":17, "hp":20, "spd":0.5, "luk":20}
 	
 	excalibur=Item([10], itemType.weapon, "Excalibur", "This isn't heavy at all...")
-	excalibur.attributes = {"atk":25, "hp":50, "luk":8}
+	excalibur.attributes = {"atk":23, "hp":50, "luk":10}
 	
-	hammer = Item([4,5,6,7], itemType.weapon, "Hammer", "Seems like a carpenter got lost")
-	hammer.attributes = {"atk":10, "hp":20, "spd":-0.1}
+	hammer = Item([6,7,8], itemType.weapon, "Hammer", "Seems like a carpenter got lost")
+	hammer.attributes = {"atk":17, "hp":60, "spd":-0.15, "luk":-15}
 	
-	thammer = Item([7,8,9], itemType.weapon, "Thor's Hammer", "A hammer used by Thor...\nHow did it end up here?")
-	thammer.attributes = {"atk":20, "hp":100, "spd":-0.25, "luk":-15}
+	thammer = Item([9,10], itemType.weapon, "Thor's Hammer", "A hammer used by Thor...\nHow did it end up here?")
+	thammer.attributes = {"atk":33, "hp":125, "spd":-0.3}
 	
 	return items

@@ -14,8 +14,8 @@ class World:
 	A class that stores all the information about a single map.
 	It is capable of loading a new map from a file and can also
 	create a new blank map given a size.
-	Individual tiles of the map can be accessed through [x, y]
-	or through [y][x].
+	The world stores data such as the tiles, monsters, inventory and 
+	level.
 	"""
 	
 	# Constructor
@@ -68,22 +68,6 @@ class World:
 			return map[y][x]
 		else:
 			return this.map[index]
-	
-	# Override = operator (to be fixed)
-	#~ def __set__(this, newmap):
-		#~ print "Setting"
-		#~ this.size = len(newmap), len(newmap[0])
-		#~ if type(newmap[0][0]) == str:
-			#~ this.map = this.charmap
-			#~ for y in range(len(this.charmap)):
-				#~ for x in range(len(this.charmap[y])):
-					#~ this.map[y][x] = Type.conv(this.charmap[y][x])
-		#~ else:
-			#~ this.map = newmap
-			#~ this.charmap = newmap
-			#~ for y in range(len(this.charmap)):
-				#~ for x in range(len(this.charmap[y])):
-					#~ this.charmap[y][x] = Type.char(this.map[y][x])
 	
 	@property
 	def mapsize(this):
@@ -187,52 +171,68 @@ class World:
 			chest.rect.topleft = (locx*48, locy*48)
 			chest.tile = this.map[locy][locx]
 			this.objects.append(chest)
-		if name == "stair":
+		elif name == "stair":
 			stair = sprite.Stair(this.level, this)
 			stair.rect.topleft = (locx*48, locy*48)
 			stair.tile = this.map[locy][locx]
 			this.objects.append(stair)
-		if name == "player":
+		elif name == "player":
 			this.player = sprite.Sprite(this)
 			this.player.rect.topleft = (locx*48, locy*48)
 			this.player.tile = this.map[locy][locx]
 			if hp != -1:
 				this.player.hp = hp
-		if name == "monster":
+		elif name == "monster":
 			m = sprite.Monster(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
 			if hp != -1:
 				m.hp = hp
 			this.monsters.append(m)
-		if name == "bat":
+		elif name == "bat":
 			m = sprite.Bat(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
 			if hp != -1:
 				m.hp = hp
 			this.monsters.append(m)
-		if name == "skel":
+		elif name == "skel":
 			m = sprite.Skel(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
 			if hp != -1:
 				m.hp = hp
 			this.monsters.append(m)
-		if name == "reaper":
+		elif name == "reaper":
 			m = sprite.Reaper(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
 			if hp != -1:
 				m.hp = hp
 			this.monsters.append(m)
-		if name == "dragon":
+		elif name == "dragon":
 			m = sprite.Dragon(this.level, this)
 			m.rect.topleft = (locx*48, locy*48)
 			m.tile = this.map[locy][locx]
 			if hp != -1:
 				m.hp = hp
 			this.monsters.append(m)
+		elif name == "slave":
+			print "placing slave"
+			m = sprite.Slave(this.level, this)
+			m.rect.topleft = (locx*48, locy*48)
+			m.tile = this.map[locy][locx]
+			if hp != -1:
+				m.hp = hp
+			this.monsters.append(m)
+		elif name == "boss":
+			m = sprite.Boss(this.level, this)
+			m.rect.topleft = (locx*48, locy*48)
+			m.tile = this.map[locy][locx]
+			if hp != -1:
+				m.hp = hp
+			this.monsters.append(m)
+		
 	
 	def loadInventory(this):
 		try:

@@ -198,4 +198,9 @@ June 2 (4)
 	- Implemented item use/equip and discard buttons
 	- Added buffs (Torches)
 
-
+June 6 (3)
+	- Created the rest of the inventory images
+	- Created boss monster
+	- Created boss AI
+	- Created slave monster (summoned by boss)
+	- Fixed bug where hp bar glitches when hp > 100

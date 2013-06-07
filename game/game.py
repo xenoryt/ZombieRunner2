@@ -6,6 +6,11 @@ import copy
 
 ## This is a singleton class ##
 class Game(object):
+	"""
+	This is a singleton class.
+	This class handles the how the game runs and game states
+	"""
+	
 	def __init__(this, screensize = (800,600), caption = "ZombieRunner 2: Survival of Tears"):
 		this.running = False
 		this._paused = False
@@ -53,6 +58,8 @@ class Game(object):
 					continue
 					
 				dirty = this.state.draw(this.screen)
+				
+				## For more efficient blitting (not implemented)
 				if type(dirty) == type([]):
 					pygame.display.update(dirty)
 				else:

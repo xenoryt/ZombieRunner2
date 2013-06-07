@@ -394,6 +394,7 @@ class InventoryState(State):
 		this.btnUse.update()
 		this.btnDrop.update()
 		this.hpbar.value = int(this.game.world.player.hp)
+		this.hpbar.maxvalue = this.game.world.player.maxhp
 		
 	def draw(this,screen):
 		if this.drawbg:
@@ -560,6 +561,14 @@ class GameState(State):
 			# Check if player is standing on staircase
 			obj = this.world.player.tile.getObject()
 			if obj != None and obj.name == "stair":
+				if this.world.level >= 10:
+					this.game.msgbox("You Win!")
+					del this.world
+					this.game.world.loaded = False
+					this.game.msgbox(msg)
+					this.died = True
+					return 
+					
 				playerhp = this.world.player.hp
 				
 				generator = mapgenerator.MapGenerator()
@@ -590,6 +599,7 @@ class GameState(State):
 		
 		hp = this.world.player.hp
 		this.hpbar.value = int(hp)
+		this.hpbar.maxvalue = this.game.world.player.maxhp
 		this.lblDungeon.update()
 	
 	def draw(this, screen):

@@ -484,14 +484,18 @@ class MapGenerator:
 				world.player.weapon = item
 				break
 		
-		# Set staircase location
+		# Set staircase/boss location
 		while(True):
 			loc = random.choice(cleared)
 			if loc in placed:
 				continue
 			placed.append(loc)
 			break
-		world.placeObject("stair", loc[0], loc[1])
+		
+		if world.level >= 10:
+			world.placeObject("boss", loc[0], loc[1])
+		else:
+			world.placeObject("stair", loc[0], loc[1])
 		
 		# Set chest locations
 		for chest in range(nchests):

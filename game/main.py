@@ -22,6 +22,7 @@
 #  
 #  
 
+# This is the main program. 
 # Only tested to run on python 2.7
 
 import pygame, sys
@@ -39,6 +40,10 @@ import item
 import gui
 		
 def loadImages():
+	"""
+	Loads all the images used in the game
+	"""
+	
 	files = ["floor.png", "wall.png"]
 	for file in files:
 		tile.Tile.images.append(pygame.image.load(os.path.join("data",file)))
@@ -73,6 +78,17 @@ def loadImages():
 	sprite.loadImages(sprite.Dragon, "dragon_right.png", "right")
 	sprite.loadImages(sprite.Dragon, "dragon_left.png", "left")
 	
+	sprite.loadImages(sprite.Slave, "ghost_up.png", "up")
+	sprite.loadImages(sprite.Slave, "ghost_down.png", "down")
+	sprite.loadImages(sprite.Slave, "ghost_right.png", "right")
+	sprite.loadImages(sprite.Slave, "ghost_left.png", "left")
+	
+	sprite.loadImages(sprite.Boss, "boss_up.png", "up")
+	sprite.loadImages(sprite.Boss, "boss_down.png", "down")
+	sprite.loadImages(sprite.Boss, "boss_right.png", "right")
+	sprite.loadImages(sprite.Boss, "boss_left.png", "left")
+	
+	
 	sprite.Chest.image = pygame.image.load(os.path.join("data","chest.png"))
 	sprite.Stair.image = pygame.image.load(os.path.join("data","stairs2.png"))
 	
@@ -85,20 +101,18 @@ def loadImages():
 									  4:pygame.image.load(os.path.join("data/items","white_potion.png")),
 									  5:pygame.image.load(os.path.join("data/items","rock.png")),
 									  6:pygame.image.load(os.path.join("data/items","cypress_stick.png")),
-									  7:pygame.image.load(os.path.join("data/items","item.png")),
-									  8:pygame.image.load(os.path.join("data/items","item.png")),
-									  9:pygame.image.load(os.path.join("data/items","item.png")),
-									  10:pygame.image.load(os.path.join("data/items","item.png")),
+									  7:pygame.image.load(os.path.join("data/items","broken_sword.png")),
+									  8:pygame.image.load(os.path.join("data/items","sword.png")),
+									  9:pygame.image.load(os.path.join("data/items","silver_sword.png")),
+									  10:pygame.image.load(os.path.join("data/items","broadsword.png")),
 									  11:pygame.image.load(os.path.join("data/items","Torch.png")),
 									  12:pygame.image.load(os.path.join("data/items","lantern.png")),
-									  13:pygame.image.load(os.path.join("data/items","Blade_of_Grass.png")),
+									  13:pygame.image.load(os.path.join("data/items","blade_of_grass.png")),
 									  14:pygame.image.load(os.path.join("data/items","muramasa.png")),
 									  15:pygame.image.load(os.path.join("data/items","Master_Sword_edited.png")),
-									  16:pygame.image.load(os.path.join("data/items","item.png")),
-									  17:pygame.image.load(os.path.join("data/items","item.png")),
-									  18:pygame.image.load(os.path.join("data/items","item.png")),
-									  19:pygame.image.load(os.path.join("data/items","item.png")),
-									  20:pygame.image.load(os.path.join("data/items","item.png"))
+									  16:pygame.image.load(os.path.join("data/items","excalibur.png")),
+									  17:pygame.image.load(os.path.join("data/items","hammer.png")),
+									  18:pygame.image.load(os.path.join("data/items","thor_hammer.png"))
 									  }
 
 def main():

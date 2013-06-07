@@ -492,7 +492,7 @@ class Monster(Sprite):
 		# If dead, kill self
 		if this.hp <= 0:
 			# Drop chest at a random chance
-			if random.randint(0,99) < 5+this.world.player.luk*0.25:
+			if random.randint(0,99) < 7+this.world.player.luk*0.25:
 				this.world.placeObject("chest",this.tile.gridloc[0],this.tile.gridloc[1])
 			
 			this.tile = None
@@ -624,7 +624,105 @@ class Reaper(Monster):
 			this.spd = 0.8
 		
 		this.hp = this.maxhp
+
+class Slave(Monster):
+	"""
+	The monster the boss summons
+	"""
+	images = {}
 	
+	def __init__(this, level, world = None):
+		super(Slave, this).__init__(level, world)
+		this.name = "slave"
+		this.maxhp = 30
+		this.atk = 5+level
+		this.spd = 0.8
+		this.sight = 4
+		this.hp = this.maxhp
+
+class Boss(Monster):
+	"""
+	Final boss at game. Spawns at level 10
+	"""
+	images = {}
+	
+	def __init__(this, level, world = None):
+		super(Boss, this).__init__(level, world)
+		this.name = "boss"
+		this.maxhp = 2500
+		
+		this.atk = 30
+		this.spd = 0.5
+		this.sight = 2
+		this.hp = this.maxhp
+	
+	def update(this):
+		# If dead, kill self
+		if this.hp <= 0:
+			# Drop chest at a random chance
+			if random.randint(0,99) < 7+this.world.player.luk*0.25:
+				this.world.placeObject("stair",this.tile.gridloc[0],this.tile.gridloc[1])
+			
+			this.tile = None
+			this.world.monsters.remove(this)
+			
+			
+			del this
+			return False
+		
+		
+		
+		if this.actions < 1 and this.curturn == this.turn:
+			this.doneturn()
+		
+		if this.curturn == this.turn and this.actions >= 1 and not this.moving:
+			this.move(this.ai.nextStep())
+			if this.tile.distance < 6 and random.randint(0,99) < 30:
+				print "Summoning slave"
+				locx, locy = -1,-1
+				for tries in range(10):
+					locx = this.tile.gridloc[0] + random.randint(-2,2)
+					locy = this.tile.gridloc[1] + random.randint(-2,2)
+					print locx,locy
+					if this.world.map[locy][locx].passable:
+						break
+					else:
+						locx = -1
+						locy = -1
+				if locx != -1 and locy != -1:
+					this.world.placeObject("slave",locx,locy)
+		
+		
+		if this.moving:
+			# Move the monster
+			this.rect.x += directions[this.direction][0]*4
+			this.rect.y += directions[this.direction][1]*4
+			
+			if this.rect.center == this.nextTile.rect.center:
+				this.moving = False
+				this.tile = this.nextTile
+				this.nextTile = None
+				this.doneturn()
+				
+			# Update animation
+			this.aniframe += this.nextframe
+			nimages = len(this.images[this.direction])
+			if round(this.aniframe, 1) == nimages-1 or round(this.aniframe, 1) == 0:
+				this.nextframe = -this.nextframe
+		elif this.attacking:
+			this.atkframe += 1
+			if this.atkframe == 12:
+				this.attacking = False
+				this.doneturn()
+			
+			offsetx = this.tile.rect.centerx
+			offsety = this.tile.rect.centery
+			
+			if this.attacking and this.atkframe < 10:	
+				offsetx = this.tile.rect.centerx + directions[this.direction][0]*16
+				offsety = this.tile.rect.centery + directions[this.direction][1]*16
+				
+			this.rect.center = (offsetx, offsety)
 
 
 class Object(pygame.sprite.Sprite, object):
